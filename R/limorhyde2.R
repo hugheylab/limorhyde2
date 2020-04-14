@@ -264,10 +264,12 @@ getDiffRhythmTests = function(fit, diffRhythmStats, qvalCutoffRhy = 0.2) {
 
 
 #' @export
-getDiffRhythmAsh = function(diffRhythmStats, diffRhythmTests, ci = FALSE, ...) {
+getDiffRhythmAsh = function(diffRhythmStats, diffRhythmTests,
+                            mixcompdist = 'halfnormal', ci = FALSE, ...) {
 
+  # mesor
   dNow = diffRhythmStats[variable == 'diff_mesor']
-  ashObj = dNow[, ashr::ash(estimate, se, ...)]
+  ashObj = dNow[, ashr::ash(estimate, se, mixcompdist = mixcompdist, ...)]
   dm = cbind(dNow[, .(feature, variable)], data.table::setDT(ashObj$result))
   if (isTRUE(ci)) {
     ciMat = ashr::ashci(ashObj)
@@ -278,14 +280,20 @@ getDiffRhythmAsh = function(diffRhythmStats, diffRhythmTests, ci = FALSE, ...) {
                diffRhythmTests[!is.na(qval_diff_rhy), .(feature)],
                by = 'feature')
 
-  ashObj = dNow[variable == 'diff_amp', ashr::ash(estimate, se, ...)]
+  # amplitude
+  ashObj = dNow[variable == 'diff_amp',
+                ashr::ash(estimate, se, mixcompdist = mixcompdist, ...)]
+
   da = cbind(dNow[variable == 'diff_amp', .(feature, variable)],
              data.table::setDT(ashObj$result))
   if (isTRUE(ci)) {
     ciMat = ashr::ashci(ashObj)
     da[, `:=`(credint_lower = ciMat[, 1L], credint_upper = ciMat[, 2L])]}
 
-  ashObj = dNow[variable == 'diff_phase', ashr::ash(estimate, se, ...)]
+  # phase
+  ashObj = dNow[variable == 'diff_phase',
+                ashr::ash(estimate, se, mixcompdist = mixcompdist, ...)]
+
   dp = cbind(dNow[variable == 'diff_phase', .(feature, variable)],
              data.table::setDT(ashObj$result))
   if (isTRUE(ci)) {
