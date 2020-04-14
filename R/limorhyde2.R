@@ -70,7 +70,7 @@ getModelFit = function(x, metadata, condColname = 'cond', timeColname = 'time',
   return(fit)}
 
 
-getTopTables = function(fit, qvalCutoffRhy = 0.2, sort = TRUE) {
+getTopTables = function(fit, qvalRhyCutoff = 0.2, sort = TRUE) {
   dCond = limma::topTable(fit, coef = fit$cond_idx, number = Inf,
                           sort.by = 'none', confint = TRUE) # only has confint if 2 levels
   dCond = data.table(dCond, keep.rownames = TRUE)
@@ -87,7 +87,7 @@ getTopTables = function(fit, qvalCutoffRhy = 0.2, sort = TRUE) {
   setnames(dCondTime, 'rn', 'feature')
 
   dCondTime[, adj.P.Val := NA_real_]
-  dCondTime[dTime[adj.P.Val <= qvalCutoffRhy, which = TRUE],
+  dCondTime[dTime[adj.P.Val <= qvalRhyCutoff, which = TRUE],
             adj.P.Val := stats::p.adjust(P.Value, 'BH')]
 
   if (isTRUE(sort)) {
@@ -241,8 +241,8 @@ getDiffRhythmStats = function(fit, rhythmStats, conds = fit$cond_levels[1:2],
 
 
 #' @export
-getDiffRhythmTests = function(fit, diffRhythmStats, qvalCutoffRhy = 0.2) {
-  topTables = getTopTables(fit, qvalCutoffRhy)
+getDiffRhythmTests = function(fit, diffRhythmStats, qvalRhyCutoff = 0.2) {
+  topTables = getTopTables(fit, qvalRhyCutoff)
   d1 = merge(topTables$cond_time[, .(feature, pval_diff_rhy = P.Value, qval_diff_rhy = adj.P.Val)],
              topTables$time[, .(feature, pval_rhy = P.Value, qval_rhy = adj.P.Val)],
              by = 'feature', sort = FALSE)
