@@ -8,7 +8,8 @@ globalVariables(c('estimate', 'feature', 'variable', 'se', 'meanNow', 'j', 'ix',
                   'iy', 'jx', 'jy', 'pval_diff_amp', 'pval_diff_mesor',
                   'pval_diff_phase', 'P.Value', 'adj.P.Val', 'cond', 'varNow',
                   'qval_diff_phase', 'qval_diff_rhy', 'pval_diff_rhy',
-                  '.', 'pval_rhy', 'qval_diff_amp', 'qval_diff_mesor'))
+                  '.', 'pval_rhy', 'qval_diff_amp', 'qval_diff_mesor',
+                  'cond_lev', 'cond_num', 'model_comp', 'coef_idx'))
 
 
 addIntercept = function(b, intercept) {
@@ -62,27 +63,40 @@ getModelFit = function(x, metadata, condColname = 'cond', timeColname = 'time',
   fit = limma::lmFit(x, design)
   fit = limma::eBayes(fit, trend = TRUE, ...)
 
-  fit$cond_levels = levels(metadata$cond)
-  fit$cond_idx = 2:length(fit$cond_levels)
-  fit$time_idx = (1 + max(fit$cond_idx)):(2 + max(fit$cond_idx))
-  fit$cond_time_idx = (1 + max(fit$time_idx)):(max(fit$time_idx) + 2 * (length(fit$cond_levels) - 1))
+  levs = levels(metadata$cond)
+  fit$coef_lookup = data.table(cond_lev = rep(levs, each = 3),
+                               model_comp = rep(c('intercept', 'cost', 'sint'),
+                                                length(levs)))
+  fit$coef_lookup[, cond_lev := factor(cond_lev, levs)]
+  fit$coef_lookup[, cond_num := as.numeric(cond_lev)]
+  fit$coef_lookup[cond_num == 1L, coef_idx := c(1, length(levs) + 1:2)]
+  for (i in 2:length(levs)) {
+    fit$coef_lookup[cond_num == i,
+                    coef_idx := c(i, length(levs) + i + c(1, length(levs)))]}
+
+  # fit$cond_levels = levels(metadata$cond)
+  # fit$cond_idx = 2:length(fit$cond_levels)
+  # fit$time_idx = (1 + max(fit$cond_idx)):(2 + max(fit$cond_idx))
+  # fit$cond_time_idx = (1 + max(fit$time_idx)):(max(fit$time_idx) + 2 * (length(fit$cond_levels) - 1))
   fit$period = period
   return(fit)}
 
 
 getTopTables = function(fit, qvalRhyCutoff = 0.2, sort = TRUE) {
-  dCond = limma::topTable(fit, coef = fit$cond_idx, number = Inf,
-                          sort.by = 'none', confint = TRUE) # only has confint if 2 levels
+  coefIdx = fit$coef_lookup[model_comp == 'intercept' & cond_num != 1L]$coef_idx
+  dCond = limma::topTable(fit, coef = coefIdx, number = Inf, sort.by = 'none',
+                          confint = TRUE)
+  # confint only returned if <= 2 levels
   dCond = data.table(dCond, keep.rownames = TRUE)
   setnames(dCond, 'rn', 'feature')
 
-  dTime = limma::topTable(fit, coef = c(fit$time_idx, fit$cond_time_idx),
-                          number = Inf, sort.by = 'none')
+  coefIdx = fit$coef_lookup[model_comp != 'intercept']$coef_idx
+  dTime = limma::topTable(fit, coef = coefIdx, number = Inf, sort.by = 'none')
   dTime = data.table(dTime, keep.rownames = TRUE)
   setnames(dTime, 'rn', 'feature')
 
-  dCondTime = limma::topTable(fit, coef = fit$cond_time_idx,
-                              number = Inf, sort.by = 'none')
+  coefIdx = fit$coef_lookup[model_comp != 'intercept' & cond_num != 1L]$coef_idx
+  dCondTime = limma::topTable(fit, coef = coefIdx, number = Inf, sort.by = 'none')
   dCondTime = data.table(dCondTime, keep.rownames = TRUE)
   setnames(dCondTime, 'rn', 'feature')
 
@@ -114,14 +128,14 @@ getStdErrs = function(g, meanEst, varEst, covBase) {
 #' @export
 getRhythmStats = function(fit) {
   co = fit$coefficients
-  levs = fit$cond_levels
+  # levs = fit$cond_levels
 
   i = 1L
-  d1 = data.table(cond = levs[i],
+  d1 = data.table(cond = fit$coef_lookup[cond_num == i]$cond_lev[1L],# levs[i],
                   feature = rep(rownames(co), 3),
                   variable = rep(c('mesor', 'amp', 'phase'), each = nrow(co)))
 
-  c(ix, iy) %<-% fit$time_idx
+  c(ix, iy) %<-% fit$coef_lookup[cond_num == i & model_comp != 'intercept']$coef_idx # fit$time_idx
   d1[variable == 'mesor', estimate := co[, i]]
   d1[variable == 'amp', estimate := sqrt(co[, ix]^2 + co[, iy]^2)]
   d1[variable == 'phase', estimate := atan2(co[, iy], co[, ix])]
@@ -134,12 +148,15 @@ getRhythmStats = function(fit) {
   seMat[, 3] = seMat[, 3] * fit$period / 2 / pi
   d1[, se := as.vector(seMat)]
 
-  d2 = foreach(j = 2:length(levs), .combine = rbind) %dopar% {
-    dj = data.table(cond = levs[j],
+  d2 = foreach(j = 2:length(levels(fit$coef_lookup$cond_lev)),
+               .combine = rbind) %dopar% {
+
+    dj = data.table(cond = fit$coef_lookup[cond_num == j]$cond_lev[1L],
                     feature = rep(rownames(co), 3),
                     variable = rep(c('mesor', 'amp', 'phase'), each = nrow(co)))
 
-    c(jx, jy) %<-% fit$cond_time_idx[(2 * (j - 1) - 1):(2 * (j - 1))]
+    # c(jx, jy) %<-% fit$cond_time_idx[(2 * (j - 1) - 1):(2 * (j - 1))]
+    c(jx, jy) %<-% fit$coef_lookup[cond_num == j & model_comp != 'intercept']$coef_idx
 
     dj[variable == 'mesor',
        estimate := co[, i] + co[, j]]
@@ -166,9 +183,10 @@ getRhythmStats = function(fit) {
 
 
 #' @export
-getDiffRhythmStats = function(fit, rhythmStats, conds = fit$cond_levels[1:2],
+getDiffRhythmStats = function(fit, rhythmStats,
+                              conds = levels(fit$coef_lookup$cond_lev)[1:2],
                               confLevel = 0.95) {
-  stopifnot(length(conds) == 2, all(conds %in% fit$cond_levels),
+  stopifnot(length(conds) == 2, all(conds %in% levels(fit$coef_lookup$cond_lev)),
             length(confLevel) == 1, is.numeric(confLevel),
             confLevel > 0, confLevel < 1)
 
@@ -185,7 +203,9 @@ getDiffRhythmStats = function(fit, rhythmStats, conds = fit$cond_levels[1:2],
   d1[variable == 'diff_phase' & estimate < (-fit$period / 2),
      estimate := estimate + fit$period]
 
-  if (conds[1] == fit$cond_levels[1]) {
+  levs = levels(fit$coef_lookup$cond_lev)
+
+  if (conds[1L] == levs[1L]) { #fit$cond_levels[1]) {
     # cos1 -> x2
     # sin1 -> x3
     # cos2 -> x2 + x4
@@ -194,10 +214,15 @@ getDiffRhythmStats = function(fit, rhythmStats, conds = fit$cond_levels[1:2],
                     ~ sqrt((x2 + x4)^2 + (x3 + x5)^2) - sqrt(x2^2 + x3^2),
                     ~ atan2(x2 * (x3 + x5) - x3 * (x2 + x4),
                             x2 * (x2 + x4) + x3 * (x3 + x5)))
-    idxTmp = match(conds[2], fit$cond_levels) - 1
-    idx = c(idxTmp + 1, fit$time_idx,
-            fit$cond_time_idx[(2 * idxTmp - 1):(2 * idxTmp)])
-  } else if (conds[2] == fit$cond_levels[1]) {
+
+    # idxTmp = match(conds[2], fit$cond_levels) - 1
+    # idx = c(idxTmp + 1, fit$time_idx,
+    #         fit$cond_time_idx[(2 * idxTmp - 1):(2 * idxTmp)])
+    idx = c(fit$coef_lookup[cond_lev == conds[2L] & model_comp == 'intercept']$coef_idx,
+            fit$coef_lookup[cond_lev == conds[1L] & model_comp != 'intercept']$coef_idx,
+            fit$coef_lookup[cond_lev == conds[2L] & model_comp != 'intercept']$coef_idx)
+
+  } else if (conds[2L] == levs[1L]) { #fit$cond_levels[1]) {
     # cos1 -> x2 + x4
     # sin1 -> x3 + x5
     # cos2 -> x2
@@ -206,9 +231,14 @@ getDiffRhythmStats = function(fit, rhythmStats, conds = fit$cond_levels[1:2],
                     ~ sqrt(x2^2 + x3^2) - sqrt((x2 + x4)^2 + (x3 + x5)^2),
                     ~ atan2((x2 + x4) * x3 - (x3 + x5) * x2,
                             x2 * (x2 + x4) + x3 * (x3 + x5)))
-    idxTmp = match(conds[2], fit$cond_levels) - 1
-    idx = c(idxTmp + 1, fit$time_idx,
-            fit$cond_time_idx[(2 * idxTmp - 1):(2 * idxTmp)])
+
+    # idxTmp = match(conds[2], fit$cond_levels) - 1
+    # idx = c(idxTmp + 1, fit$time_idx,
+    #         fit$cond_time_idx[(2 * idxTmp - 1):(2 * idxTmp)])
+    idx = c(fit$coef_lookup[cond_lev == conds[2L] & model_comp == 'intercept']$coef_idx,
+            fit$coef_lookup[cond_lev == conds[1L] & model_comp != 'intercept']$coef_idx,
+            fit$coef_lookup[cond_lev == conds[2L] & model_comp != 'intercept']$coef_idx)
+
   } else {
     # cos1 -> x3 + x5
     # sin1 -> x4 + x6
@@ -219,14 +249,20 @@ getDiffRhythmStats = function(fit, rhythmStats, conds = fit$cond_levels[1:2],
                       sqrt((x3 + x7)^2 + (x4 + x8)^2),
                     ~ atan2(x3 + x5 * (x4 + x8) - (x4 + x6) * (x3 + x7),
                             (x3 + x5) * (x3 + x7) + (x4 + x6) * (x4 + x8)))
-    idxTmp = match(conds, fit$cond_levels) - 1
-    idx = c(idxTmp + 1, fit$time_idx,
-            fit$cond_time_idx[(2 * idxTmp[1] - 1):(2 * idxTmp[1])],
-            fit$cond_time_idx[(2 * idxTmp[2] - 1):(2 * idxTmp[2])])}
+
+    # idxTmp = match(conds, fit$cond_levels) - 1
+    # idx = c(idxTmp + 1, fit$time_idx,
+    #         fit$cond_time_idx[(2 * idxTmp[1] - 1):(2 * idxTmp[1])],
+    #         fit$cond_time_idx[(2 * idxTmp[2] - 1):(2 * idxTmp[2])])
+    idx = c(fit$coef_lookup[cond_lev == conds[1L] & model_comp == 'intercept']$coef_idx,
+            fit$coef_lookup[cond_lev == conds[2L] & model_comp == 'intercept']$coef_idx,
+            fit$coef_lookup[cond_num == 1L & model_comp != 'intercept']$coef_idx,
+            fit$coef_lookup[cond_lev == conds[1L] & model_comp != 'intercept']$coef_idx,
+            fit$coef_lookup[cond_lev == conds[2L] & model_comp != 'intercept']$coef_idx)}
 
   seMat = getStdErrs(formList, fit$coefficients[, idx],
                      fit$s2.post, fit$cov.coefficients[idx, idx])
-  seMat[, 3] = seMat[, 3] * fit$period / 2 / pi
+  seMat[, 3L] = seMat[, 3L] * fit$period / 2 / pi
   d2 = data.table(feature = rep(rownames(fit), 3),
                   variable = rep(c('diff_mesor', 'diff_amp', 'diff_phase'), each = nrow(fit)),
                   se = as.vector(seMat))
