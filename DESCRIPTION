@@ -1,7 +1,7 @@
 Package: limorhyde2
 Type: Package
 Title: title here
-Version: 0.0.0.9003
+Version: 0.0.0.9004
 Authors@R: as.person("Jake Hughey <jakejhughey@gmail.com> [aut, cre]")
 Description: This does stuff.
 URL: https://github.com/hugheylab/limorhyde2

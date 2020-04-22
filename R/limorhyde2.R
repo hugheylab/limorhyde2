@@ -1,4 +1,4 @@
-#' @importFrom data.table data.table := setnames setorder setcolorder
+#' @importFrom data.table data.table := setnames setorderv setcolorder setDT
 #' @importFrom foreach foreach %do% %dopar%
 #' @importFrom zeallot %<-%
 NULL
@@ -15,7 +15,7 @@ globalVariables(c('estimate', 'feature', 'variable', 'se', 'meanNow', 'j', 'ix',
 addIntercept = function(b, intercept) {
   if (intercept) {
     b = cbind(1, b)
-    colnames(b)[1] = 'intercept'}
+    colnames(b)[1L] = 'intercept'}
   return(b)}
 
 
@@ -31,7 +31,7 @@ getCosinorBasis = function(x, period, intercept) {
 getModelFit = function(x, metadata, condColname = 'cond', timeColname = 'time',
                        period = 24, formSupp = NULL, ...) {
   # columns of x must correspond to rows of metadata
-  stopifnot(length(period) == 1, is.numeric(period), period > 0)
+  stopifnot(length(period) == 1L, is.numeric(period), period > 0)
 
   metadata = data.table(metadata)
   setnames(metadata, c(condColname, timeColname), c('cond', 'time'))
@@ -105,9 +105,9 @@ getTopTables = function(fit, qvalRhyCutoff = 0.2, sort = TRUE) {
             adj.P.Val := stats::p.adjust(P.Value, 'BH')]
 
   if (isTRUE(sort)) {
-    setorder(dCond, P.Value)
-    setorder(dTime, P.Value)
-    setorder(dCondTime, P.Value)}
+    setorderv(dCond, 'P.Value')
+    setorderv(dTime, 'P.Value')
+    setorderv(dCondTime, 'P.Value')}
 
   return(list(cond = dCond, time = dTime, cond_time = dCondTime))}
 
@@ -192,7 +192,7 @@ getDiffRhythmStats = function(fit, rhythmStats,
 
   d0 = rhythmStats[cond %in% conds]
   d0[, cond := factor(cond, conds)]
-  setorder(d0, cond)
+  setorderv(d0, 'cond')
 
   d1 = d0[, .(estimate = diff(estimate)), by = .(feature, variable)]
   d1[, variable := paste0('diff_', variable)]
@@ -277,11 +277,15 @@ getDiffRhythmStats = function(fit, rhythmStats,
 
 
 #' @export
-getDiffRhythmTests = function(fit, diffRhythmStats, qvalRhyCutoff = 0.2) {
+getDiffRhythmTests = function(fit, diffRhythmStats = NULL, qvalRhyCutoff = 0.2) {
   topTables = getTopTables(fit, qvalRhyCutoff)
   d1 = merge(topTables$cond_time[, .(feature, pval_diff_rhy = P.Value, qval_diff_rhy = adj.P.Val)],
              topTables$time[, .(feature, pval_rhy = P.Value, qval_rhy = adj.P.Val)],
              by = 'feature', sort = FALSE)
+
+  if (is.null(diffRhythmStats)) {
+    setorderv(d1, c('pval_diff_rhy', 'pval_rhy'))
+    return(d1[])}
 
   d2 = data.table::dcast(diffRhythmStats, feature ~ variable, value.var = 'pval')
   setnames(d2, function(x) paste0('pval_', x))
@@ -295,7 +299,7 @@ getDiffRhythmTests = function(fit, diffRhythmStats, qvalRhyCutoff = 0.2) {
   setcolorder(d, c('feature', 'pval_diff_rhy', 'qval_diff_rhy',
                    'pval_diff_amp', 'qval_diff_amp', 'pval_diff_phase', 'qval_diff_phase',
                    'pval_rhy', 'qval_rhy', 'pval_diff_mesor', 'qval_diff_mesor'))
-  setorder(d, pval_diff_rhy, pval_rhy, pval_diff_mesor)
+  setorderv(d, c('pval_diff_rhy', 'pval_rhy', 'pval_diff_mesor'))
   return(d[])}
 
 
@@ -306,7 +310,7 @@ getDiffRhythmAsh = function(diffRhythmStats, diffRhythmTests,
   # mesor
   dNow = diffRhythmStats[variable == 'diff_mesor']
   ashObj = dNow[, ashr::ash(estimate, se, mixcompdist = mixcompdist, ...)]
-  dm = cbind(dNow[, .(feature, variable)], data.table::setDT(ashObj$result))
+  dm = cbind(dNow[, .(feature, variable)], setDT(ashObj$result))
   if (isTRUE(ci)) {
     ciMat = ashr::ashci(ashObj)
     dm[, `:=`(credint_lower = ciMat[, 1L], credint_upper = ciMat[, 2L])]}
@@ -321,7 +325,7 @@ getDiffRhythmAsh = function(diffRhythmStats, diffRhythmTests,
                 ashr::ash(estimate, se, mixcompdist = mixcompdist, ...)]
 
   da = cbind(dNow[variable == 'diff_amp', .(feature, variable)],
-             data.table::setDT(ashObj$result))
+             setDT(ashObj$result))
   if (isTRUE(ci)) {
     ciMat = ashr::ashci(ashObj)
     da[, `:=`(credint_lower = ciMat[, 1L], credint_upper = ciMat[, 2L])]}
@@ -331,7 +335,7 @@ getDiffRhythmAsh = function(diffRhythmStats, diffRhythmTests,
                 ashr::ash(estimate, se, mixcompdist = mixcompdist, ...)]
 
   dp = cbind(dNow[variable == 'diff_phase', .(feature, variable)],
-             data.table::setDT(ashObj$result))
+             setDT(ashObj$result))
   if (isTRUE(ci)) {
     ciMat = ashr::ashci(ashObj)
     dp[, `:=`(credint_lower = ciMat[, 1L], credint_upper = ciMat[, 2L])]}
