@@ -28,24 +28,35 @@ getCosinorBasis = function(x, period, intercept) {
 
 
 #' @export
-getModelFit = function(x, metadata, condColname = 'cond', timeColname = 'time',
+
+getModelFit = function(x, metadata, condColname = NULL, timeColname = 'time',
                        period = 24, formSupp = NULL, ...) {
   # columns of x must correspond to rows of metadata
   stopifnot(length(period) == 1L, is.numeric(period), period > 0)
 
-  metadata = data.table(metadata)
-  setnames(metadata, c(condColname, timeColname), c('cond', 'time'))
+  metadata = as.data.table(metadata)
 
-  if (!is.factor(metadata$cond)) {
-    metadata[, cond := factor(cond)]}
+  if (!is.null(condColname)) {
+    setnames(metadata, c(condColname, timeColname), c('cond', 'time'))
+    if (!is.factor(metadata$cond)) {
+      metadata[, cond := factor(cond)]}
+  } else {
+    # metadata = metadata[, .()]  #make sure time and sample_id columns are present
+    setnames(metadata, timeColname, 'time')}
+
 
   b = getCosinorBasis(metadata$time, period, FALSE)
   colnames(b) = paste0(colnames(b), 't')
   metadata = cbind(metadata, b)
 
   if (is.null(formSupp)) {
-    formFull = ~ cond * (cost + sint)
-  } else {
+
+    if (is.null(condColname)){
+      formFull = ~ cost + sint
+    } else{
+      formFull = ~ cond * (cost + sint)}
+
+  }else {
     # must be a formula that has no interactions and no mention of cond or time
     stopifnot(inherits(formSupp, 'formula'),
               !any(grepl(':', attr(stats::terms(formSupp), 'term.labels'))),
@@ -63,23 +74,23 @@ getModelFit = function(x, metadata, condColname = 'cond', timeColname = 'time',
   fit = limma::lmFit(x, design)
   fit = limma::eBayes(fit, trend = TRUE, ...)
 
-  levs = levels(metadata$cond)
+  if(is.null(condColname)){ levs = 1L
+  }else{ levs = levels(metadata$cond)}
   fit$coef_lookup = data.table(cond_lev = rep(levs, each = 3),
                                model_comp = rep(c('intercept', 'cost', 'sint'),
                                                 length(levs)))
   fit$coef_lookup[, cond_lev := factor(cond_lev, levs)]
   fit$coef_lookup[, cond_num := as.numeric(cond_lev)]
   fit$coef_lookup[cond_num == 1L, coef_idx := c(1, length(levs) + 1:2)]
-  for (i in 2:length(levs)) {
-    fit$coef_lookup[cond_num == i,
-                    coef_idx := c(i, length(levs) + i + c(1, length(levs)))]}
+  if (!is.null(condColname)){
+    for (i in 2:length(levs)) {
+      fit$coef_lookup[cond_num == i,
+                      coef_idx := c(i, length(levs) + i + c(1, length(levs)))]}}
 
-  # fit$cond_levels = levels(metadata$cond)
-  # fit$cond_idx = 2:length(fit$cond_levels)
-  # fit$time_idx = (1 + max(fit$cond_idx)):(2 + max(fit$cond_idx))
-  # fit$cond_time_idx = (1 + max(fit$time_idx)):(max(fit$time_idx) + 2 * (length(fit$cond_levels) - 1))
+
   fit$period = period
   return(fit)}
+
 
 
 getTopTables = function(fit, qvalRhyCutoff = 0.2, sort = TRUE) {
@@ -124,6 +135,86 @@ getStdErrs = function(g, meanEst, varEst, covBase) {
     seNow = sqrt(diag(covNow))}
   return(se)}
 
+
+getCosinorBasisAsh = function(fit, mixcompdist = 'halfnormal', ci = FALSE, ...){
+  #get modified cost and sint coefs for a single condition
+  co = fit$coefficients
+
+  i = 1L
+  c(ix, iy) %<-% fit$coef_lookup[cond_num == i  & model_comp != 'intercept']$coef_idx
+
+  # statsDT[, sumCost := rowSums(.SD), .SDcols = cosIdx]
+  # statsDT[, sumSint := rowSums(.SD), .SDcols = sinIdx]
+
+  statsDT = data.table(fit$coefficients, keep.rownames = "feature")
+  statsDT = melt(statsDT, measure = c("cost", "sint"), value.name = "estimate")
+
+  formList = list(~ x1, ~x2)
+  idx = c(ix, iy)
+
+  seMat = getStdErrs(formList, co[, idx], fit$s2.post,
+                     fit$cov.coefficients[idx, idx])
+
+  statsDT[, se := as.vector(seMat)]
+
+  ashObj = statsDT[, ashr::ash(estimate, se, mixcompdist = mixcompdist, ...)]
+  d = cbind(statsDT[, .(feature, variable)], setDT(ashObj$result))
+
+  return(d)}
+
+
+
+
+getCosinorBasisAsh2 = function(fit, mixcompdist = 'halfnormal', ci = FALSE, ...){
+  #get modified cost and sint coefs for a multiple conditions
+  co = fit$coefficients
+  statsDT = data.table(fit$coefficients, keep.rownames = "feature")
+
+  #get modified coefficients for k = 0
+  i = 1L
+  c(ix, iy) %<-% fit$coef_lookup[cond_num == i  & model_comp != 'intercept']$coef_idx
+
+  formList = list(~ x1, ~x2)
+  idx = c(ix, iy)
+
+  seMat = getStdErrs(formList, co[, idx], fit$s2.post,
+                     fit$cov.coefficients[idx, idx])
+  d0 = data.table(cond = rep( fit$coef_lookup[cond_num == i]$cond_lev[1L],
+                              length.out = nrow(co)))
+  d0 = melt(statsDT[,.(feature, cost, sint)],
+            measure = c("cost", "sint"),
+            value.name = "estimate")
+  d0[,cond := fit$coef_lookup[cond_num == i]$cond_lev[1L]]
+  d0[, se := as.vector(seMat)]
+  ashObj = d0[, ashr::ash(estimate, se, mixcompdist = mixcompdist, ...)]
+  d0 = cbind(d0, setDT(ashObj$result))
+
+
+
+  # get modified coefficients for k = 1
+  c(ix, iy) %<-% fit$coef_lookup[model_comp %like% 'cost']$coef_idx
+  c(jx, jy) %<-% fit$coef_lookup[model_comp %like% 'sint']$coef_idx
+
+  formList = list(~ x1 + x2, ~x3 + x4)
+  idx = c(ix, iy, jx, jy)
+
+  seMat = getStdErrs(formList, co[, idx], fit$s2.post,
+                     fit$cov.coefficients[idx, idx])
+
+  statsDT[, sum_cost := co[, ix] + co[, iy]]
+  statsDT[, sum_sint := co[jx] + co[, jy]]
+  d1 = melt(statsDT[, .(feature, sum_cost, sum_sint)],
+            measure = c("sum_cost", "sum_sint"),
+            value.name = "estimate")
+  d1[, cond := fit$coef_lookup[!(cond_num == i)]$cond_lev[1L]]
+  d1[, se := as.vector(seMat)]
+
+  ashObj = d1[, ashr::ash(estimate, se, mixcompdist = mixcompdist, ...)]
+  d1 = cbind(d1, setDT(ashObj$result))
+
+  d = rbind(d0,d1)
+
+  return(d)}
 
 #' @export
 getRhythmStats = function(fit) {
@@ -180,6 +271,115 @@ getRhythmStats = function(fit) {
   d3[variable == 'phase' & estimate >= 2 * pi, estimate := estimate - 2 * pi]
   d3[variable == 'phase', estimate := estimate * fit$period / 2 / pi]
   return(d3[])}
+
+
+
+
+getRhythmStats2 = function(fit, basisAsh){
+
+  i = 1
+  coPost = dcast(basisAsh[, .(feature, variable, PosteriorMean, PosteriorSD)],
+                 feature ~ variable, value.var = c("PosteriorMean"))
+
+  coPost[, intercept := fit$coefficients[,1L]]
+  coPost[, condwt := fit$coefficients[,2L]]
+
+  coMat = as.matrix(coPost, rownames = "feature")
+
+  # calculate amplitude and phase for k = 0
+  d0 = data.table(cond = fit$coef_lookup[cond_num == i]$cond_lev[i],
+                  feature = coPost$feature,
+                  variable = rep(c('mesor', 'amp', 'phase'), each = nrow(coPost)))
+
+  d0[variable == 'mesor', estimate := coMat[, 5]]
+  d0[variable == 'amp', estimate := sqrt(coMat[, 1]^2 + coMat[, 2]^2)]
+  d0[variable == 'phase', estimate := atan2(coMat[, 2], coMat[, 1])]
+
+  formList = list(~ x1, ~ sqrt(x2^2 + x3^2), ~ atan2(x3, x2))
+
+  #calculate amplitude and phase for k = 1
+
+  d1 = data.table(cond = fit$coef_lookup[!(cond_num == i)]$cond_lev[i],
+                  feature = coPost$feature,
+                  variable = rep(c('mesor', 'amp', 'phase'), each = nrow(coPost)))
+
+  d1[variable == 'mesor', estimate := coMat[, 6]]
+  d1[variable == 'amp', estimate := sqrt(coMat[, 3]^2 + coMat[, 4]^2)]
+  d1[variable == 'phase', estimate := atan2(coMat[, 4], coMat[, 3])]
+
+
+
+  #calculate amplitude and phase difference
+  d = rbind(d0, d1)
+
+  return(d[])}
+
+
+
+
+getRhythmTests = function(fit, oneCondStats, qvalRhyCutoff = 0.2){
+  # one condition
+  coefIdx = fit$coef_lookup[model_comp != 'intercept']$coef_idx
+  dTime = limma::topTable(fit, coef = coefIdx, number = Inf, sort.by = 'none')
+  dTime = data.table(dTime, keep.rownames = TRUE)
+  setnames(dTime, 'rn', 'feature')
+
+  d1 = dTime[, .(feature, pval_rhy = P.Value, qval_rhy = adj.P.Val)]
+
+  # oneCondStats[, qval := stats::p.adjust(pval, 'BH')]
+  d2 = oneCondStats[, qval := stats::p.adjust(pval, 'BH')]
+  d3 = data.table::dcast(d2, feature ~ variable, value.var = c('pval', 'qval'))
+
+  d = merge(d1, d3, by = 'feature')
+  return(d)}
+
+
+
+
+getOneCondStats = function(fit, basisAsh, confLevel = 0.95){
+  #single condition stats
+  co = fit$coefficients
+  i = 1
+  c(ix, iy) %<-% fit$coef_lookup[cond_num == i & model_comp != 'intercept']$coef_idx # fit$time_idx
+  idx = c(i, ix, iy)
+
+  coPost = dcast(basisAsh[, .(feature, variable, PosteriorMean, PosteriorSD)],
+                 feature ~ variable, value.var = c("PosteriorMean"))
+  coPost[, intercept := fit$coefficients[,i]]
+  coPost = coPost[, c(1,4,2,3)] #rearrange cols to fit indx
+
+  coMat = as.matrix(coPost, rownames = "feature")
+
+  d1 = data.table(cond = fit$coef_lookup[cond_num == i]$cond_lev[i],
+                  feature = coPost$feature,
+                  variable = rep(c('mesor', 'amp', 'phase'), each = nrow(coPost)))
+
+  d1[variable == 'mesor', estimate := coMat[, i]]
+  d1[variable == 'amp', estimate := sqrt(coMat[, ix]^2 + coMat[, iy]^2)]
+  d1[variable == 'phase', estimate := atan2(coMat[, iy], coMat[, ix])]
+
+  #use delta method on se vals from ashr
+  formList = list(~ x1, ~ sqrt(x2^2 + x3^2), ~ atan2(x3, x2))
+
+  seMat = getStdErrs(formList, coMat, fit$s2.post,
+                     fit$cov.coefficients[idx, idx])
+  seMat[, 3] = seMat[, 3] * fit$period / 2 / pi
+  d1[, se := as.vector(seMat)]
+
+
+  d1[variable == 'phase' & estimate < 0, estimate := estimate + 2 * pi]
+  d1[variable == 'phase' & estimate >= 2 * pi, estimate := estimate - 2 * pi]
+  d1[variable == 'phase', estimate := estimate * fit$period / 2 / pi]
+
+
+  quant = stats::qt(0.5 + confLevel / 2, fit$df.total)
+  d1[, `:=`(ci_lower = estimate - se * quant,
+            ci_upper = estimate + se * quant,
+            tstat = estimate / se,
+            pval = 2 * stats::pt(-abs(estimate / se), df = rep(fit$df.total, 2)))]
+
+
+  return(d1)}
 
 
 #' @export
@@ -274,6 +474,27 @@ getDiffRhythmStats = function(fit, rhythmStats,
            tstat = estimate / se,
            pval = 2 * stats::pt(-abs(estimate / se), df = rep(fit$df.total, 2)))]
   return(d[])}
+
+
+
+getDiffRhythmStats2 =  function(fit, rhythmStats,
+                                conds = levels(fit$coef_lookup$cond_lev)[1:2],
+                                confLevel = 0.95){
+
+  stopifnot(length(conds) == 2, all(conds %in% levels(fit$coef_lookup$cond_lev)),
+            length(confLevel) == 1, is.numeric(confLevel),
+            confLevel > 0, confLevel < 1)
+
+  d1 = rhythmStats[, .(estimate = diff(estimate)), by = .(feature, variable)]
+
+
+  d1[variable == 'diff_phase', estimate := estimate %% fit$period]
+  d1[variable == 'diff_phase' & estimate > fit$period / 2,
+     estimate := estimate - fit$period]
+  d1[variable == 'diff_phase' & estimate < (-fit$period / 2),
+     estimate := estimate + fit$period]
+
+  return(d1)}
 
 
 #' @export
