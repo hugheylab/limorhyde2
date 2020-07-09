@@ -199,6 +199,7 @@ getRhythmStats2 = function(fit, basisAsh){
   i = 1L
   coRaw = fit$coefficients
 
+
   # calculate amplitude and phase for k = 0
   c(ix, iy, iz) %<-% fit$coef_lookup[cond_num == i]$coef_idx
   dRaw = data.table(cond = fit$coef_lookup[cond_num == i]$cond_lev[i],
@@ -211,88 +212,100 @@ getRhythmStats2 = function(fit, basisAsh){
 
   # calculate moderated values for rhythmic parameters
   coPost = dcast(basisAsh[, .(feature, cond, variable, PosteriorMean)],
-                 feature ~ variable + cond, value.var = c("PosteriorMean"))
+                 feature ~ variable+cond, value.var = c("PosteriorMean"))
+  coPost = as.matrix(coPost, rownames = 'feature')
 
+  coef_lookup_post = data.table(model_names = colnames(coPost),
+                                coef_idx = 1:length(colnames(coPost)))
+  coef_lookup_post[,cond := str_extract(model_names, '(?<=_).*')]
+  coef_lookup_post[, model_comp := str_extract(model_names, '.*(?=_)')]
+  coef_lookup_post[, cond_num := rep(1:length(unique(cond)), 2)]
+
+  c(jx, jy) %<-% coef_lookup_post[cond_num == i]$coef_idx
   dPost = data.table(cond = fit$coef_lookup[cond_num == i]$cond_lev[i],
                      feature = rep(rownames(coRaw), 3),
                      variable = rep(c('mesor', 'amp', 'phase'), each = nrow(coRaw)))
-
   dPost[variable == 'mesor', estimate_mod := coRaw[,i]]
-  dPost[variable == 'amp', estimate_mod := sqrt(coPost[, i+1]^2 + coPost[, i+2]^2)]
-  dPost[variable == 'phase', estimate_mod := atan2(coPost[, i+2], coPost[, i+1])]
+  dPost[variable == 'amp', estimate_mod := sqrt(coPost[, jx]^2 + coPost[, jy]^2)]
+  dPost[variable == 'phase', estimate_mod := atan2(coPost[ jy], coPost[, jx])]
 
   d0 = merge(dRaw, dPost, by = c("feature", "variable", "cond"))
 
   #calculate amplitude and phase for k = 1
   if (length(levels(fit$coef_lookup$cond_lev)) >= 2) {
-    d1 = foreach(j = 2:length(levels(fit$coef_lookup$cond_lev)),
+    d1 = foreach(k = 2:length(levels(fit$coef_lookup$cond_lev)),
                  .combine = rbind) %do% {
 
-                   c(jx, jy, jz) %<-% fit$coef_lookup[cond_num == j]$coef_idx
-                   dRaw = data.table(cond = fit$coef_lookup[cond_num == j]$cond_lev[i],
+                   c(kx, ky, kz) %<-% fit$coef_lookup[cond_num == k]$coef_idx
+                   dRaw = data.table(cond = fit$coef_lookup[cond_num == k]$cond_lev[i],
                                      feature = rep(rownames(coRaw), 3),
                                      variable = rep(c('mesor', 'amp', 'phase'), each = nrow(coPost)))
 
                    dRaw[variable == 'mesor',
-                        estimate_raw := coRaw[, ix] + coRaw[, jx]]
+                        estimate_raw := coRaw[, ix] + coRaw[, kx]]
                    dRaw[variable == 'amp',
-                        estimate_raw := sqrt((coRaw[, iy] + coRaw[, jy])^2 + (coRaw[, iz] + coRaw[jz])^2)]
+                        estimate_raw := sqrt((coRaw[, iy] + coRaw[, ky])^2 + (coRaw[, iz] + coRaw[kz])^2)]
                    dRaw[variable == 'phase',
-                        estimate_raw := atan2(coRaw[, iz] + coRaw[, jz], coRaw[, iy] + coRaw[jy])]
+                        estimate_raw := atan2(coRaw[, iz] + coRaw[, kz], coRaw[, iy] + coRaw[ky])]
 
+                   c(lx, ly) %<-% coef_lookup_post[cond_num == k]$coef_idx
 
-                   x = colnames(coPost) %like% "feature" |
-                     colnames(coPost) %like% fit$coef_lookup[cond_num == j]$cond_lev[i]
-                   coPost = coPost[,(x), with = FALSE]
-                   coPost = as.matrix(coPost, rownames = 'feature')
-
-                   dPost = data.table(cond = fit$coef_lookup[cond_num == j]$cond_lev[i],
+                   dPost = data.table(cond = fit$coef_lookup[cond_num == k]$cond_lev[i],
                                       feature = rep(rownames(coRaw), 3),
                                       variable = rep(c('mesor', 'amp', 'phase'), each = nrow(coRaw)))
 
                    dPost[variable == 'mesor',
-                         estimate_mod := coRaw[, ix] + coRaw[, jx]]
+                         estimate_mod := coRaw[, ix] + coRaw[, kx]]
                    dPost[variable == 'amp',
-                         estimate_mod := sqrt(coPost[, 1]^2 + coPost[, 2]^2)]
-                   dPost[variable == 'phase', estimate_mod := atan2(coPost[, 2], coPost[, 1])]
+                         estimate_mod := sqrt(coPost[, lx]^2 + coPost[, ly]^2)]
+                   dPost[variable == 'phase', estimate_mod := atan2(coPost[, ly], coPost[, lx])]
 
                    tl = merge(dRaw, dPost, by = c("feature", "variable", "cond"))}
 
-    #calculate amplitude and phase difference
-    d = rbind(d0, d1)}
+    d = rbind(d0, d1)} else{
 
-  d[variable == 'phase' & estimate_raw < 0, estimate_raw := estimate_raw + 2 * pi]
-  d[variable == 'phase' & estimate_raw >= 2 * pi, estimate_raw := estimate_raw - 2 * pi]
+      d = d0}
+
+  d[variable == 'phase' & estimate_raw < 0, estimate_raw := estimate_raw +  2*pi]
+  d[variable == 'phase' & estimate_raw >= 2*pi, estimate_raw := estimate_raw - 2*pi]
   d[variable == 'phase', estimate_raw := estimate_raw * fit$period / 2 / pi]
+  d[variable == 'phase' & estimate_raw > fit$period / 2, estimate_raw := estimate_raw - fit$period/2]
 
-
-  d[variable == 'phase' & estimate_mod < 0, estimate_mod := estimate_mod + 2 * pi]
-  d[variable == 'phase' & estimate_mod >= 2 * pi, estimate_mod := estimate_mod - 2 * pi]
+  d[variable == 'phase' & estimate_mod < 0, estimate_mod := estimate_mod + 2*pi]
+  d[variable == 'phase' & estimate_mod >=  2*pi, estimate_mod := estimate_mod - 2*pi]
   d[variable == 'phase', estimate_mod := estimate_mod * fit$period / 2 / pi]
-
+  d[variable == 'phase' & estimate_mod > fit$period / 2, estimate_mod := estimate_mod - fit$period/2]
 
   return(d[])}
 
 
 
-#' @export
-
 getDiffRhythmStats2 =  function(fit, rhythmStats,
-                                conds = levels(fit$coef_lookup$cond_lev)[1:2],
-                                confLevel = 0.95){
+                                conds = levels(fit$coef_lookup$cond_lev)[1:2]){
 
-  stopifnot(length(conds) == 2, all(conds %in% levels(fit$coef_lookup$cond_lev)),
-            length(confLevel) == 1, is.numeric(confLevel),
-            confLevel > 0, confLevel < 1)
+  stopifnot(length(conds) >= 2, all(conds %in% levels(fit$coef_lookup$cond_lev)))
 
-  d1 = rhythmStats[, .(estimate = diff(estimate)), by = .(feature, variable)]
+  d1 = rhythmStats[, .(estimate_raw = diff(estimate_raw),
+                       estimate_mod = diff(estimate_mod)),
+                   by = .(feature, variable)]
+
+  d1[, variable := paste0('diff_', variable)]
+
+  d1[variable == 'diff_phase', estimate_raw := estimate_raw %% fit$period]
+  d1[variable == 'diff_phase' & estimate_raw > fit$period / 2,
+     estimate_raw := estimate_raw - fit$period]
+  d1[variable == 'diff_phase' & estimate_raw < (-fit$period / 2),
+     estimate_raw := estimate_raw + fit$period]
 
 
-  d1[variable == 'diff_phase', estimate := estimate %% fit$period]
-  d1[variable == 'diff_phase' & estimate > fit$period / 2,
-     estimate := estimate - fit$period]
-  d1[variable == 'diff_phase' & estimate < (-fit$period / 2),
-     estimate := estimate + fit$period]
+
+  d1[variable == 'diff_phase', estimate_mod := estimate_mod %% fit$period]
+  d1[variable == 'diff_phase' & estimate_mod > fit$period / 2,
+     estimate_mod := estimate_mod - fit$period]
+  d1[variable == 'diff_phase' & estimate_mod < (-fit$period / 2),
+     estimate_mod := estimate_mod + fit$period]
+
+
 
   return(d1)}
 
@@ -300,21 +313,17 @@ getDiffRhythmStats2 =  function(fit, rhythmStats,
 
 #' @export
 
-getRhythmTests = function(fit, oneCondStats, qvalRhyCutoff = 0.2){
-  # one condition
-  coefIdx = fit$coef_lookup[model_comp != 'intercept']$coef_idx
-  dTime = limma::topTable(fit, coef = coefIdx, number = Inf, sort.by = 'none')
-  dTime = data.table(dTime, keep.rownames = TRUE)
-  setnames(dTime, 'rn', 'feature')
+getRhythmTests = function(fit, qvalRhyCutoff = 0.2){
+  topTables = getTopTables(fit, qvalRhyCutoff)
 
-  d1 = dTime[, .(feature, pval_rhy = P.Value, qval_rhy = adj.P.Val)]
+  d = merge(topTables$cond_time[, .(feature, pval_diff_rhy = P.Value, qval_diff_rhy = adj.P.Val)],
+            topTables$time[, .(feature, pval_rhy = P.Value, qval_rhy = adj.P.Val)],
+            by = 'feature', sort = FALSE)
 
-  # oneCondStats[, qval := stats::p.adjust(pval, 'BH')]
-  d2 = oneCondStats[, qval := stats::p.adjust(pval, 'BH')]
-  d3 = data.table::dcast(d2, feature ~ variable, value.var = c('pval', 'qval'))
 
-  d = merge(d1, d3, by = 'feature')
-  return(d)}
+  setorderv(d, c('qval_diff_rhy', 'qval_rhy'))
+  return(d[])}
+
 
 
 
