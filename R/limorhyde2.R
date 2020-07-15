@@ -139,7 +139,7 @@ getStdErrs = function(g, meanEst, varEst, covBase) {
 
 #get ashr modified estimates for sint and cost
 
-getCosinorBasisAsh2 = function(fit, mixcompdist = 'halfnormal', ci = FALSE, ...){
+getCosinorBasisAsh2 = function(fit, combine_dist = TRUE, mixcompdist = 'halfnormal', ci = FALSE, ...){
 
   co = fit$coefficients
   statsDT = data.table(fit$coefficients, keep.rownames = "feature")
@@ -153,18 +153,35 @@ getCosinorBasisAsh2 = function(fit, mixcompdist = 'halfnormal', ci = FALSE, ...)
 
   seMat = getStdErrs(formList, co[, idx], fit$s2.post,
                      fit$cov.coefficients[idx, idx])
+
+
   d0 = melt(statsDT[,.(feature, cost, sint)],
             measure = c("cost", "sint"),
             value.name = "estimate")
   d0[,cond := fit$coef_lookup[cond_num == i]$cond_lev[i]]
   d0[, se := as.vector(seMat)]
-  ashObj = d0[, ashr::ash(estimate, se, mixcompdist = mixcompdist, ...)]
-  d0 = cbind(d0, setDT(ashObj$result))
+  # d0[, se :=  rep(fit$s2.post,2)]
+
+  if(isTRUE(combine_dist)){
+    ashObj = d0[, ashr::ash(estimate, se, mixcompdist = mixcompdist)]
+    d1 = cbind(d0, setDT(ashObj$result)) } else {
+
+      dNow = d0[variable == 'cost']
+      ashObj = dNow[, ashr::ash(estimate, se, mixcompdist = mixcompdist)]
+      d_cost = cbind(dNow, setDT(ashObj$result))
+
+
+      dNow = d0[variable == 'sint']
+      ashObj = dNow[, ashr::ash(estimate, se, mixcompdist = mixcompdist)]
+      d_sint = cbind(dNow, setDT(ashObj$result))
+
+      d1 = rbind(d_cost, d_sint)
+    }
 
 
   # get modified coefficients for k = 1
   if (length(levels(fit$coef_lookup$cond_lev)) > 1){
-    d1 = foreach(j = 2:length(levels(fit$coef_lookup$cond_lev)),
+    d2 = foreach(j = 2:length(levels(fit$coef_lookup$cond_lev)),
                  .combine = rbind) %dopar% {
 
                    c(ix, iy) %<-% fit$coef_lookup[cond_num %in% c(i,j) & model_comp %like% 'cost']$coef_idx
@@ -178,20 +195,36 @@ getCosinorBasisAsh2 = function(fit, mixcompdist = 'halfnormal', ci = FALSE, ...)
 
                    statsDT[, cost_k1 := co[, ix] + co[, iy]]
                    statsDT[, sint_k1 := co[jx] + co[, jy]]
-                   dNow = melt(statsDT[, .(feature, cost = cost_k1, sint = sint_k1)],
-                               measure = c("cost", "sint"),
-                               value.name = "estimate")
-                   dNow[, cond := fit$coef_lookup[cond_num == j]$cond_lev[1L]]
-                   dNow[, se := as.vector(seMat)]
+                   d3 = melt(statsDT[, .(feature, cost = cost_k1, sint = sint_k1)],
+                             measure = c("cost", "sint"),
+                             value.name = "estimate")
+                   d3[, cond := fit$coef_lookup[cond_num == j]$cond_lev[1L]]
+                   d3[, se := as.vector(seMat)]
 
-                   ashObj = dNow[, ashr::ash(estimate, se, mixcompdist = mixcompdist, ...)]
-                   dRes = cbind(dNow, setDT(ashObj$result))}
+                   if(isTRUE(combine_dist)){
+                     ashObj = d3[, ashr::ash(estimate, se, mixcompdist = mixcompdist)]
+                     d4 = cbind(d3, setDT(ashObj$result)) } else {
 
-    d = rbind(d0,d1)} else{
+                       dNow = d3[variable == 'cost']
+                       ashObj = dNow[, ashr::ash(estimate, se, mixcompdist = mixcompdist)]
+                       d_cost = cbind(dNow, setDT(ashObj$result))
 
-      d = d0}
+
+                       dNow = d3[variable == 'sint']
+                       ashObj = dNow[, ashr::ash(estimate, se, mixcompdist = mixcompdist)]
+                       d_sint = cbind(dNow, setDT(ashObj$result))
+
+                       d4 = rbind(d_cost, d_sint)
+                     }
+                 }
+
+
+    d = rbind(d1,d2)} else{
+
+      d = d1}
 
   return(d)}
+
 
 
 getRhythmStats2 = function(fit, basisAsh){
