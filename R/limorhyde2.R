@@ -28,35 +28,24 @@ getCosinorBasis = function(x, period, intercept) {
 
 
 #' @export
-
-getModelFit = function(x, metadata, condColname = NULL, timeColname = 'time',
+getModelFit = function(x, metadata, condColname = 'cond', timeColname = 'time',
                        period = 24, formSupp = NULL, ...) {
   # columns of x must correspond to rows of metadata
   stopifnot(length(period) == 1L, is.numeric(period), period > 0)
 
-  metadata = as.data.table(metadata)
+  metadata = data.table(metadata)
+  setnames(metadata, c(condColname, timeColname), c('cond', 'time'))
 
-  if (!is.null(condColname)) {
-    setnames(metadata, c(condColname, timeColname), c('cond', 'time'))
-    if (!is.factor(metadata$cond)) {
-      metadata[, cond := factor(cond)]}
-  } else {
-    # metadata = metadata[, .()]  #make sure time and sample_id columns are present
-    setnames(metadata, timeColname, 'time')}
-
+  if (!is.factor(metadata$cond)) {
+    metadata[, cond := factor(cond)]}
 
   b = getCosinorBasis(metadata$time, period, FALSE)
   colnames(b) = paste0(colnames(b), 't')
   metadata = cbind(metadata, b)
 
   if (is.null(formSupp)) {
-
-    if (is.null(condColname)){
-      formFull = ~ cost + sint
-    } else{
-      formFull = ~ cond * (cost + sint)}
-
-  }else {
+    formFull = ~ cond * (cost + sint)
+  } else {
     # must be a formula that has no interactions and no mention of cond or time
     stopifnot(inherits(formSupp, 'formula'),
               !any(grepl(':', attr(stats::terms(formSupp), 'term.labels'))),
@@ -74,22 +63,123 @@ getModelFit = function(x, metadata, condColname = NULL, timeColname = 'time',
   fit = limma::lmFit(x, design)
   fit = limma::eBayes(fit, trend = TRUE, ...)
 
-  if(is.null(condColname)){ levs = 1L
-  }else{ levs = levels(metadata$cond)}
+  levs = levels(metadata$cond)
   fit$coef_lookup = data.table(cond_lev = rep(levs, each = 3),
                                model_comp = rep(c('intercept', 'cost', 'sint'),
                                                 length(levs)))
   fit$coef_lookup[, cond_lev := factor(cond_lev, levs)]
   fit$coef_lookup[, cond_num := as.numeric(cond_lev)]
   fit$coef_lookup[cond_num == 1L, coef_idx := c(1, length(levs) + 1:2)]
-  if (!is.null(condColname)){
-    for (i in 2:length(levs)) {
-      fit$coef_lookup[cond_num == i,
-                      coef_idx := c(i, length(levs) + i + c(1, length(levs)))]}}
+  for (i in 2:length(levs)) {
+    fit$coef_lookup[cond_num == i,
+                    coef_idx := c(i, length(levs) + i + c(1, length(levs)))]}
 
-
+  # fit$cond_levels = levels(metadata$cond)
+  # fit$cond_idx = 2:length(fit$cond_levels)
+  # fit$time_idx = (1 + max(fit$cond_idx)):(2 + max(fit$cond_idx))
+  # fit$cond_time_idx = (1 + max(fit$time_idx)):(max(fit$time_idx) + 2 * (length(fit$cond_levels) - 1))
   fit$period = period
   return(fit)}
+
+
+# get ashr derived modified estimates for rhythmic properties using the direct method
+# must add confidence intervals and such for these values later
+getRhythmStatsAsh = function(fit, mixcompdist = 'halfnormal', ci = FALSE, ...) {
+  co = fit$coefficients
+  # levs = fit$cond_levels
+
+  i = 1L
+  d1 = data.table(cond = fit$coef_lookup[cond_num == i]$cond_lev[1L],# levs[i],
+                  feature = rep(rownames(co), 3),
+                  variable = rep(c('mesor', 'amp', 'phase'), each = nrow(co)))
+
+  c(ix, iy) %<-% fit$coef_lookup[cond_num == i & model_comp != 'intercept']$coef_idx # fit$time_idx
+  d1[variable == 'mesor', estimate := co[, i]]
+  d1[variable == 'amp', estimate := sqrt(co[, ix]^2 + co[, iy]^2)]
+  d1[variable == 'phase', estimate := atan2(co[, iy], co[, ix])]
+
+  formList = list(~ x1, ~ sqrt(x2^2 + x3^2), ~ atan2(x3, x2))
+  idx = c(i, ix, iy)
+
+  seMat = getStdErrs(formList, co[, idx], fit$s2.post,
+                     fit$cov.coefficients[idx, idx])
+  seMat[, 3] = seMat[, 3] * fit$period / 2 / pi
+  d1[, se := as.vector(seMat)]
+
+  # perform ashr on mesor
+  d1Now = d1[variable == 'mesor']
+  ashObj = d1Now[, ashr::ash(estimate, se, mixcompdist = mixcompdist, ...)]
+  d1m = cbind(d1Now[, .(cond, feature, variable)], setDT(ashObj$result))
+
+  # perform ashr on amplitude
+  d1Now = d1[variable == 'amp']
+  ashObj = d1Now[, ashr::ash(estimate, se, mixcompdist = mixcompdist, ...)]
+  d1a = cbind(d1Now[, .(cond, feature, variable)], setDT(ashObj$result))
+
+  # perform ashr on phase
+  d1Now = d1[variable == 'phase']
+  ashObj = d1Now[, ashr::ash(estimate, se, mixcompdist = mixcompdist, ...)]
+  d1p = cbind(d1Now[, .(cond, feature, variable)], setDT(ashObj$result))
+
+  d1Res = rbind(d1m, d1a, d1p)
+
+  # repeart for all other treatment groups
+  d2 = foreach(j = 2:length(levels(fit$coef_lookup$cond_lev)),
+               .combine = rbind) %dopar% {
+
+                 dj = data.table(cond = fit$coef_lookup[cond_num == j]$cond_lev[1L],
+                                 feature = rep(rownames(co), 3),
+                                 variable = rep(c('mesor', 'amp', 'phase'), each = nrow(co)))
+
+                 # c(jx, jy) %<-% fit$cond_time_idx[(2 * (j - 1) - 1):(2 * (j - 1))]
+                 c(jx, jy) %<-% fit$coef_lookup[cond_num == j & model_comp != 'intercept']$coef_idx
+
+                 dj[variable == 'mesor',
+                    estimate := co[, i] + co[, j]]
+                 dj[variable == 'amp',
+                    estimate := sqrt((co[, ix] + co[, jx])^2 + (co[, iy] + co[, jy])^2)]
+                 dj[variable == 'phase',
+                    estimate := atan2(co[, iy] + co[, jy], co[, ix] + co[, jx])]
+
+                 formList = list(~ x1 + x2,
+                                 ~ sqrt((x3 + x5)^2 + (x4 + x6)^2),
+                                 ~ atan2(x4 + x6, x3 + x5))
+                 idx = c(i, j, ix, iy, jx, jy)
+
+                 seMat = getStdErrs(formList, co[, idx], fit$s2.post,
+                                    fit$cov.coefficients[idx, idx])
+                 seMat[, 3] = seMat[, 3] * fit$period / 2 / pi
+                 dj[, se := as.vector(seMat)]
+
+
+                 # perform ashr on mesor
+                 djNow = dj[variable == 'mesor']
+                 ashObj = djNow[, ashr::ash(estimate, se, mixcompdist = mixcompdist)]
+                 djm = cbind(djNow[, .(cond, feature, variable)], setDT(ashObj$result))
+
+                 # perform ashr on amplitude
+                 djNow = dj[variable == 'amp']
+                 ashObj = djNow[, ashr::ash(estimate, se, mixcompdist = mixcompdist)]
+                 dja = cbind(djNow[, .(cond, feature, variable)], setDT(ashObj$result))
+
+                 # perform ashr on phase
+                 djNow = dj[variable == 'phase']
+                 ashObj = djNow[, ashr::ash(estimate, se, mixcompdist = mixcompdist)]
+                 djp = cbind(djNow[, .(cond, feature, variable)], setDT(ashObj$result))
+
+                 djRes = rbind(djm, dja, djp)
+               }
+
+  d3 = rbind(d1Res, d2)
+  d3[variable == 'phase' & PosteriorMean < 0, PosteriorMean := PosteriorMean + 2 * pi]
+  d3[variable == 'phase' & PosteriorMean >= 2 * pi, PosteriorMean := PosteriorMean - 2 * pi]
+  d3[variable == 'phase', PosteriorMean := PosteriorMean * fit$period / 2 / pi]
+
+
+  d3[variable == 'phase' & PosteriorMean < 0, PosteriorMean := PosteriorMean + 2 * pi]
+  d3[variable == 'phase' & PosteriorMean >= 2 * pi, PosteriorMean := PosteriorMean - 2 * pi]
+  d3[variable == 'phase', PosteriorMean := PosteriorMean * fit$period / 2 / pi]
+  return(d3[])}
 
 
 
@@ -128,235 +218,228 @@ getStdErrs = function(g, meanEst, varEst, covBase) {
   gDeriv = lapply(g, function(form) Deriv::Deriv(form, syms))
   se = foreach(meanNow = iterators::iter(meanEst, by = 'row'), varNow = varEst,
                .combine = rbind) %dopar% {
-    for (i in 1:length(meanNow)) {
-      assign(syms[i], meanNow[i])}
-    gdashmu = sapply(gDeriv, function(e) eval(e))
-    covNow = t(gdashmu) %*% (varNow * covBase) %*% gdashmu
-    seNow = sqrt(diag(covNow))}
+                 for (i in 1:length(meanNow)) {
+                   assign(syms[i], meanNow[i])}
+                 gdashmu = sapply(gDeriv, function(e) eval(e))
+                 covNow = t(gdashmu) %*% (varNow * covBase) %*% gdashmu
+                 seNow = sqrt(diag(covNow))}
   return(se)}
 
 
-
-#get ashr modified estimates for sint and cost
-
-getCosinorBasisAsh2 = function(fit, combine_dist = TRUE, mixcompdist = 'halfnormal', ci = FALSE, ...){
-
+#' @export
+getRhythmStats = function(fit) {
   co = fit$coefficients
-  statsDT = data.table(fit$coefficients, keep.rownames = "feature")
+  # levs = fit$cond_levels
 
-  #get modified coefficients for k = 0
   i = 1L
-  c(ix, iy) %<-% fit$coef_lookup[cond_num == i  & model_comp != 'intercept']$coef_idx
+  d1 = data.table(cond = fit$coef_lookup[cond_num == i]$cond_lev[1L],# levs[i],
+                  feature = rep(rownames(co), 3),
+                  variable = rep(c('mesor', 'amp', 'phase'), each = nrow(co)))
 
-  formList = list(~ x1, ~x2)
-  idx = c(ix, iy)
+  c(ix, iy) %<-% fit$coef_lookup[cond_num == i & model_comp != 'intercept']$coef_idx # fit$time_idx
+  d1[variable == 'mesor', estimate := co[, i]]
+  d1[variable == 'amp', estimate := sqrt(co[, ix]^2 + co[, iy]^2)]
+  d1[variable == 'phase', estimate := atan2(co[, iy], co[, ix])]
+
+  formList = list(~ x1, ~ sqrt(x2^2 + x3^2), ~ atan2(x3, x2))
+  idx = c(i, ix, iy)
 
   seMat = getStdErrs(formList, co[, idx], fit$s2.post,
                      fit$cov.coefficients[idx, idx])
+  seMat[, 3] = seMat[, 3] * fit$period / 2 / pi
+  d1[, se := as.vector(seMat)]
 
+  d2 = foreach(j = 2:length(levels(fit$coef_lookup$cond_lev)),
+               .combine = rbind) %dopar% {
 
-  d0 = melt(statsDT[,.(feature, cost, sint)],
-            measure = c("cost", "sint"),
-            value.name = "estimate")
-  d0[,cond := fit$coef_lookup[cond_num == i]$cond_lev[i]]
-  d0[, se := as.vector(seMat)]
-  # d0[, se :=  rep(fit$s2.post,2)]
+                 dj = data.table(cond = fit$coef_lookup[cond_num == j]$cond_lev[1L],
+                                 feature = rep(rownames(co), 3),
+                                 variable = rep(c('mesor', 'amp', 'phase'), each = nrow(co)))
 
-  if(isTRUE(combine_dist)){
-    ashObj = d0[, ashr::ash(estimate, se, mixcompdist = mixcompdist)]
-    d1 = cbind(d0, setDT(ashObj$result)) } else {
+                 # c(jx, jy) %<-% fit$cond_time_idx[(2 * (j - 1) - 1):(2 * (j - 1))]
+                 c(jx, jy) %<-% fit$coef_lookup[cond_num == j & model_comp != 'intercept']$coef_idx
 
-      dNow = d0[variable == 'cost']
-      ashObj = dNow[, ashr::ash(estimate, se, mixcompdist = mixcompdist)]
-      d_cost = cbind(dNow, setDT(ashObj$result))
+                 dj[variable == 'mesor',
+                    estimate := co[, i] + co[, j]]
+                 dj[variable == 'amp',
+                    estimate := sqrt((co[, ix] + co[, jx])^2 + (co[, iy] + co[, jy])^2)]
+                 dj[variable == 'phase',
+                    estimate := atan2(co[, iy] + co[, jy], co[, ix] + co[, jx])]
 
+                 formList = list(~ x1 + x2,
+                                 ~ sqrt((x3 + x5)^2 + (x4 + x6)^2),
+                                 ~ atan2(x4 + x6, x3 + x5))
+                 idx = c(i, j, ix, iy, jx, jy)
 
-      dNow = d0[variable == 'sint']
-      ashObj = dNow[, ashr::ash(estimate, se, mixcompdist = mixcompdist)]
-      d_sint = cbind(dNow, setDT(ashObj$result))
+                 seMat = getStdErrs(formList, co[, idx], fit$s2.post,
+                                    fit$cov.coefficients[idx, idx])
+                 seMat[, 3] = seMat[, 3] * fit$period / 2 / pi
+                 dj[, se := as.vector(seMat)]}
 
-      d1 = rbind(d_cost, d_sint)
-    }
-
-
-  # get modified coefficients for k = 1
-  if (length(levels(fit$coef_lookup$cond_lev)) > 1){
-    d2 = foreach(j = 2:length(levels(fit$coef_lookup$cond_lev)),
-                 .combine = rbind) %dopar% {
-
-                   c(ix, iy) %<-% fit$coef_lookup[cond_num %in% c(i,j) & model_comp %like% 'cost']$coef_idx
-                   c(jx, jy) %<-% fit$coef_lookup[cond_num %in% c(i,j) & model_comp %like% 'sint']$coef_idx
-
-                   formList = list(~ x1 + x2, ~x3 + x4)
-                   idx = c(ix, iy, jx, jy)
-
-                   seMat = getStdErrs(formList, co[, idx], fit$s2.post,
-                                      fit$cov.coefficients[idx, idx])
-
-                   statsDT[, cost_k1 := co[, ix] + co[, iy]]
-                   statsDT[, sint_k1 := co[jx] + co[, jy]]
-                   d3 = melt(statsDT[, .(feature, cost = cost_k1, sint = sint_k1)],
-                             measure = c("cost", "sint"),
-                             value.name = "estimate")
-                   d3[, cond := fit$coef_lookup[cond_num == j]$cond_lev[1L]]
-                   d3[, se := as.vector(seMat)]
-
-                   if(isTRUE(combine_dist)){
-                     ashObj = d3[, ashr::ash(estimate, se, mixcompdist = mixcompdist)]
-                     d4 = cbind(d3, setDT(ashObj$result)) } else {
-
-                       dNow = d3[variable == 'cost']
-                       ashObj = dNow[, ashr::ash(estimate, se, mixcompdist = mixcompdist)]
-                       d_cost = cbind(dNow, setDT(ashObj$result))
-
-
-                       dNow = d3[variable == 'sint']
-                       ashObj = dNow[, ashr::ash(estimate, se, mixcompdist = mixcompdist)]
-                       d_sint = cbind(dNow, setDT(ashObj$result))
-
-                       d4 = rbind(d_cost, d_sint)
-                     }
-                 }
-
-
-    d = rbind(d1,d2)} else{
-
-      d = d1}
-
-  return(d)}
-
-
-
-getRhythmStats2 = function(fit, basisAsh){
-
-  i = 1L
-  coRaw = fit$coefficients
-
-
-  # calculate amplitude and phase for k = 0
-  c(ix, iy, iz) %<-% fit$coef_lookup[cond_num == i]$coef_idx
-  dRaw = data.table(cond = fit$coef_lookup[cond_num == i]$cond_lev[i],
-                    feature = rep(rownames(coRaw), 3),
-                    variable = rep(c('mesor', 'amp', 'phase'), each = nrow(coRaw)))
-  #how to calculate mesor from sin and cos coefs?
-  dRaw[variable == 'mesor', estimate_raw := coRaw[,ix]]
-  dRaw[variable == 'amp', estimate_raw := sqrt(coRaw[, iy]^2 + coRaw[, iz]^2)]
-  dRaw[variable == 'phase', estimate_raw := atan2(coRaw[, iz], coRaw[, iy])]
-
-  # calculate moderated values for rhythmic parameters
-  coPost = dcast(basisAsh[, .(feature, cond, variable, PosteriorMean)],
-                 feature ~ variable+cond, value.var = c("PosteriorMean"))
-  coPost = as.matrix(coPost, rownames = 'feature')
-
-  coef_lookup_post = data.table(model_names = colnames(coPost),
-                                coef_idx = 1:length(colnames(coPost)))
-  coef_lookup_post[,cond := str_extract(model_names, '(?<=_).*')]
-  coef_lookup_post[, model_comp := str_extract(model_names, '.*(?=_)')]
-  coef_lookup_post[, cond_num := rep(1:length(unique(cond)), 2)]
-
-  c(jx, jy) %<-% coef_lookup_post[cond_num == i]$coef_idx
-  dPost = data.table(cond = fit$coef_lookup[cond_num == i]$cond_lev[i],
-                     feature = rep(rownames(coRaw), 3),
-                     variable = rep(c('mesor', 'amp', 'phase'), each = nrow(coRaw)))
-  dPost[variable == 'mesor', estimate_mod := coRaw[,i]]
-  dPost[variable == 'amp', estimate_mod := sqrt(coPost[, jx]^2 + coPost[, jy]^2)]
-  dPost[variable == 'phase', estimate_mod := atan2(coPost[ jy], coPost[, jx])]
-
-  d0 = merge(dRaw, dPost, by = c("feature", "variable", "cond"))
-
-  #calculate amplitude and phase for k = 1
-  if (length(levels(fit$coef_lookup$cond_lev)) >= 2) {
-    d1 = foreach(k = 2:length(levels(fit$coef_lookup$cond_lev)),
-                 .combine = rbind) %do% {
-
-                   c(kx, ky, kz) %<-% fit$coef_lookup[cond_num == k]$coef_idx
-                   dRaw = data.table(cond = fit$coef_lookup[cond_num == k]$cond_lev[i],
-                                     feature = rep(rownames(coRaw), 3),
-                                     variable = rep(c('mesor', 'amp', 'phase'), each = nrow(coPost)))
-
-                   dRaw[variable == 'mesor',
-                        estimate_raw := coRaw[, ix] + coRaw[, kx]]
-                   dRaw[variable == 'amp',
-                        estimate_raw := sqrt((coRaw[, iy] + coRaw[, ky])^2 + (coRaw[, iz] + coRaw[kz])^2)]
-                   dRaw[variable == 'phase',
-                        estimate_raw := atan2(coRaw[, iz] + coRaw[, kz], coRaw[, iy] + coRaw[ky])]
-
-                   c(lx, ly) %<-% coef_lookup_post[cond_num == k]$coef_idx
-
-                   dPost = data.table(cond = fit$coef_lookup[cond_num == k]$cond_lev[i],
-                                      feature = rep(rownames(coRaw), 3),
-                                      variable = rep(c('mesor', 'amp', 'phase'), each = nrow(coRaw)))
-
-                   dPost[variable == 'mesor',
-                         estimate_mod := coRaw[, ix] + coRaw[, kx]]
-                   dPost[variable == 'amp',
-                         estimate_mod := sqrt(coPost[, lx]^2 + coPost[, ly]^2)]
-                   dPost[variable == 'phase', estimate_mod := atan2(coPost[, ly], coPost[, lx])]
-
-                   tl = merge(dRaw, dPost, by = c("feature", "variable", "cond"))}
-
-    d = rbind(d0, d1)} else{
-
-      d = d0}
-
-  d[variable == 'phase' & estimate_raw < 0, estimate_raw := estimate_raw +  2*pi]
-  d[variable == 'phase' & estimate_raw >= 2*pi, estimate_raw := estimate_raw - 2*pi]
-  d[variable == 'phase', estimate_raw := estimate_raw * fit$period / 2 / pi]
-  d[variable == 'phase' & estimate_raw > fit$period / 2, estimate_raw := estimate_raw - fit$period/2]
-
-  d[variable == 'phase' & estimate_mod < 0, estimate_mod := estimate_mod + 2*pi]
-  d[variable == 'phase' & estimate_mod >=  2*pi, estimate_mod := estimate_mod - 2*pi]
-  d[variable == 'phase', estimate_mod := estimate_mod * fit$period / 2 / pi]
-  d[variable == 'phase' & estimate_mod > fit$period / 2, estimate_mod := estimate_mod - fit$period/2]
-
-  return(d[])}
-
-
-
-getDiffRhythmStats2 =  function(fit, rhythmStats,
-                                conds = levels(fit$coef_lookup$cond_lev)[1:2]){
-
-  stopifnot(length(conds) >= 2, all(conds %in% levels(fit$coef_lookup$cond_lev)))
-
-  d1 = rhythmStats[, .(estimate_raw = diff(estimate_raw),
-                       estimate_mod = diff(estimate_mod)),
-                   by = .(feature, variable)]
-
-  d1[, variable := paste0('diff_', variable)]
-
-  d1[variable == 'diff_phase', estimate_raw := estimate_raw %% fit$period]
-  d1[variable == 'diff_phase' & estimate_raw > fit$period / 2,
-     estimate_raw := estimate_raw - fit$period]
-  d1[variable == 'diff_phase' & estimate_raw < (-fit$period / 2),
-     estimate_raw := estimate_raw + fit$period]
-
-
-
-  d1[variable == 'diff_phase', estimate_mod := estimate_mod %% fit$period]
-  d1[variable == 'diff_phase' & estimate_mod > fit$period / 2,
-     estimate_mod := estimate_mod - fit$period]
-  d1[variable == 'diff_phase' & estimate_mod < (-fit$period / 2),
-     estimate_mod := estimate_mod + fit$period]
-
-
-
-  return(d1)}
-
+  d3 = rbind(d1, d2)
+  d3[variable == 'phase' & estimate < 0, estimate := estimate + 2 * pi]
+  d3[variable == 'phase' & estimate >= 2 * pi, estimate := estimate - 2 * pi]
+  d3[variable == 'phase', estimate := estimate * fit$period / 2 / pi]
+  return(d3[])}
 
 
 #' @export
+getDiffRhythmStats = function(fit, rhythmStats,
+                              conds = levels(fit$coef_lookup$cond_lev)[1:2],
+                              confLevel = 0.95) {
+  stopifnot(length(conds) == 2, all(conds %in% levels(fit$coef_lookup$cond_lev)),
+            length(confLevel) == 1, is.numeric(confLevel),
+            confLevel > 0, confLevel < 1)
 
-getRhythmTests = function(fit, qvalRhyCutoff = 0.2){
-  topTables = getTopTables(fit, qvalRhyCutoff)
+  d0 = rhythmStats[cond %in% conds]
+  d0[, cond := factor(cond, conds)]
+  setorderv(d0, 'cond')
 
-  d = merge(topTables$cond_time[, .(feature, pval_diff_rhy = P.Value, qval_diff_rhy = adj.P.Val)],
-            topTables$time[, .(feature, pval_rhy = P.Value, qval_rhy = adj.P.Val)],
-            by = 'feature', sort = FALSE)
+  d1 = d0[, .(estimate = diff(estimate)), by = .(feature, variable)]
+  d1[, variable := paste0('diff_', variable)]
 
+  d1[variable == 'diff_phase', estimate := estimate %% fit$period]
+  d1[variable == 'diff_phase' & estimate > fit$period / 2,
+     estimate := estimate - fit$period]
+  d1[variable == 'diff_phase' & estimate < (-fit$period / 2),
+     estimate := estimate + fit$period]
 
-  setorderv(d, c('qval_diff_rhy', 'qval_rhy'))
+  levs = levels(fit$coef_lookup$cond_lev)
+
+  if (conds[1L] == levs[1L]) { #fit$cond_levels[1]) {
+    # cos1 -> x2
+    # sin1 -> x3
+    # cos2 -> x2 + x4
+    # sin2 -> x3 + x5
+    formList = list(~ x1,
+                    ~ sqrt((x2 + x4)^2 + (x3 + x5)^2) - sqrt(x2^2 + x3^2),
+                    ~ atan2(x2 * (x3 + x5) - x3 * (x2 + x4),
+                            x2 * (x2 + x4) + x3 * (x3 + x5)))
+
+    # idxTmp = match(conds[2], fit$cond_levels) - 1
+    # idx = c(idxTmp + 1, fit$time_idx,
+    #         fit$cond_time_idx[(2 * idxTmp - 1):(2 * idxTmp)])
+    idx = c(fit$coef_lookup[cond_lev == conds[2L] & model_comp == 'intercept']$coef_idx,
+            fit$coef_lookup[cond_lev == conds[1L] & model_comp != 'intercept']$coef_idx,
+            fit$coef_lookup[cond_lev == conds[2L] & model_comp != 'intercept']$coef_idx)
+
+  } else if (conds[2L] == levs[1L]) { #fit$cond_levels[1]) {
+    # cos1 -> x2 + x4
+    # sin1 -> x3 + x5
+    # cos2 -> x2
+    # sin2 -> x3
+    formList = list(~ -x1,
+                    ~ sqrt(x2^2 + x3^2) - sqrt((x2 + x4)^2 + (x3 + x5)^2),
+                    ~ atan2((x2 + x4) * x3 - (x3 + x5) * x2,
+                            x2 * (x2 + x4) + x3 * (x3 + x5)))
+
+    # idxTmp = match(conds[2], fit$cond_levels) - 1
+    # idx = c(idxTmp + 1, fit$time_idx,
+    #         fit$cond_time_idx[(2 * idxTmp - 1):(2 * idxTmp)])
+    idx = c(fit$coef_lookup[cond_lev == conds[2L] & model_comp == 'intercept']$coef_idx,
+            fit$coef_lookup[cond_lev == conds[1L] & model_comp != 'intercept']$coef_idx,
+            fit$coef_lookup[cond_lev == conds[2L] & model_comp != 'intercept']$coef_idx)
+
+  } else {
+    # cos1 -> x3 + x5
+    # sin1 -> x4 + x6
+    # cos2 -> x3 + x7
+    # sin2 -> x4 + x8
+    formList = list(~ x2 - x1,
+                    ~ sqrt((x3 + x5)^2 + (x4 + x6)^2) -
+                      sqrt((x3 + x7)^2 + (x4 + x8)^2),
+                    ~ atan2(x3 + x5 * (x4 + x8) - (x4 + x6) * (x3 + x7),
+                            (x3 + x5) * (x3 + x7) + (x4 + x6) * (x4 + x8)))
+
+    # idxTmp = match(conds, fit$cond_levels) - 1
+    # idx = c(idxTmp + 1, fit$time_idx,
+    #         fit$cond_time_idx[(2 * idxTmp[1] - 1):(2 * idxTmp[1])],
+    #         fit$cond_time_idx[(2 * idxTmp[2] - 1):(2 * idxTmp[2])])
+    idx = c(fit$coef_lookup[cond_lev == conds[1L] & model_comp == 'intercept']$coef_idx,
+            fit$coef_lookup[cond_lev == conds[2L] & model_comp == 'intercept']$coef_idx,
+            fit$coef_lookup[cond_num == 1L & model_comp != 'intercept']$coef_idx,
+            fit$coef_lookup[cond_lev == conds[1L] & model_comp != 'intercept']$coef_idx,
+            fit$coef_lookup[cond_lev == conds[2L] & model_comp != 'intercept']$coef_idx)}
+
+  seMat = getStdErrs(formList, fit$coefficients[, idx],
+                     fit$s2.post, fit$cov.coefficients[idx, idx])
+  seMat[, 3L] = seMat[, 3L] * fit$period / 2 / pi
+  d2 = data.table(feature = rep(rownames(fit), 3),
+                  variable = rep(c('diff_mesor', 'diff_amp', 'diff_phase'), each = nrow(fit)),
+                  se = as.vector(seMat))
+
+  quant = stats::qt(0.5 + confLevel / 2, fit$df.total)
+  d = merge(d1, d2, by = c('feature', 'variable'), sort = FALSE)
+  d[, `:=`(ci_lower = estimate - se * quant,
+           ci_upper = estimate + se * quant,
+           tstat = estimate / se,
+           pval = 2 * stats::pt(-abs(estimate / se), df = rep(fit$df.total, 2)))]
   return(d[])}
 
 
+#' @export
+getDiffRhythmTests = function(fit, diffRhythmStats = NULL, qvalRhyCutoff = 0.2) {
+  topTables = getTopTables(fit, qvalRhyCutoff)
+  d1 = merge(topTables$cond_time[, .(feature, pval_diff_rhy = P.Value, qval_diff_rhy = adj.P.Val)],
+             topTables$time[, .(feature, pval_rhy = P.Value, qval_rhy = adj.P.Val)],
+             by = 'feature', sort = FALSE)
+
+  if (is.null(diffRhythmStats)) {
+    setorderv(d1, c('pval_diff_rhy', 'pval_rhy'))
+    return(d1[])}
+
+  d2 = data.table::dcast(diffRhythmStats, feature ~ variable, value.var = 'pval')
+  setnames(d2, function(x) paste0('pval_', x))
+  setnames(d2, 'pval_feature', 'feature')
+
+  d = merge(d1, d2, by = 'feature')
+  d[, qval_diff_mesor := stats::p.adjust(pval_diff_mesor, 'BH')]
+  d[!is.na(qval_diff_rhy), qval_diff_amp := stats::p.adjust(pval_diff_amp, 'BH')]
+  d[!is.na(qval_diff_rhy), qval_diff_phase := stats::p.adjust(pval_diff_phase, 'BH')]
+
+  setcolorder(d, c('feature', 'pval_diff_rhy', 'qval_diff_rhy',
+                   'pval_diff_amp', 'qval_diff_amp', 'pval_diff_phase', 'qval_diff_phase',
+                   'pval_rhy', 'qval_rhy', 'pval_diff_mesor', 'qval_diff_mesor'))
+  setorderv(d, c('pval_diff_rhy', 'pval_rhy', 'pval_diff_mesor'))
+  return(d[])}
 
 
+#' @export
+getDiffRhythmAsh = function(diffRhythmStats, diffRhythmTests,
+                            mixcompdist = 'halfnormal', ci = FALSE, ...) {
+
+  # mesor
+  dNow = diffRhythmStats[variable == 'diff_mesor']
+  ashObj = dNow[, ashr::ash(estimate, se, mixcompdist = mixcompdist, ...)]
+  dm = cbind(dNow[, .(feature, variable)], setDT(ashObj$result))
+  if (isTRUE(ci)) {
+    ciMat = ashr::ashci(ashObj)
+    dm[, `:=`(credint_lower = ciMat[, 1L], credint_upper = ciMat[, 2L])]}
+
+  dNow = merge(diffRhythmStats[variable != 'diff_mesor',
+                               .(feature, variable, estimate, se)],
+               diffRhythmTests[!is.na(qval_diff_rhy), .(feature)],
+               by = 'feature')
+
+  # amplitude
+  ashObj = dNow[variable == 'diff_amp',
+                ashr::ash(estimate, se, mixcompdist = mixcompdist, ...)]
+
+  da = cbind(dNow[variable == 'diff_amp', .(feature, variable)],
+             setDT(ashObj$result))
+  if (isTRUE(ci)) {
+    ciMat = ashr::ashci(ashObj)
+    da[, `:=`(credint_lower = ciMat[, 1L], credint_upper = ciMat[, 2L])]}
+
+  # phase
+  ashObj = dNow[variable == 'diff_phase',
+                ashr::ash(estimate, se, mixcompdist = mixcompdist, ...)]
+
+  dp = cbind(dNow[variable == 'diff_phase', .(feature, variable)],
+             setDT(ashObj$result))
+  if (isTRUE(ci)) {
+    ciMat = ashr::ashci(ashObj)
+    dp[, `:=`(credint_lower = ciMat[, 1L], credint_upper = ciMat[, 2L])]}
+
+  d = rbind(dm, da, dp)
+  return(d)}
