@@ -12,19 +12,90 @@ globalVariables(c('estimate', 'feature', 'variable', 'se', 'meanNow', 'j', 'ix',
                   'cond_lev', 'cond_num', 'model_comp', 'coef_idx'))
 
 
-addIntercept = function(b, intercept) {
-  if (intercept) {
-    b = cbind(1, b)
-    colnames(b)[1L] = 'intercept'}
-  return(b)}
+
+getModelFitSpline = function(x, metadata, timeColname = 'time',
+                             period = 24, nKnots = 3, ...) {
+
+  stopifnot(length(period) == 1L, is.numeric(period), period > 0)
+
+  metadata = as.data.table(metadata)
+  setnames(metadata, timeColname, 'time')
+
+  s = limorhyde::limorhyde(metadata$time, nKnots =  nKnots, sinusoid = FALSE)
+  s = as.data.table(s)
+
+  metadata = cbind(metadata, s)
+  design = stats::model.matrix(~., data = s)
+
+  fit = limma::lmFit(x, design)
+  fit = limma::eBayes(fit, trend = TRUE, ...)
+
+  levs = 1L
+
+  fit$coef_lookup = data.table(cond_lev = rep(levs, each = length(s)+1),
+                               model_comp = rep(colnames(design),
+                                                length(levs)))
+
+  fit$coef_lookup[, coef_idx := 1:(length(s)+1)]
+
+  fit$period = period
+  return(fit)}
 
 
-getCosinorBasis = function(x, period, intercept) {
-  b = cbind(cos(x / period * 2 * pi),
-            sin(x / period * 2 * pi))
-  colnames(b) = c('cos', 'sin')
-  b = addIntercept(b, intercept)
-  return(b)}
+
+getSplineAsh = function(fit,mixcompdist = 'halfnormal', ...){
+
+  coMat = fit$coefficients
+  coDT = data.table(fit$coefficients, keep.rownames = "feature")
+
+  setnames(coDT, "(Intercept)", "intercept")
+
+  knotCoef = fit$coef_lookup[ !(model_comp == '(Intercept)')]
+  idx = knotCoef$coef_idx
+
+  seMat = sqrt(fit$s2.post) * fit$stdev.unscaled[, knotCoef$coef_idx] # get the coefficient standard errors.
+  d0 = melt(coDT[, intercept := NULL], id.vars = "feature")
+  d0[, se := as.vector(seMat)]
+
+
+  d1 = foreach(knotNow = as.character(knotCoef$model_comp), .combine = rbind) %dopar% {
+
+    dNow = d0[variable == knotNow]
+    ashObj = dNow[, ashr::ash(value, se, mixcompdist = mixcompdist,...)]
+
+    dRes = cbind(dNow, setDT(ashObj$result))
+
+
+  }
+
+  return(d1)
+
+}
+
+#option1
+# create a function that takes as input
+
+f = function(x,a) {x[1]*a[1] + x[2]*a[2] + x[3]*a[3]}
+# f2 = function(x,y) {x*y[1] + x*y[2] + x*y[3]}
+
+
+getSplineRhythmStats = function(splineCoef, metadata, nKnots){
+  xVec = paste0('x', 1:nKnots)
+
+  coefRaw = dcast(splineCoef, feature ~ variable, value.var = "value")
+
+  test = splineCoef[, knotsL := .(list(value)), by = feature][1:5]
+  opList = test[, lap1 := optim(fn = f,par = c(0,0,0),lower = 0, upper = 24,
+                                control = list(fnscale = -1), a = knotsL)]
+
+}
+
+
+
+
+
+
+
 
 
 #' @export
