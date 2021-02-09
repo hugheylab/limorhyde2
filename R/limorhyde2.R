@@ -146,7 +146,7 @@ getRhythmAsh = function(dt, ...){ # add mashr arguments
     mashAll = as.data.table(pm, keep.rownames = 'feature')
 
     #add intercept back
-    mashAll= merge(pmDT, dt$intercept, by = "feature")
+    mashAll= merge(pmDT, dt[, .(feature, intercept)], by = "feature")
     # if we wanted to return raw and posterior effects, merge with original datatable
     # allDT = merge(dt, pmDT, by = "feature")
   } else { #if performing mashr multiple times ie: different conditions?
@@ -175,7 +175,7 @@ getRhythmAsh = function(dt, ...){ # add mashr arguments
 
 }
 
-# create a function that takes as input
+
 
 f = function(x, nKnots = NULL, coefs, period = 24, ...) {
 
@@ -186,7 +186,7 @@ f = function(x, nKnots = NULL, coefs, period = 24, ...) {
 
     b = getCosinorBasis(x, period, intercept = FALSE)
   } else{
-    stopifnot('nKnots must be a numeric value > 1' = length(nKnots) == 1L, is.numeric(nKnots), nKnots > 0)
+    stopifnot('nKnots must be a numeric value > 1' = length(nKnots) == 1L, is.numeric(nKnots), nKnots > 1)
 
     b = getSplineBasis(x, period, nKnots = nKnots, intercept = FALSE)}
 
@@ -197,15 +197,19 @@ f = function(x, nKnots = NULL, coefs, period = 24, ...) {
 
 
 
+
 getInitialVals = function(period, nKnots = NULL, step = 0.01, ...){
 
   dt = data.table(time = seq(0, period, by = step))
 
   dt[, y = f(time, nKnots, period)]
 
-  initVals = dt[max(y), x]
+  iVal = dt[max(y), x]
+
+  return(iVal)
 
 }
+
 
 #' @export
 getRhythmStats = function(dt, period, nKnots, ...){
