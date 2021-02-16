@@ -12,6 +12,7 @@ globalVariables(c('estimate', 'feature', 'variable', 'se', 'meanNow', 'j', 'ix',
                   'cond_lev', 'cond_num', 'model_comp', 'coef_idx'))
 
 
+
 addIntercept = function(b, intercept) {
   if (intercept) {
     b = cbind(1, b)
@@ -40,53 +41,90 @@ getBasis = function(x, period = 24, nKnots = 4,intercept=FALSE){
 
 
 # returns fitList
-getModelFit = function(x, metadata, period, nKnots,...){
+getModelFit = function(x, metadata, period = 24, timeColname, conditionsColname, nKnots,...){
 
-  bMat = getBasis(metadata$time, period, nKnots)
-  formFull = ~ .
-  design = stats::model.matrix(formFull, data = as.data.table(bMat))
-  fit = limma::lmFit(x, design)
-  fit = limma::eBayes(fit, trend = TRUE,...)
-
-  return(fit)
-}
-
-
-getRhythmFit = function(x, metadata, timeColname = 'time', period = 24, nKnots, ...){
-# things to check for
+  # things to check for
   # period is included
   stopifnot('Specify a numeric value > 0' = length(period) == 1L, is.numeric(period), period > 0)
 
   metadata = as.data.table(metadata)
+  colsKeep = c(timeColname, conditionsColname)
+  sm = metadata[, ..colsKeep]
+  setnames(sm, timeColname, 'time')
 
-  # set time
-  setnames(metadata, timeColname, 'time')
-  metadata[, time := time%%period]
+  bMat = getBasis(sm$time, period, nKnots)
 
-  fit = getModelFit(x, metadata, period, nKnots, ...)
+  if(is.null(conditionsColname)){
+    bMat = as.data.table(bMat)
+    formFull = ~ .
+    design = stats::model.matrix(formFull, data = bMat)
+
+    } else{
+      setnames(sm, conditionsColname, 'cond')
+      condBmat = cbind(sm[, .(cond)], bMat)
+      formFull = ~ cond * .
+      design = stats::model.matrix(formFull, data = condBmat)}
+
+  fit = limma::lmFit(x, design)
+  fit = limma::eBayes(fit, trend = TRUE,...)
+
 
   return(fit)
 }
 
 
+getCoefLookUp = function(m){
 
+  coefLookup = data.table(idx = 1:ncol(m))
+
+  coefLookup[, comp := colnames(m)]
+  coefLookup[, name := comp]
+  coefLookup[(stringr::str_detect(comp, 'basis.*')),
+             name := stringr::str_match(comp, 'b.*')]
+
+  coefLookup[!(stringr::str_detect(comp, 'basis.*')),
+             name := 'intercept']
+  coefLookup[is.na(name), name := 'basis']
+  coefLookup[, cond_num := stringr::str_match(comp, '(?<=cond).*(?=:)|(?<=cond).*')]
+  coefLookup[is.na(cond_num), cond_num := 'wt']
+
+  return(coefLookup)
+
+}
 getRhythmAsh = function(fit, ...){
 
+  bMat = fit$coefficients
+  sMat = sqrt(fit$s2.post) * fit$stdev.unscaled
 
-  bHat = fit$coefficients[-1]
+  #create loop up table with indices
+  coefLookup = getCoefLookUp(bMat)
 
-  # create standard error matrix
-  sHat = sqrt(fit$s2.post) * fit$stdev.unscaled
-  sHat = sHat[-1]
 
-  data = mashr::mash_set_data(bHat, sHat)
-  Uc = mashr::cov_canonical(data)
-  resMash = mashr::mash(data,Uc,...)
-  pm = get_pm(resMash)
+  mashAll = foreach(condNow = unique(coefLookup$cond_num), .combine = cbind) %dopar% {
 
-  pm = cbind(pm, intercept = fit$coefficients[1])
+    lookUpNow = coefLookup[cond_num == condNow]
+    remove = 'intercept'
+    rInt = lookUpNow[!(name == remove)]
+    bHat = bMat[, rInt$idx]
+    sHat = sMat[, rInt$idx]
 
-  return(pm)
+    data = mashr::mash_set_data(bHat, sHat)
+    Uc = mashr::cov_canonical(data)
+    resMash = mashr::mash(data,Uc)
+    pm = get_pm(resMash)
+
+    rInt = lookUpNow[name == remove]
+
+    pm= cbind(bMat[, rInt$idx], pm)
+    colnames(pm) = lookUpNow$comp
+
+    return(pm)
+
+  }
+
+  mashAll = mashAll[, coefLookup$comp]
+
+  return(mashAll)
 
 }
 
@@ -101,7 +139,7 @@ f = function(x, nKnots = NULL, coefs, period = 24, ...) {
 
   # stopifnot('Number of basis components must match number of coefs provided' = ncol(b) == ncol(coefs))
 
-  y = rowSums(coefs * b)
+  y = coefs[,1] + rowSums(coefs[,-1] * b)
 
   return(y)
 }
@@ -117,10 +155,12 @@ getInitialVals = function(period = 24, nKnots = 4, coefs, step = period/1000, ma
   if(isTRUE(maximum)){
 
     it = t[which.max(y)]
+    iy = max(y)
 
   } else {
 
     it = t[which.min(y)]
+    iy = min(y)
 
   }
 
@@ -129,35 +169,51 @@ getInitialVals = function(period = 24, nKnots = 4, coefs, step = period/1000, ma
 
 }
 
+getOptimize = function(coefs, period, nKnots, max) {
 
-getRhythmStats = function(mat, period = 24, nKnots, ...){ # just takes a mat with effects
+  initVals = getInitialVals(period, nKnots, coefs, maximum = max)
 
+  if(isTRUE(max)) {
+  o = optim(par = initVals, fn = f, lower = 0, upper = period,
+            control = list(fnscale = -1), method = "L-BFGS-B",
+            nKnots = nKnots, coefs = coefs, period = period)
+  colN = c('xPeak','yPeak')
+  } else{
 
+    o = optim(par = initVals, fn = f, lower = 0, upper = period,
+              method = "L-BFGS-B",
+              nKnots = nKnots, coefs = coefs, period = period)
+    colN = c('xTrough', 'yTrough')}
 
-  oMax = apply(mat, 1, function(r) optim(par = getInitialVals(nKnots = 4, coefs = r, maximum = TRUE),
-                                          fn=f,
-                                          control = list(fnscale = -1),
-                                          method = "Brent", lower = 0, upper = period,
-                                          nKnots = nKnots, coefs = r, period = period))
-
-  # maxMat = do.call("rbind", oMax) produces list
-  maxMat =  matrix(unlist(oMax), nrow= nrow(mat), byrow = TRUE)
-  maxMat = maxMat[,1:2]
-  colnames(maxMat) = c('xPeak', 'peak')
-
-
-  opMin = apply(mat, 1, function(r) optim(par = getInitialVals(nKnots = 4, coefs = r, maximum = TRUE),
-                                           fn=f,
-                                           control = list(fnscale = 1),
-                                           method = "Brent", lower = 0, upper = period,
-                                           nKnots = nKnots, coefs = r, period = period))
-  minMat =  matrix(unlist(opMin), nrow= nrow(mat), byrow = TRUE)
-  minMat = minMat[,1:2]
-
-  colnames(maxMat) = c('xTrough', 'trough')
-
-  res = cbind(minMat, maxMat)
+  res = matrix(c(o$par, o$value), nrow = 1)
+  colnames(res) = colN
 
   return(res)
 
+
 }
+
+getRhythmStats = function(mat, period = 24, ...){ # just takes a mat with effects
+
+  # want to return data.table with amp and trough values for 1 or more conditions
+  # returning multiple rows per feature; need to specify cond
+  coefLook = getCoefLookUp(mat)
+  nKnots = nrow(coefLook[name %like% 'basis'])
+
+  cDt = as.data.table(, keep.rownames = TRUE)
+
+  test = foreach(x = iter(mat, by = "row"), .combine = rbind) %dopar% {
+
+
+    # for max
+    resMax = getOptimize(x, period, nKnots, max = TRUE)
+    #for min
+    resMin = getOptimize(x, period, nKnots, max = FALSE)
+
+    res = cbind(resMax, resMin)
+    rownames(res) = rownames(x)
+    
+    return(res) }
+
+  }
+
