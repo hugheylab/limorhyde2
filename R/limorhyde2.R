@@ -39,31 +39,40 @@ getBasis = function(x, period = 24, nKnots = 4,intercept=FALSE){
     return(b)}
 
 
+getSm = function(md, timeColname, conditionsColname){
+
+  md = as.data.table(md)
+  colsKeep = c(timeColname, conditionsColname)
+  sm = md[, ..colsKeep]
+
+  if(!(is.null(conditionsColname))){
+
+    setnames(sm, conditionsColname, 'cond')}
+
+  return(sm)
+}
 
 # returns fitList
 getModelFit = function(x, metadata, period = 24, timeColname, conditionsColname, nKnots,...){
 
+  sm = getSm(metadata, timeColname, conditionsColname)
   # things to check for
   # period is included
   stopifnot('Specify a numeric value > 0' = length(period) == 1L, is.numeric(period), period > 0)
 
-  metadata = as.data.table(metadata)
-  colsKeep = c(timeColname, conditionsColname)
-  sm = metadata[, ..colsKeep]
-  setnames(sm, timeColname, 'time')
+
 
   bMat = getBasis(sm$time, period, nKnots)
 
   if(is.null(conditionsColname)){
     bMat = as.data.table(bMat)
     formFull = ~ .
-    design = stats::model.matrix(formFull, data = bMat)
 
     } else{
-      setnames(sm, conditionsColname, 'cond')
-      condBmat = cbind(sm[, .(cond)], bMat)
-      formFull = ~ cond * .
-      design = stats::model.matrix(formFull, data = condBmat)}
+      bMat = cbind(sm[, .(cond)], bMat)
+      formFull = ~ cond * .}
+
+  design = stats::model.matrix(formFull, data = bMat)
 
   fit = limma::lmFit(x, design)
   fit = limma::eBayes(fit, trend = TRUE,...)
@@ -72,59 +81,36 @@ getModelFit = function(x, metadata, period = 24, timeColname, conditionsColname,
   return(fit)
 }
 
+getCK = function(mat){
 
-getCoefLookUp = function(m){
+  cols = colnames(mat)
+  nCond = which(cols == 'basis1') - 1
 
-  coefLookup = data.table(idx = 1:ncol(m))
+  fBasis = which(!(cols %like% 'cond') & cols >1) #should work with or  w/o cond
+  nKnots =  length(fBasis)
 
-  coefLookup[, comp := colnames(m)]
-  coefLookup[, name := comp]
-  coefLookup[(stringr::str_detect(comp, 'basis.*')),
-             name := stringr::str_match(comp, 'b.*')]
+  ck = c(nCond, nKnots)
 
-  coefLookup[!(stringr::str_detect(comp, 'basis.*')),
-             name := 'intercept']
-  coefLookup[is.na(name), name := 'basis']
-  coefLookup[, cond_num := stringr::str_match(comp, '(?<=cond).*(?=:)|(?<=cond).*')]
-  coefLookup[is.na(cond_num), cond_num := 'wt']
-
-  return(coefLookup)
+  return(ck)
 
 }
+
+
 getRhythmAsh = function(fit, ...){
 
-  bMat = fit$coefficients
-  sMat = sqrt(fit$s2.post) * fit$stdev.unscaled
+  idxRemove = getCK(bMat)[1]
 
-  #create loop up table with indices
-  coefLookup = getCoefLookUp(bMat)
+  bHat = fit$coefficients[, -(1:idxRemove)]
+  sHat = sqrt(fit$s2.post) * fit$stdev.unscaled[, -(1:idxRemove)]
 
+  data = mashr::mash_set_data(bHat, sHat)
+  Uc = mashr::cov_canonical(data)
+  resMash = mashr::mash(data,Uc)
+  pm = get_pm(resMash)
 
-  mashAll = foreach(condNow = unique(coefLookup$cond_num), .combine = cbind) %dopar% {
+  pm = cbind(bMat[, 1:idxRemove], pm)
 
-    lookUpNow = coefLookup[cond_num == condNow]
-    remove = 'intercept'
-    rInt = lookUpNow[!(name == remove)]
-    bHat = bMat[, rInt$idx]
-    sHat = sMat[, rInt$idx]
-
-    data = mashr::mash_set_data(bHat, sHat)
-    Uc = mashr::cov_canonical(data)
-    resMash = mashr::mash(data,Uc)
-    pm = get_pm(resMash)
-
-    rInt = lookUpNow[name == remove]
-
-    pm= cbind(bMat[, rInt$idx], pm)
-    colnames(pm) = lookUpNow$comp
-
-    return(pm)
-
-  }
-
-  mashAll = mashAll[, coefLookup$comp]
-
-  return(mashAll)
+  return(pm)
 
 }
 
