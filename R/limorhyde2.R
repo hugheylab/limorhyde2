@@ -45,12 +45,16 @@ getSm = function(md, timeColname, conditionsColname){
   colsKeep = c(timeColname, conditionsColname)
   sm = md[, ..colsKeep]
 
-  if(!(is.null(conditionsColname))){
+  if(is.null(conditionsColname)){
+  setnames(sm, colsKeep, c('time'))
+  } else{
 
-    setnames(sm, conditionsColname, 'cond')}
+    setnames(sm, colsKeep, c('time', 'cond'))
+  }
 
   return(sm)
 }
+
 
 # returns fitList
 getModelFit = function(x, metadata, period = 24, timeColname, conditionsColname, nKnots,...){
@@ -98,6 +102,7 @@ getCK = function(mat){
 
 getRhythmAsh = function(fit, ...){
 
+  bMat = fit$coefficients
   idxRemove = getCK(bMat)[1]
 
   bHat = fit$coefficients[, -(1:idxRemove)]
@@ -108,7 +113,7 @@ getRhythmAsh = function(fit, ...){
   resMash = mashr::mash(data,Uc)
   pm = get_pm(resMash)
 
-  pm = cbind(bMat[, 1:idxRemove], pm)
+  pm = cbind(bMat[, 1:idxRemove, drop = FALSE], pm)
 
   return(pm)
 
