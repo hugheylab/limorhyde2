@@ -13,6 +13,7 @@ globalVariables(c('estimate', 'feature', 'variable', 'se', 'meanNow', 'j', 'ix',
 
 
 
+
 addIntercept = function(b, intercept) {
   if (intercept) {
     b = cbind(1, b)
@@ -38,7 +39,6 @@ getBasis = function(x, period = 24, nKnots = 4,intercept=FALSE){
 
     return(b)}
 
-
 getSm = function(md, timeColname, conditionsColname){
 
   md = as.data.table(md)
@@ -54,7 +54,6 @@ getSm = function(md, timeColname, conditionsColname){
 
   return(sm)
 }
-
 
 # returns fitList
 getModelFit = function(x, metadata, period = 24, timeColname, conditionsColname, nKnots,...){
@@ -120,24 +119,21 @@ getRhythmAsh = function(fit, ...){
 }
 
 
-
-#option1
-# create a function that takes as input
-
-f = function(x, nKnots = NULL, coefs, period = 24, ...) {
+f = function(x, nKnots, coefs, period, ...) {
 
   b = getBasis(x, period, nKnots)
 
   # stopifnot('Number of basis components must match number of coefs provided' = ncol(b) == ncol(coefs))
 
-  y = coefs[,1] + rowSums(coefs[,-1] * b)
+  y = coefs[1] + rowSums(coefs[-1] * b)
 
   return(y)
 }
 
 
 
-getInitialVals = function(period = 24, nKnots = 4, coefs, step = period/1000, maximum = TRUE){
+getInitialVals = function(period, nKnots, coefs, step = period/1000, maximum = TRUE){
+
 
   t = seq(0, period, by = step)
 
@@ -146,12 +142,11 @@ getInitialVals = function(period = 24, nKnots = 4, coefs, step = period/1000, ma
   if(isTRUE(maximum)){
 
     it = t[which.max(y)]
-    iy = max(y)
+
 
   } else {
 
     it = t[which.min(y)]
-    iy = min(y)
 
   }
 
@@ -184,27 +179,25 @@ getOptimize = function(coefs, period, nKnots, max) {
 
 }
 
-getRhythmStats = function(mat, period = 24, ...){ # just takes a mat with effects
+getRhythmStats = function(mat, period, nKnots, ...){ # just takes a mat with effects
 
-  # want to return data.table with amp and trough values for 1 or more conditions
-  # returning multiple rows per feature; need to specify cond
-  coefLook = getCoefLookUp(mat)
-  nKnots = nrow(coefLook[name %like% 'basis'])
 
-  cDt = as.data.table(, keep.rownames = TRUE)
-
-  test = foreach(x = iter(mat, by = "row"), .combine = rbind) %dopar% {
+  test = foreach(mNow = iter(mat, by = "row"), .combine = rbind) %dopar% {
 
 
     # for max
-    resMax = getOptimize(x, period, nKnots, max = TRUE)
+    resMax = getOptimize(coefs = mNow, period, nKnots, max = TRUE)
     #for min
-    resMin = getOptimize(x, period, nKnots, max = FALSE)
+    resMin = getOptimize(mNow, period, nKnots, max = FALSE)
 
     res = cbind(resMax, resMin)
-    rownames(res) = rownames(x)
-    
+    rownames(res) = rownames(mNow)
+
+    res = as.data.table(res, keep.rownames = 'feature')
+
+
     return(res) }
 
-  }
+  return(test) #return a data.table
 
+  }
