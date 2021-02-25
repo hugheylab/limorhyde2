@@ -4,14 +4,6 @@
 NULL
 
 
-globalVariables(c('estimate', 'feature', 'variable', 'se', 'meanNow', 'j', 'ix',
-                  'iy', 'jx', 'jy', 'pval_diff_amp', 'pval_diff_mesor',
-                  'pval_diff_phase', 'P.Value', 'adj.P.Val', 'cond', 'varNow',
-                  'qval_diff_phase', 'qval_diff_rhy', 'pval_diff_rhy',
-                  '.', 'pval_rhy', 'qval_diff_amp', 'qval_diff_mesor',
-                  'cond_lev', 'cond_num', 'model_comp', 'coef_idx'))
-
-
 
 
 addIntercept = function(b, intercept) {
@@ -84,13 +76,12 @@ getModelFit = function(x, metadata, period = 24, timeColname, conditionsColname,
   return(fit)
 }
 
+
 getCK = function(mat){
 
   cols = colnames(mat)
   nCond = which(cols == 'basis1') - 1
-
-  fBasis = which(!(cols %like% 'cond') & cols >1) #should work with or  w/o cond
-  nKnots =  length(fBasis)
+  nKnots =  (length(colnames) - nCond)/nCond
 
   ck = c(nCond, nKnots)
 
@@ -118,86 +109,84 @@ getRhythmAsh = function(fit, ...){
 
 }
 
-
 f = function(x, nKnots, coefs, period, ...) {
 
   b = getBasis(x, period, nKnots)
 
   # stopifnot('Number of basis components must match number of coefs provided' = ncol(b) == ncol(coefs))
 
-  y = coefs[1] + rowSums(coefs[-1] * b)
+  y = coefs[1] + (b %*% coefs[-1])
 
   return(y)
 }
 
 
 
-getInitialVals = function(period, nKnots, coefs, step = period/1000, maximum = TRUE){
-
+getInitialVals = function(coefs, period, nKnots, step = period/1000){
 
   t = seq(0, period, by = step)
 
   y = f(t, nKnots, coefs, period)
 
-  if(isTRUE(maximum)){
+  tInit = c(t[which.max(y)], t[which.min(y)], period)
 
-    it = t[which.max(y)]
-
-
-  } else {
-
-    it = t[which.min(y)]
-
-  }
-
-
-  return(it)
+  return(tInit)
 
 }
 
-getOptimize = function(coefs, period, nKnots, max) {
 
-  initVals = getInitialVals(period, nKnots, coefs, maximum = max)
+getOptimize = function(initVals) {
 
-  if(isTRUE(max)) {
-  o = optim(par = initVals, fn = f, lower = 0, upper = period,
-            control = list(fnscale = -1), method = "L-BFGS-B",
-            nKnots = nKnots, coefs = coefs, period = period)
-  colN = c('xPeak','yPeak')
-  } else{
+  period = initVals[3]
+  oMax = optim(par = initVals[1], fn = f, lower = 0, upper = period,
+               control = list(fnscale = -1), method = "L-BFGS-B")
 
-    o = optim(par = initVals, fn = f, lower = 0, upper = period,
-              method = "L-BFGS-B",
-              nKnots = nKnots, coefs = coefs, period = period)
-    colN = c('xTrough', 'yTrough')}
+  oMin = optim(par = initVals[2], fn = f, lower = 0, upper = period, method = "L-BFGS-B")
 
-  res = matrix(c(o$par, o$value), nrow = 1)
-  colnames(res) = colN
+  res = data.table(xPeak = oMax$par, yPeak = oMax$value,
+                   xTrough = oMin$par, yTrough = oMin$value)
 
   return(res)
 
-
 }
+getDiffRhythmStats = function(mat){
 
-getRhythmStats = function(mat, period, nKnots, ...){ # just takes a mat with effects
+  ck = getCK(mat)
+  nCond = ck[1]
+  nKnots = ck[2]
+  cntrlIdx = c(1, nCond + 1:nKnots)
+  controlMat = mat[, cntrlIdx]
 
+  for(i in 2:nCond){
 
-  test = foreach(mNow = iter(mat, by = "row"), .combine = rbind) %dopar% {
-
-
-    # for max
-    resMax = getOptimize(coefs = mNow, period, nKnots, max = TRUE)
-    #for min
-    resMin = getOptimize(mNow, period, nKnots, max = FALSE)
-
-    res = cbind(resMax, resMin)
-    rownames(res) = rownames(mNow)
-
-    res = as.data.table(res, keep.rownames = 'feature')
-
-
-    return(res) }
-
-  return(test) #return a data.table
+    idx = c(i, (1:nKnots)+i*nKnots)
+    matNow = mat[, idx]
+    mat[, idx] = controlMat + matNow
 
   }
+  return(mat)
+
+}
+getRhythmStats = function(mat, period){ # just takes a mat with effects
+
+  ck = getCK(mat)
+  nCond = ck[1]
+  nKnots = ck[2]
+
+  statsAll = foreach(codNow = 1:nCond, .combine = rbind) %dopar% {
+
+    matCond = getDiffRhythmStats(mat)
+
+    statsNow = foreach(mNow = iter(mat, by = "row"), .combine = rbind) %dopar% {
+
+      vals = getInitialVals(mNow, period, nKnots)
+      res = getOptimize(vals)
+      res[, feature := rownames(mNow)]
+
+      return(res) }
+
+    return(statsNow) }
+
+  return(statsAll)
+
+}
