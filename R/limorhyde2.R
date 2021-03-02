@@ -76,12 +76,11 @@ getModelFit = function(x, metadata, period = 24, timeColname, conditionsColname,
   return(fit)
 }
 
-
 getCK = function(mat){
 
   cols = colnames(mat)
   nCond = which(cols == 'basis1') - 1
-  nKnots =  (length(colnames) - nCond)/nCond
+  nKnots = length(cols) - nCond/nCond
 
   ck = c(nCond, nKnots)
 
@@ -109,7 +108,8 @@ getRhythmAsh = function(fit, ...){
 
 }
 
-f = function(x, nKnots, coefs, period, ...) {
+
+f = function(x, coefs, nKnots, period, ...) {
 
   b = getBasis(x, period, nKnots)
 
@@ -121,34 +121,25 @@ f = function(x, nKnots, coefs, period, ...) {
 }
 
 
+getOptimize = function(coFunc, tVec) {
 
-getInitialVals = function(coefs, period, nKnots, step = period/1000){
+  y = coFunc(tVec)
 
-  t = seq(0, period, by = step)
-
-  y = f(t, nKnots, coefs, period)
-
-  tInit = c(t[which.max(y)], t[which.min(y)], period)
-
-  return(tInit)
-
-}
-
-
-getOptimize = function(initVals) {
-
-  period = initVals[3]
-  oMax = optim(par = initVals[1], fn = f, lower = 0, upper = period,
+  oMax = optim(par = tVec[which.max(y)], fn = coFunc, lower = min(tVec), upper = max(tVec),
                control = list(fnscale = -1), method = "L-BFGS-B")
 
-  oMin = optim(par = initVals[2], fn = f, lower = 0, upper = period, method = "L-BFGS-B")
 
-  res = data.table(xPeak = oMax$par, yPeak = oMax$value,
-                   xTrough = oMin$par, yTrough = oMin$value)
+  oMin = optim(par = tVec[which.min(y)], fn = coFunc, lower = min(tVec), upper = max(tVec),
+               method = "L-BFGS-B")
+
+  res = data.table(peakTime = oMax$par, peakValue = oMax$value,
+                   troughTime = oMin$par, troughValue = oMin$value)
+
 
   return(res)
 
 }
+
 getDiffRhythmStats = function(mat){
 
   ck = getCK(mat)
@@ -167,26 +158,39 @@ getDiffRhythmStats = function(mat){
   return(mat)
 
 }
+
 getRhythmStats = function(mat, period){ # just takes a mat with effects
 
   ck = getCK(mat)
   nCond = ck[1]
   nKnots = ck[2]
+  t = seq(0, period, by = period/1000)
 
-  statsAll = foreach(codNow = 1:nCond, .combine = rbind) %dopar% {
+  # statsAll = foreach(codNow = (1:nCond), .combine = rbind) %do% {
 
-    matCond = getDiffRhythmStats(mat)
+  # isolate matrix for specific condition
+  # maybe create function that isolates individual condition matrix by index in original matrix
 
-    statsNow = foreach(mNow = iter(mat, by = "row"), .combine = rbind) %dopar% {
+  statsNow = foreach(mNow = iter(mat, by = "row"), .combine = rbind) %dopar% {
 
-      vals = getInitialVals(mNow, period, nKnots)
-      res = getOptimize(vals)
-      res[, feature := rownames(mNow)]
+    funcR = function(x, co = mNow, p = period, nk = nKnots){
 
-      return(res) }
+      b = getBasis(x, p, nk)
 
-    return(statsNow) }
+      y = co[1] + (b %*% co[-1])
 
-  return(statsAll)
+      return(y)
 
-}
+    }
+
+
+    res = getOptimize(funcR, t)
+    res[, feature := rownames(mNow)]
+
+    res[, ampl := 0.5 * (peakValue - troughValue)]
+
+    return(res) }
+
+  statsNow[,cond := nCond]
+
+  return(statsNow) }
