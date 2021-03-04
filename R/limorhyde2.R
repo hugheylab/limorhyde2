@@ -1,9 +1,14 @@
-#' @importFrom data.table data.table := setnames setorderv setcolorder setDT
-#' @importFrom foreach foreach %do% %dopar%
+#' @import foreach
+#' @import data.table
+#' @import mashr
+#' @importFrom stats optim
+#' @importFrom iterators iter
 #' @importFrom zeallot %<-%
 NULL
 
+# data.table data.table as.data.table := setnames setorderv setcolorder setDT
 
+globalVariables(c('ampl', 'cond', 'feature', 'mNow', 'peakValue', 'troughValue', '.','..'))
 
 
 addIntercept = function(b, intercept) {
@@ -47,7 +52,7 @@ getSm = function(md, timeColname, conditionsColname){
   return(sm)
 }
 
-# returns fitList
+#' @export
 getModelFit = function(x, metadata, period = 24, timeColname, conditionsColname, nKnots,...){
 
   sm = getSm(metadata, timeColname, conditionsColname)
@@ -88,7 +93,7 @@ getCK = function(mat){
 
 }
 
-
+#' @export
 getRhythmAsh = function(fit, ...){
 
   bMat = fit$coefficients
@@ -97,9 +102,9 @@ getRhythmAsh = function(fit, ...){
   bHat = fit$coefficients[, -(1:idxRemove)]
   sHat = sqrt(fit$s2.post) * fit$stdev.unscaled[, -(1:idxRemove)]
 
-  data = mashr::mash_set_data(bHat, sHat)
-  Uc = mashr::cov_canonical(data)
-  resMash = mashr::mash(data,Uc)
+  data = mash_set_data(bHat, sHat)
+  Uc = cov_canonical(data)
+  resMash = mash(data,Uc)
   pm = get_pm(resMash)
 
   pm = cbind(bMat[, 1:idxRemove, drop = FALSE], pm)
@@ -124,12 +129,13 @@ f = function(x, coefs, nKnots, period, ...) {
 getOptimize = function(coFunc, tVec) {
 
   y = coFunc(tVec)
+  tr = range(tVec)
 
-  oMax = optim(par = tVec[which.max(y)], fn = coFunc, lower = min(tVec), upper = max(tVec),
+  oMax = optim(par = tVec[which.max(y)], fn = coFunc, lower = tr[1], upper = tr[2],
                control = list(fnscale = -1), method = "L-BFGS-B")
 
 
-  oMin = optim(par = tVec[which.min(y)], fn = coFunc, lower = min(tVec), upper = max(tVec),
+  oMin = optim(par = tVec[which.min(y)], fn = coFunc, lower = tr[1], upper = tr[2],
                method = "L-BFGS-B")
 
   res = data.table(peakTime = oMax$par, peakValue = oMax$value,
@@ -140,6 +146,7 @@ getOptimize = function(coFunc, tVec) {
 
 }
 
+#' @export
 getDiffRhythmStats = function(mat){
 
   ck = getCK(mat)
@@ -159,12 +166,13 @@ getDiffRhythmStats = function(mat){
 
 }
 
+#' @export
 getRhythmStats = function(mat, period){ # just takes a mat with effects
 
   ck = getCK(mat)
   nCond = ck[1]
   nKnots = ck[2]
-  t = seq(0, period, by = period/1000)
+  t = seq(0, period, by = period/(nKnots *10))
 
   # statsAll = foreach(codNow = (1:nCond), .combine = rbind) %do% {
 
@@ -175,9 +183,9 @@ getRhythmStats = function(mat, period){ # just takes a mat with effects
 
     funcR = function(x, co = mNow, p = period, nk = nKnots){
 
-      b = getBasis(x, p, nk)
+      b = getBasis(x, p, nk, intercept = TRUE)
 
-      y = co[1] + (b %*% co[-1])
+      y = b %*% co
 
       return(y)
 
@@ -187,7 +195,7 @@ getRhythmStats = function(mat, period){ # just takes a mat with effects
     res = getOptimize(funcR, t)
     res[, feature := rownames(mNow)]
 
-    res[, ampl := 0.5 * (peakValue - troughValue)]
+    res[, ampl := peakValue - troughValue]
 
     return(res) }
 
