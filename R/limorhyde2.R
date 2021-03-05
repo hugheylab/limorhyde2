@@ -8,7 +8,7 @@ NULL
 
 # data.table data.table as.data.table := setnames setorderv setcolorder setDT
 
-globalVariables(c('ampl', 'cond', 'feature', 'mNow', 'peakValue', 'troughValue', '.','..'))
+globalVariables(c('ampl', 'cond', 'feature', 'mNow', 'peakValue', 'troughValue', 'cNum', 'condNow', 'period','.','..colsKeep'))
 
 
 addIntercept = function(b, intercept) {
@@ -105,7 +105,8 @@ getRhythmAsh = function(fit, ...){
   data = mash_set_data(bHat, sHat)
   Uc = cov_canonical(data)
   resMash = mash(data,Uc)
-  pm = get_pm(resMash)
+  # pm = mashr::get_pm(resMash)
+  pm = resMash$result$PosteriorMean
 
   pm = cbind(bMat[, 1:idxRemove, drop = FALSE], pm)
 
@@ -146,25 +147,38 @@ getOptimize = function(coFunc, tVec) {
 
 }
 
-#' @export
-getDiffRhythmStats = function(mat){
 
-  ck = getCK(mat)
-  nCond = ck[1]
-  nKnots = ck[2]
-  cntrlIdx = c(1, nCond + 1:nKnots)
-  controlMat = mat[, cntrlIdx]
+getIdx = function(mat, i, nCond, nKnots){
 
-  for(i in 2:nCond){
+  idx = c(i, nCond + (i-1)*nKnots + (1:nKnots))
 
-    idx = c(i, (1:nKnots)+i*nKnots)
-    matNow = mat[, idx]
-    mat[, idx] = controlMat + matNow
-
-  }
-  return(mat)
+  return(idx)
 
 }
+
+
+getCond = function(mat, i, nCond, nKnots){
+
+  cIdx = getIdx(mat, 1, nCond, nKnots)
+  m0 = mat[, cIdx]
+
+  if(i == 1){
+    return(m0)
+  } else{
+
+    tIdx = getIdx(mat, i, nCond, nKnots)
+    m1 = mat[, tIdx]
+
+    m =  m0 + m1
+
+    colnames(m) = colnames(m1)
+
+  }
+
+  return(m)
+
+}
+
 
 #' @export
 getRhythmStats = function(mat, period){ # just takes a mat with effects
@@ -174,31 +188,81 @@ getRhythmStats = function(mat, period){ # just takes a mat with effects
   nKnots = ck[2]
   t = seq(0, period, by = period/(nKnots *10))
 
-  # statsAll = foreach(codNow = (1:nCond), .combine = rbind) %do% {
+  statsAll = foreach(cNum = (1:nCond), .combine = rbind) %do% {
 
-  # isolate matrix for specific condition
-  # maybe create function that isolates individual condition matrix by index in original matrix
+    cMat = getCond(mat, cNum, nCond, nKnots)
+    # isolate matrix for specific condition
+    # maybe create function that isolates individual condition matrix by index in original matrix
 
-  statsNow = foreach(mNow = iter(mat, by = "row"), .combine = rbind) %dopar% {
+    statsNow = foreach(mNow = iter(cMat, by = "row"), .combine = rbind) %dopar% {
 
-    funcR = function(x, co = mNow, p = period, nk = nKnots){
+      funcR = function(x, co = mNow, p = period, nk = nKnots){
 
-      b = getBasis(x, p, nk, intercept = TRUE)
+        b = getBasis(x, p, nk, intercept = TRUE)
 
-      y = b %*% co
+        y = b %*% co
 
-      return(y)
+        return(y)
 
-    }
+      }
 
 
-    res = getOptimize(funcR, t)
-    res[, feature := rownames(mNow)]
+      res = getOptimize(funcR, t)
+      res[, feature := rownames(mNow)]
 
-    res[, ampl := peakValue - troughValue]
+      res[, ampl := peakValue - troughValue]
 
-    return(res) }
+      return(res) }
 
-  statsNow[,cond := nCond]
+    statsNow[,cond := cNum]
 
-  return(statsNow) }
+    return(statsNow) }
+
+  return(statsAll)
+
+}
+
+#' @export
+getDiffRhythmStats = function(mat){
+
+  ck = getCK(mat)
+  nCond = ck[1]
+  nKnots = ck[2]
+
+  m = foreach(condNow = 2: nCond, .combine = rbind) %do% {
+
+    idx = getIdx(mat, condNow, nCond, nKnots)
+    mCond = mat[, idx]
+    statsNow = foreach(mNow = iter(mCond, by = "row"), .combine = rbind) %dopar% {
+
+      funcR = function(x, co = mNow, p = period, nk = nKnots){
+
+        b = getBasis(x, p, nk, intercept = TRUE)
+
+        y = b %*% co
+
+        return(y)
+
+      }
+
+
+      res = getOptimize(funcR, t)
+      res[, feature := rownames(mNow)]
+
+      res[, ampl := peakValue - troughValue]
+      setnames(res, 2:length(res), paste0('diff', colnames(res)[-1]))
+
+      return(res) }
+
+    statsNow[, cond := condNow]
+
+    return(statsNow)
+
+
+  }
+
+  return(m)
+
+
+}
+
