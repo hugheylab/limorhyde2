@@ -1,0 +1,25 @@
+"","title","sample","treat","tm"
+"1","wild-type liver_ZT0_rep 1","GSM840516","wt",0
+"2","wild-type liver_ZT0_rep 2","GSM840517","wt",0
+"3","wild-type liver_ZT4_rep 1","GSM840518","wt",4
+"4","wild-type liver_ZT4_rep 2","GSM840519","wt",4
+"5","wild-type liver_ZT8_rep 1","GSM840520","wt",8
+"6","wild-type liver_ZT8_rep 2","GSM840521","wt",8
+"7","wild-type liver_ZT12_rep 1","GSM840522","wt",12
+"8","wild-type liver_ZT12_rep 2","GSM840523","wt",12
+"9","wild-type liver_ZT16_rep 1","GSM840524","wt",16
+"10","wild-type liver_ZT16_rep 2","GSM840525","wt",16
+"11","wild-type liver_ZT20_rep 1","GSM840526","wt",20
+"12","wild-type liver_ZT20_rep 2","GSM840527","wt",20
+"13","Reverb alpha/beta DKO liver_ZT0_rep 1","GSM840504","ko",0
+"14","Reverb alpha/beta DKO liver_ZT0_rep 2","GSM840505","ko",0
+"15","Reverb alpha/beta DKO liver_ZT4_rep 1","GSM840506","ko",4
+"16","Reverb alpha/beta DKO liver_ZT4_rep 2","GSM840507","ko",4
+"17","Reverb alpha/beta DKO liver_ZT8_rep 1","GSM840508","ko",8
+"18","Reverb alpha/beta DKO liver_ZT8_rep 2","GSM840509","ko",8
+"19","Reverb alpha/beta DKO liver_ZT12_rep 1","GSM840510","ko",12
+"20","Reverb alpha/beta DKO liver_ZT12_rep 2","GSM840511","ko",12
+"21","Reverb alpha/beta DKO liver_ZT16_rep 1","GSM840512","ko",16
+"22","Reverb alpha/beta DKO liver_ZT16_rep 2","GSM840513","ko",16
+"23","Reverb alpha/beta DKO liver_ZT20_rep 1","GSM840514","ko",20
+"24","Reverb alpha/beta DKO liver_ZT20_rep 2","GSM840515","ko",20

@@ -20,7 +20,7 @@ addIntercept = function(b, intercept) {
 
 getBasis = function(x, period = 24, nKnots = 4,intercept=FALSE){
 
-  if(is.null(nKnots)){
+  if(is.null(nKnots)|identical(2, nKnots)){
 
     b = cbind(cos(x / period * 2 * pi),
               sin(x / period * 2 * pi))
