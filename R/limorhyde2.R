@@ -223,46 +223,21 @@ getRhythmStats = function(mat, period){ # just takes a mat with effects
 }
 
 #' @export
-getDiffRhythmStats = function(mat){
+getDiffRhythmStats = function(dat){
 
-  ck = getCK(mat)
-  nCond = ck[1]
-  nKnots = ck[2]
+  #check that there are only 2 conditions in dat
+  condNum = dat[, uniqueN(cond)]
+  stopifnot("Must have only 2 conditions per feature", !(condNum == 2))
+  diffDT = dat[, lapply(.SD, diff), by  = feature]
 
-  m = foreach(condNow = 2: nCond, .combine = rbind) %do% {
+  idcols = c('cond', 'feature')
+  cols = colnames(diffDT)
+  colsDiff = cols[!(cols %in% idcols)]
+  setnames(diffDT, colsDiff, paste0("diff_", colsDiff))
 
-    idx = getIdx(mat, condNow, nCond, nKnots)
-    mCond = mat[, idx]
-    statsNow = foreach(mNow = iter(mCond, by = "row"), .combine = rbind) %dopar% {
-
-      funcR = function(x, co = mNow, p = period, nk = nKnots){
-
-        b = getBasis(x, p, nk, intercept = TRUE)
-
-        y = b %*% co
-
-        return(y)
-
-      }
-
-
-      res = getOptimize(funcR, t)
-      res[, feature := rownames(mNow)]
-
-      res[, ampl := peakValue - troughValue]
-      setnames(res, 2:length(res), paste0('diff', colnames(res)[-1]))
-
-      return(res) }
-
-    statsNow[, cond := condNow]
-
-    return(statsNow)
-
-
-  }
-
-  return(m)
-
+  return(diffDT)
 
 }
+
+
 
