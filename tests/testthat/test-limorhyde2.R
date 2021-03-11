@@ -26,7 +26,20 @@ test_that('getModelFit cosinor is functional', {
 })
 
 
+test_that('getModelFit cosinor is functional', {
+  library(data.table)
 
+  period = 24
+  nKnots = 4
+
+  path = '/Users/doraobodo/Documents/limorhyde2/tests/testthat'
+
+  d0 = readRDS(file.path(path, 'two_cond_fit_coefs.RDS'))
+
+  dMat = getRhythmStats(d0[1:2,], period = 24)
+
+
+})
 
 
 

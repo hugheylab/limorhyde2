@@ -86,7 +86,7 @@ getCK = function(mat){
 
   cols = colnames(mat)
   nCond = which(cols == 'basis1') - 1
-  nKnots = length(cols) - nCond/nCond
+  nKnots = (length(cols) - nCond)/nCond
 
   ck = c(nCond, nKnots)
 
@@ -191,7 +191,7 @@ getRhythmStats = function(mat, period){ # just takes a mat with effects
   nKnots = ck[2]
   t = seq(0, period, by = period/(nKnots *10))
 
-  statsAll = foreach(cNum = (1:nCond), .combine = rbind) %do% {
+  statsAll = foreach(cNum = 1:nCond, .combine = rbind) %do% {
 
     cMat = getCond(mat, cNum, nCond, nKnots)
     # isolate matrix for specific condition
@@ -200,10 +200,11 @@ getRhythmStats = function(mat, period){ # just takes a mat with effects
     statsNow = foreach(mNow = iter(cMat, by = "row"), .combine = rbind) %dopar% {
 
       funcR = function(x, co = mNow, p = period, nk = nKnots){
-
+        co2 = matrix(co, ncol = 1)
         b = getBasis(x, p, nk, intercept = TRUE)
 
-        y = b %*% t(co)
+        y = b %*% co2
+
 
         return(y)
 
@@ -214,6 +215,8 @@ getRhythmStats = function(mat, period){ # just takes a mat with effects
       res[, feature := rownames(mNow)]
 
       res[, ampl := peakValue - troughValue]
+
+      # res = data.table(funcR(t))
 
       return(res) }
 
