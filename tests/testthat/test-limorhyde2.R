@@ -6,7 +6,7 @@ test_that('getModelFit cosinor is functional', {
   period = 24
   nKnots = 4
 
-  # path = '/Users/doraobodo/Documents/limorhyde2/tests/testthat'
+  path = '/Users/doraobodo/Documents/limorhyde2/tests/testthat'
 
   d0 = read.csv('test_limorhyde2_one_cond_example_data.csv', row.names = 1)
   md0 = read.csv('test_limorhyde2_one_cond_example_md.csv', row.names = 1)
@@ -24,3 +24,9 @@ test_that('getModelFit cosinor is functional', {
   expect_true(fitEqual)
 
 })
+
+
+
+
+
+

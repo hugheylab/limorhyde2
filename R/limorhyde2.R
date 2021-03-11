@@ -36,6 +36,7 @@ getBasis = function(x, period = 24, nKnots = 4,intercept=FALSE){
 
     return(b)}
 
+# test output w and w/o conditionsColname
 getSm = function(md, timeColname, conditionsColname){
 
   md = as.data.table(md)
@@ -94,7 +95,7 @@ getCK = function(mat){
 }
 
 #' @export
-getRhythmAsh = function(fit, ...){
+getRhythmAsh = function(fit, cov_method, ...){
 
   bMat = fit$coefficients
   idxRemove = getCK(bMat)[1]
@@ -103,6 +104,8 @@ getRhythmAsh = function(fit, ...){
   sHat = sqrt(fit$s2.post) * fit$stdev.unscaled[, -(1:idxRemove)]
 
   data = mash_set_data(bHat, sHat)
+
+  # add if statement for cov_method
   Uc = cov_canonical(data)
   resMash = mash(data,Uc)
   # pm = mashr::get_pm(resMash)
@@ -148,7 +151,7 @@ getOptimize = function(coFunc, tVec) {
 }
 
 
-getIdx = function(mat, i, nCond, nKnots){
+getIdx = function(i, nCond, nKnots){
 
   idx = c(i, nCond + (i-1)*nKnots + (1:nKnots))
 
@@ -159,23 +162,23 @@ getIdx = function(mat, i, nCond, nKnots){
 
 getCond = function(mat, i, nCond, nKnots){
 
-  cIdx = getIdx(mat, 1, nCond, nKnots)
+  cIdx = getIdx(1, nCond, nKnots)
   m0 = mat[, cIdx]
 
   if(i == 1){
     return(m0)
   } else{
 
-    tIdx = getIdx(mat, i, nCond, nKnots)
+    tIdx = getIdx(i, nCond, nKnots) #tIdx must be the same length as nKnots +1
+
     m1 = mat[, tIdx]
 
     m =  m0 + m1
 
     colnames(m) = colnames(m1)
 
-  }
+    return(m) }
 
-  return(m)
 
 }
 
@@ -200,7 +203,7 @@ getRhythmStats = function(mat, period){ # just takes a mat with effects
 
         b = getBasis(x, p, nk, intercept = TRUE)
 
-        y = b %*% co
+        y = b %*% t(co)
 
         return(y)
 
@@ -222,10 +225,14 @@ getRhythmStats = function(mat, period){ # just takes a mat with effects
 
 }
 
+
 #' @export
 getDiffRhythmStats = function(dat){
 
+  # pass rhythmStats dt
+  # add  2 conditions argument
   #check that there are only 2 conditions in dat
+  # modify diffPhase
   condNum = dat[, uniqueN(cond)]
   stopifnot("Must have only 2 conditions per feature", !(condNum == 2))
   diffDT = dat[, lapply(.SD, diff), by  = feature]
