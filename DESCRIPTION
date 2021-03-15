@@ -12,7 +12,8 @@ RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
 Depends: R (>= 3.6)
 Imports:
-    ashr (>= 2.2-47),
+    pbs(>= 1.1),
+    mashr(>= 0.2.38),
     data.table (>= 1.12.8),
     doParallel (>= 1.0.15),
     Deriv (>= 4.0),

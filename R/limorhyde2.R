@@ -1,9 +1,14 @@
-#' @importFrom data.table data.table := setnames setorderv setcolorder setDT
-#' @importFrom foreach foreach %do% %dopar%
+#' @import foreach
+#' @import data.table
+#' @import mashr
+#' @importFrom stats optim
+#' @importFrom iterators iter
 #' @importFrom zeallot %<-%
 NULL
 
+# data.table data.table as.data.table := setnames setorderv setcolorder setDT
 
+globalVariables(c('ampl', 'cond', 'feature', 'mNow', 'peakValue', 'troughValue', 'cNum', 'condNow', 'period','.','..colsKeep'))
 
 
 addIntercept = function(b, intercept) {
@@ -15,7 +20,7 @@ addIntercept = function(b, intercept) {
 
 getBasis = function(x, period = 24, nKnots = 4,intercept=FALSE){
 
-  if(is.null(nKnots)){
+  if(is.null(nKnots)|identical(2, nKnots)){
 
     b = cbind(cos(x / period * 2 * pi),
               sin(x / period * 2 * pi))
@@ -31,6 +36,7 @@ getBasis = function(x, period = 24, nKnots = 4,intercept=FALSE){
 
     return(b)}
 
+# test output w and w/o conditionsColname
 getSm = function(md, timeColname, conditionsColname){
 
   md = as.data.table(md)
@@ -47,7 +53,7 @@ getSm = function(md, timeColname, conditionsColname){
   return(sm)
 }
 
-# returns fitList
+#' @export
 getModelFit = function(x, metadata, period = 24, timeColname, conditionsColname, nKnots,...){
 
   sm = getSm(metadata, timeColname, conditionsColname)
@@ -80,7 +86,7 @@ getCK = function(mat){
 
   cols = colnames(mat)
   nCond = which(cols == 'basis1') - 1
-  nKnots = length(cols) - nCond/nCond
+  nKnots = (length(cols) - nCond)/nCond
 
   ck = c(nCond, nKnots)
 
@@ -88,11 +94,9 @@ getCK = function(mat){
 
 }
 
-
-getRhythmAsh = function(fit, covType = c('canonical', 'data-driven')
+#' @export
+getRhythmAsh = function(fit, covMethod = c('canonical', 'data-driven')
   , getSigResArgs = list(), covPcaArgs = list(), ...){
-
-  dots = list(...)
 
   bMat = fit$coefficients
   idxRemove = getCK(bMat)[1]
@@ -103,9 +107,9 @@ getRhythmAsh = function(fit, covType = c('canonical', 'data-driven')
   data = mashr::mash_set_data(bHat, sHat)
   Uc = mashr::cov_canonical(data)
 
-  covType = match.arg(covType)
+  covType = match.arg(covMethod)
 
-  if ('data-driven' %in% covType) {
+  if ('data-driven' %in% covMethod) {
 
     m1by1 = mashr::mash_1by1(data)
     strong = mashr::get_significant_results(m1by1, getSigResArgs)
@@ -117,12 +121,11 @@ getRhythmAsh = function(fit, covType = c('canonical', 'data-driven')
   } else { Ued = NULL }
 
   resMash = mashr::mash(data,c(Uc, Ued))
-  pm = ashr::get_pm(resMash) #maybe ashr
+  pm = resMash$results$PosteriorMean
 
   pm = cbind(bMat[, 1:idxRemove, drop = FALSE], pm)
 
   return(pm)
-
 }
 
 
@@ -141,12 +144,13 @@ f = function(x, coefs, nKnots, period, ...) {
 getOptimize = function(coFunc, tVec) {
 
   y = coFunc(tVec)
+  tr = range(tVec)
 
-  oMax = optim(par = tVec[which.max(y)], fn = coFunc, lower = min(tVec), upper = max(tVec),
+  oMax = optim(par = tVec[which.max(y)], fn = coFunc, lower = tr[1], upper = tr[2],
                control = list(fnscale = -1), method = "L-BFGS-B")
 
 
-  oMin = optim(par = tVec[which.min(y)], fn = coFunc, lower = min(tVec), upper = max(tVec),
+  oMin = optim(par = tVec[which.min(y)], fn = coFunc, lower = tr[1], upper = tr[2],
                method = "L-BFGS-B")
 
   res = data.table(peakTime = oMax$par, peakValue = oMax$value,
@@ -157,57 +161,104 @@ getOptimize = function(coFunc, tVec) {
 
 }
 
-getDiffRhythmStats = function(mat){
 
-  ck = getCK(mat)
-  nCond = ck[1]
-  nKnots = ck[2]
-  cntrlIdx = c(1, nCond + 1:nKnots)
-  controlMat = mat[, cntrlIdx]
+getIdx = function(i, nCond, nKnots){
 
-  for(i in 2:nCond){
+  idx = c(i, nCond + (i-1)*nKnots + (1:nKnots))
 
-    idx = c(i, (1:nKnots)+i*nKnots)
-    matNow = mat[, idx]
-    mat[, idx] = controlMat + matNow
-
-  }
-  return(mat)
+  return(idx)
 
 }
 
+
+getCond = function(mat, i, nCond, nKnots){
+
+  cIdx = getIdx(1, nCond, nKnots)
+  m0 = mat[, cIdx]
+
+  if(i == 1){
+    return(m0)
+  } else{
+
+    tIdx = getIdx(i, nCond, nKnots) #tIdx must be the same length as nKnots +1
+
+    m1 = mat[, tIdx]
+
+    m =  m0 + m1
+
+    colnames(m) = colnames(m1)
+
+    return(m) }
+
+
+}
+
+
+#' @export
 getRhythmStats = function(mat, period){ # just takes a mat with effects
 
   ck = getCK(mat)
   nCond = ck[1]
   nKnots = ck[2]
-  t = seq(0, period, by = period/1000)
+  t = seq(0, period, by = period/(nKnots *10))
 
-  # statsAll = foreach(codNow = (1:nCond), .combine = rbind) %do% {
+  statsAll = foreach(cNum = 1:nCond, .combine = rbind) %do% {
 
-  # isolate matrix for specific condition
-  # maybe create function that isolates individual condition matrix by index in original matrix
+    cMat = getCond(mat, cNum, nCond, nKnots)
+    # isolate matrix for specific condition
+    # maybe create function that isolates individual condition matrix by index in original matrix
 
-  statsNow = foreach(mNow = iter(mat, by = "row"), .combine = rbind) %dopar% {
+    statsNow = foreach(mNow = iter(cMat, by = "row"), .combine = rbind) %dopar% {
 
-    funcR = function(x, co = mNow, p = period, nk = nKnots){
+      funcR = function(x, co = mNow, p = period, nk = nKnots){
+        co2 = matrix(co, ncol = 1)
+        b = getBasis(x, p, nk, intercept = TRUE)
 
-      b = getBasis(x, p, nk)
-
-      y = co[1] + (b %*% co[-1])
-
-      return(y)
-
-    }
+        y = b %*% co2
 
 
-    res = getOptimize(funcR, t)
-    res[, feature := rownames(mNow)]
+        return(y)
 
-    res[, ampl := 0.5 * (peakValue - troughValue)]
+      }
 
-    return(res) }
 
-  statsNow[,cond := nCond]
+      res = getOptimize(funcR, t)
+      res[, feature := rownames(mNow)]
 
-  return(statsNow) }
+      res[, ampl := peakValue - troughValue]
+
+      # res = data.table(funcR(t))
+
+      return(res) }
+
+    statsNow[,cond := cNum]
+
+    return(statsNow) }
+
+  return(statsAll)
+
+}
+
+
+#' @export
+getDiffRhythmStats = function(dat){
+
+  # pass rhythmStats dt
+  # add  2 conditions argument
+  #check that there are only 2 conditions in dat
+  # modify diffPhase
+  condNum = dat[, uniqueN(cond)]
+  stopifnot("Must have only 2 conditions per feature", !(condNum == 2))
+  diffDT = dat[, lapply(.SD, diff), by  = feature]
+
+  idcols = c('cond', 'feature')
+  cols = colnames(diffDT)
+  colsDiff = cols[!(cols %in% idcols)]
+  setnames(diffDT, colsDiff, paste0("diff_", colsDiff))
+
+  return(diffDT)
+
+}
+
+
+
