@@ -89,7 +89,10 @@ getCK = function(mat){
 }
 
 
-getRhythmAsh = function(fit, ...){
+getRhythmAsh = function(fit, covType = c('canonical', 'data-driven')
+  , getSigResArgs = list(), covPcaArgs = list(), ...){
+
+  dots = list(...)
 
   bMat = fit$coefficients
   idxRemove = getCK(bMat)[1]
@@ -99,8 +102,22 @@ getRhythmAsh = function(fit, ...){
 
   data = mashr::mash_set_data(bHat, sHat)
   Uc = mashr::cov_canonical(data)
-  resMash = mashr::mash(data,Uc)
-  pm = get_pm(resMash)
+
+  covType = match.arg(covType)
+
+  if ('data-driven' %in% covType) {
+
+    m1by1 = mashr::mash_1by1(data)
+    strong = mashr::get_significant_results(m1by1, getSigResArgs)
+
+    Upca = mashr::cov_pca(data, subset = strong, covPcaArgs)
+
+    Ued = mashr::cov_ed(data, Upca, subset = strong)
+
+  } else { Ued = NULL }
+
+  resMash = mashr::mash(data,c(Uc, Ued))
+  pm = ashr::get_pm(resMash) #maybe ashr
 
   pm = cbind(bMat[, 1:idxRemove, drop = FALSE], pm)
 
