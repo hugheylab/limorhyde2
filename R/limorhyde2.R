@@ -118,7 +118,8 @@ getCK = function(mat){
 }
 
 #' @export
-getRhythmAsh = function(fit, cov_method, ...){
+getRhythmAsh = function(fit, covMethod = c('canonical', 'data-driven')
+  , getSigResArgs = list(), covPcaArgs = list(), ...){
 
   bMat = fit$coefficients
   idxRemove = getCK(bMat)[1]
@@ -126,18 +127,28 @@ getRhythmAsh = function(fit, cov_method, ...){
   bHat = fit$coefficients[, -(1:idxRemove)]
   sHat = sqrt(fit$s2.post) * fit$stdev.unscaled[, -(1:idxRemove)]
 
-  data = mash_set_data(bHat, sHat)
+  data = mashr::mash_set_data(bHat, sHat)
+  Uc = mashr::cov_canonical(data)
 
-  # add if statement for cov_method
-  Uc = cov_canonical(data)
-  resMash = mash(data,Uc)
-  # pm = mashr::get_pm(resMash)
-  pm = resMash$result$PosteriorMean
+  covType = match.arg(covMethod)
+
+  if ('data-driven' %in% covMethod) {
+
+    m1by1 = mashr::mash_1by1(data)
+    strong = mashr::get_significant_results(m1by1, getSigResArgs)
+
+    Upca = mashr::cov_pca(data, subset = strong, covPcaArgs)
+
+    Ued = mashr::cov_ed(data, Upca, subset = strong)
+
+  } else { Ued = NULL }
+
+  resMash = mashr::mash(data,c(Uc, Ued))
+  pm = resMash$results$PosteriorMean
 
   pm = cbind(bMat[, 1:idxRemove, drop = FALSE], pm)
 
   return(pm)
-
 }
 
 
