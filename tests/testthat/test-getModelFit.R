@@ -61,7 +61,7 @@ test_that('getSm returns a data.table with specific columns', {
 
 test_that('getModelFit', {
 
-  y = readRDS('simulate_gene_expression.RDS')
+  y = readRDS('simulate_3cond_gene_expression.RDS')
   #check that sample rownames match sample column names
   md = data.table(time = rep(seq(0,23,4),3), sample_id = colnames(y), cond = rep(c("wt","ko", "vv"),
                   each = ncol(y)/3), misc = paste('Unn_info'))

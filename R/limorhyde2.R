@@ -9,7 +9,9 @@ NULL
 
 # data.table data.table as.data.table := setnames setorderv setcolorder setDT
 
-globalVariables(c('ampl', 'cond', 'feature', 'mNow', 'peakValue', 'troughValue', 'cNum', 'condNow', 'period', 'combo', 'diffpeakTime', 'difftroughTime','.'))
+globalVariables(c('ampl', 'cond', 'feature', 'mNow', 'peakValue',
+                  'troughValue', 'cNum', 'condNow', 'period', 'combo',
+                  'conds','diffpeakTime', 'difftroughTime','.'))
 
 
 addIntercept = function(b, intercept) {
@@ -45,7 +47,7 @@ getBasis = function(x, period = 24, nKnots = 4, intercept=FALSE){
                  Boundary.knots = knots[c(1, length(knots))])[, , drop = FALSE]
     colnames(b) = paste0('basis', 1:nKnots)}
 
-    # b = b - rowSums(b)/nKnots
+    b = b * rowSums(b)/nKnots
 
     b = addIntercept(b, intercept)
 
@@ -67,8 +69,10 @@ getSm = function(md, timeColname, conditionsColname){
     sm = md[, colsKeep, with=FALSE]
     setnames(sm, colsKeep, 'time') } else{
 
-      stopifnot('Specify a string indicating the condition/treatment column name in metadata'= length(conditionsColname) == 1L,
-                'A column indicating the condition for each sample is not in metadata'=  conditionsColname %in% colnames(md),
+      stopifnot('Specify a string indicating the condition/treatment column name in metadata'=
+                  length(conditionsColname) == 1L,
+                'A column indicating the condition for each sample is not in metadata'=
+                  conditionsColname %in% colnames(md),
                 is.character(conditionsColname))
       colsKeep = c(timeColname, conditionsColname)
       sm = md[, colsKeep, with=FALSE]
@@ -144,7 +148,7 @@ getRhythmAsh = function(fit, covMethod = c('canonical', 'data-driven')
   } else { Ued = NULL }
 
   resMash = mashr::mash(data,c(Uc, Ued))
-  pm = resMash$results$PosteriorMean
+  pm = resMash$result$PosteriorMean
 
   pm = cbind(bMat[, 1:idxRemove, drop = FALSE], pm)
 
@@ -153,12 +157,12 @@ getRhythmAsh = function(fit, covMethod = c('canonical', 'data-driven')
 
 
 f = function(x, coefs, nKnots, period, ...) {
-
-  b = getBasis(x, period, nKnots)
+  coefs = matrix(coefs, ncol = 1)
+  b = getBasis(x, period, nKnots, intercept = TRUE)
 
   # stopifnot('Number of basis components must match number of coefs provided' = ncol(b) == ncol(coefs))
 
-  y = coefs[1] + (b %*% coefs[-1])
+  y = b %*% coefs
 
   return(y)
 }
@@ -279,7 +283,7 @@ fixDiffPhase = function(x, period){
 getDiffRhythmStats = function(dat, condIds, period){
 
 
-      stopifnot(condIds >=2, condIds %in% dat[, unique(cond)])
+      stopifnot(length(condIds) >=2, condIds %in% dat[, unique(cond)])
 
       comboIds = combn(condIds, 2)
 
@@ -287,14 +291,13 @@ getDiffRhythmStats = function(dat, condIds, period){
 
         d = dat[cond %in% combo]
         d0 = d[, lapply(.SD, diff), by  = feature]
-        d0[, cond := paste(combo, collapse = ':')]
+        d0[, conds := paste(combo, collapse = ':')]
 
         return(d0) }
 
-  ids = c('cond', 'feature')
-  cols = colnames(d1)
-  colsDiff = cols[!(cols %in% ids)]
-  setnames(d1, colsDiff, paste0("diff", colsDiff))
+
+  cols = colnames(d1)[-1]
+  setnames(d1, cols, paste0("diff", cols))
 
   d1[, diffpeakTime := fixDiffPhase(diffpeakTime, period)]
   d1[, difftroughTime := fixDiffPhase(difftroughTime, period)]

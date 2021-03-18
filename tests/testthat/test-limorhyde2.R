@@ -43,6 +43,28 @@ test_that('getModelFit cosinor is functional', {
 #   mashR[goi,]
 
 })
-
-
+#
+# test_that('getRhythmStats spline is functional for two conditions', {
+#   library(data.table)
+#
+#   period = 24
+#   nKnots = 4
+#
+#   # path = '/Users/doraobodo/Documents/limorhyde2/tests/testthat'
+#
+#   md0 = readRDS('/Users/doraobodo/Documents/limorhyde2/tests/testthat/test_limorhyde2_two_cond_example_md.rds')
+#   d0 = readRDS('/Users/doraobodo/Documents/limorhyde2/tests/testthat/test_limorhyde2_two_cond_example_data.rds')
+#
+#   goi = c('22139')#, '69642')
+#
+#   fit = getModelFit(d0, md0, period,nKnots,
+#                     timeColname = 'time', conditionsColname = 'cond')
+#
+#   cStats = getRhythmStats(fit$coefficients, period = period)
+#
+#   diffStats = getDiffRhythmStats(cStats, condIds = c("1",'2'), period)
+#
+#
+# })
+#
 
