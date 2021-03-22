@@ -4,21 +4,36 @@
 #' @importFrom stats optim
 #' @importFrom iterators iter
 #' @importFrom zeallot %<-%
+#' @importFrom utils combn
 NULL
 
 # data.table data.table as.data.table := setnames setorderv setcolorder setDT
 
-globalVariables(c('ampl', 'cond', 'feature', 'mNow', 'peakValue', 'troughValue', 'cNum', 'condNow', 'period','.','..colsKeep'))
+globalVariables(c('ampl', 'cond', 'feature', 'mNow', 'peakValue',
+                  'troughValue', 'cNum', 'condNow', 'period', 'combo',
+                  'conds','diffpeakTime', 'difftroughTime','.'))
 
 
 addIntercept = function(b, intercept) {
+
+  stopifnot('intercept argument is either TRUE or FALSE'=is.logical(intercept))
+
   if (intercept) {
     b = cbind(1, b)
     colnames(b)[1L] = 'intercept'}
+
+
   return(b)}
 
 
-getBasis = function(x, period = 24, nKnots = 4,intercept=FALSE){
+getBasis = function(x, period = 24, nKnots = 4, intercept=FALSE){
+
+  stopifnot('Supply a numeric value > 0 for period' = length(period) == 1L,
+                                                        is.numeric(period),
+                                                        period > 0)
+
+  stopifnot('Supply a numeric value > 0 for nKnots' = length(nKnots) == 1L,
+            (is.numeric(nKnots) & nKnots >= 2) |is.null(nKnots))
 
   if(is.null(nKnots)|identical(2, nKnots)){
 
@@ -32,7 +47,11 @@ getBasis = function(x, period = 24, nKnots = 4,intercept=FALSE){
                  Boundary.knots = knots[c(1, length(knots))])[, , drop = FALSE]
     colnames(b) = paste0('basis', 1:nKnots)}
 
+    b = b * rowSums(b)/nKnots
+
     b = addIntercept(b, intercept)
+
+    # b = scale(b, scale = FALSE)
 
     return(b)}
 
@@ -40,15 +59,27 @@ getBasis = function(x, period = 24, nKnots = 4,intercept=FALSE){
 getSm = function(md, timeColname, conditionsColname){
 
   md = as.data.table(md)
-  colsKeep = c(timeColname, conditionsColname)
-  sm = md[, ..colsKeep]
+  stopifnot( 'time column is not in metadata'= length(timeColname) == 1L,
+             'time column is not in metadata'= timeColname %in% colnames(md),
+             is.character(timeColname))
 
   if(is.null(conditionsColname)){
-  setnames(sm, colsKeep, c('time'))
-  } else{
 
-    setnames(sm, colsKeep, c('time', 'cond'))
+    colsKeep = c(timeColname)
+    sm = md[, colsKeep, with=FALSE]
+    setnames(sm, colsKeep, 'time') } else{
+
+      stopifnot('Specify a string indicating the condition/treatment column name in metadata'=
+                  length(conditionsColname) == 1L,
+                'A column indicating the condition for each sample is not in metadata'=
+                  conditionsColname %in% colnames(md),
+                is.character(conditionsColname))
+      colsKeep = c(timeColname, conditionsColname)
+      sm = md[, colsKeep, with=FALSE]
+      setnames(sm, colsKeep, c('time','cond'))
   }
+
+  stopifnot('time column must have numbers only' = is.numeric(sm$time))
 
   return(sm)
 }
@@ -57,10 +88,6 @@ getSm = function(md, timeColname, conditionsColname){
 getModelFit = function(x, metadata, period = 24, timeColname, conditionsColname, nKnots,...){
 
   sm = getSm(metadata, timeColname, conditionsColname)
-  # things to check for
-  # period is included
-  stopifnot('Specify a numeric value > 0' = length(period) == 1L, is.numeric(period), period > 0)
-
 
 
   bMat = getBasis(sm$time, period, nKnots)
@@ -129,7 +156,7 @@ getRhythmAsh = function(fit, covMethod = c('canonical', 'data-driven')
   } else { Ued = NULL }
 
   resMash = mashr::mash(data,c(Uc, Ued))
-  pm = resMash$results$PosteriorMean
+  pm = resMash$result$PosteriorMean
 
   pm = cbind(bMat[, 1:idxRemove, drop = FALSE], pm)
 
@@ -137,12 +164,12 @@ getRhythmAsh = function(fit, covMethod = c('canonical', 'data-driven')
 
 
 f = function(x, coefs, nKnots, period, ...) {
-
-  b = getBasis(x, period, nKnots)
+  coefs = matrix(coefs, ncol = 1)
+  b = getBasis(x, period, nKnots, intercept = TRUE)
 
   # stopifnot('Number of basis components must match number of coefs provided' = ncol(b) == ncol(coefs))
 
-  y = coefs[1] + (b %*% coefs[-1])
+  y = b %*% coefs
 
   return(y)
 }
@@ -247,23 +274,43 @@ getRhythmStats = function(mat, period){ # just takes a mat with effects
 }
 
 
+fixDiffPhase = function(x, period){
+
+  y = x %% period
+  y  = ifelse(y > period / 2, yes = y - period, no = y)
+  y  = ifelse(y < (-period / 2), yes = y + period, no = y)
+
+  return(y)
+
+}
+
+
+
 #' @export
-getDiffRhythmStats = function(dat){
+getDiffRhythmStats = function(dat, condIds, period){
 
-  # pass rhythmStats dt
-  # add  2 conditions argument
-  #check that there are only 2 conditions in dat
-  # modify diffPhase
-  condNum = dat[, uniqueN(cond)]
-  stopifnot("Must have only 2 conditions per feature", !(condNum == 2))
-  diffDT = dat[, lapply(.SD, diff), by  = feature]
 
-  idcols = c('cond', 'feature')
-  cols = colnames(diffDT)
-  colsDiff = cols[!(cols %in% idcols)]
-  setnames(diffDT, colsDiff, paste0("diff_", colsDiff))
+      stopifnot(length(condIds) >=2, condIds %in% dat[, unique(cond)])
 
-  return(diffDT)
+      comboIds = combn(condIds, 2)
+
+      d1 = foreach(combo = iter(comboIds, by = 'column'), .combine = rbind) %dopar% {
+
+        d = dat[cond %in% combo]
+        d0 = d[, lapply(.SD, diff), by  = feature]
+        d0[, conds := paste(combo, collapse = ':')]
+
+        return(d0) }
+
+
+  cols = colnames(d1)[-1]
+  setnames(d1, cols, paste0("diff", cols))
+
+  d1[, diffpeakTime := fixDiffPhase(diffpeakTime, period)]
+  d1[, difftroughTime := fixDiffPhase(difftroughTime, period)]
+
+
+  return(d1)
 
 }
 

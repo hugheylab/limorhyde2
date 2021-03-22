@@ -1,45 +1,70 @@
-context('Exported functions')
+
 
 test_that('getModelFit cosinor is functional', {
   library(data.table)
 
   period = 24
-  nKnots = 4
+  nKnots = 2
 
-  path = '/Users/doraobodo/Documents/limorhyde2/tests/testthat'
+  # path = '/Users/doraobodo/Documents/limorhyde2/tests/testthat'
 
-  d0 = read.csv('test_limorhyde2_one_cond_example_data.csv', row.names = 1)
-  md0 = read.csv('test_limorhyde2_one_cond_example_md.csv', row.names = 1)
+  # md0 = readRDS('/Users/doraobodo/Documents/limorhyde2/tests/testthat/test_zhang_hypoth_md.RDS')
+  # d0 = readRDS('/Users/doraobodo/Documents/limorhyde2/tests/testthat/test_zhang_hypoth_data.RDS')
 
+
+  md0 = readRDS('test_zhang_hypoth_md.RDS')
+  d0 = readRDS('test_zhang_hypoth_data.RDS')
+
+  goi = c('22139')#, '69642')
 
   fit = getModelFit(d0, md0, period,nKnots,
-                    timeColname = 'time', conditionsColname = NULL)
-  fitC = as.data.table(fit$coefficients, rownames = TRUE)
-  # fwrite(fitC, file = 'cosinor_fit_coefs_test_output.csv')
+                     timeColname = 'time', conditionsColname = NULL)
 
-  fitE = fread('test_limorhyde2_one_cond_example_cosinor_fit_coefs.csv')
+  # m = getRhythmAsh(fit)
 
-  fitEqual = all.equal(fitC, fitE, check.attributes = FALSE)
-  # write(fitEqual, file = 'all_eq_test1.txt')
-  expect_true(fitEqual)
-
-})
-
-
-test_that('getModelFit cosinor is functional', {
-  library(data.table)
-
-  period = 24
-  nKnots = 4
-
-  path = '/Users/doraobodo/Documents/limorhyde2/tests/testthat'
-
-  d0 = readRDS(file.path(path, 'two_cond_fit_coefs.RDS'))
-
-  dMat = getRhythmStats(d0[1:2,], period = 24)
-
+#
+#   fitC = getModelFit(d0, md0, period,nKnots,
+#                     timeColname = 'time', conditionsColname = NULL)
+#
+#   mashC = getRhythmAsh(fitC)
+#
+#   fitR = getModelFit(d0, md0, period,nKnots,
+#                      timeColname = 'time', conditionsColname = NULL)
+#
+#   mashR = getRhythmAsh(fitR)
+#
+#   fit$coefficients[goi,]
+#   m[goi,]
+#
+#   fitC$coefficients[goi,]
+#   mashC[goi,]
+#
+#   fitR$coefficients[goi,]
+#   mashR[goi,]
 
 })
-
-
+#
+# test_that('getRhythmStats spline is functional for two conditions', {
+#   library(data.table)
+#
+#   period = 24
+#   nKnots = 4
+#
+#   # path = '/Users/doraobodo/Documents/limorhyde2/tests/testthat'
+#
+#   md0 = readRDS('/Users/doraobodo/Documents/limorhyde2/tests/testthat/test_limorhyde2_two_cond_example_md.rds')
+#   d0 = readRDS('/Users/doraobodo/Documents/limorhyde2/tests/testthat/test_limorhyde2_two_cond_example_data.rds')
+#
+#   goi = c('22139')#, '69642')
+#
+#   fit = getModelFit(d0, md0, period,nKnots,
+#                     timeColname = 'time', conditionsColname = 'cond')
+#
+#   cStats = getRhythmStats(fit$coefficients, period = period)
+#
+#   diffStats = getDiffRhythmStats(cStats, condIds = c("1",'2'), period)
+#
+#
+# })
+#
 
