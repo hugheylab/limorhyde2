@@ -143,8 +143,7 @@ getRhythmAsh = function(fit, covMethod = c('canonical', 'data-driven')
     strong = do.call(mashr::get_significant_results
       , c(m = m1by1, getSigResArgs))
 
-    Upca = do.call(mashr::cov_pca
-      , c(data = data, subset = strong, npc = npc))
+    Upca = mashr::cov_pca(data = data, subset = strong, npc = npc)
 
     Ued = mashr::cov_ed(data, Upca, subset = strong)
 
