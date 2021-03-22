@@ -96,7 +96,7 @@ getCK = function(mat){
 
 #' @export
 getRhythmAsh = function(fit, covMethod = c('canonical', 'data-driven')
-  , getSigResArgs = list(), covPcaArgs = list(), ...){
+  , getSigResArgs = list(), npc = NULL, ...){
 
   bMat = fit$coefficients
   idxRemove = getCK(bMat)[1]
@@ -109,14 +109,22 @@ getRhythmAsh = function(fit, covMethod = c('canonical', 'data-driven')
 
   covType = match.arg(covMethod)
 
-  if ('data-driven' %in% covMethod) {
+  if ('data-driven' %in% covMethod
+    & !is.null(npc)) {
 
     m1by1 = mashr::mash_1by1(data)
-    strong = mashr::get_significant_results(m1by1, getSigResArgs)
+    strong = do.call(mashr::get_significant_results
+      , c(m = m1by1, getSigResArgs))
 
-    Upca = mashr::cov_pca(data, subset = strong, covPcaArgs)
+    Upca = do.call(mashr::cov_pca
+      , c(data = data, subset = strong, npc = npc))
 
     Ued = mashr::cov_ed(data, Upca, subset = strong)
+
+  } else if ('data-driven' %in% covMethod
+      & is.null(npc)) {
+
+    stop("Data-driven method specified without argument 'npc'.")
 
   } else { Ued = NULL }
 
@@ -125,8 +133,7 @@ getRhythmAsh = function(fit, covMethod = c('canonical', 'data-driven')
 
   pm = cbind(bMat[, 1:idxRemove, drop = FALSE], pm)
 
-  return(pm)
-}
+  return(pm)}
 
 
 f = function(x, coefs, nKnots, period, ...) {
