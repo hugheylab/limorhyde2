@@ -10,7 +10,7 @@ NULL
 # data.table data.table as.data.table := setnames setorderv setcolorder setDT
 
 globalVariables(c('ampl', 'cond', 'feature', 'mNow', 'peakValue',
-                  'troughValue', 'cNum', 'condNow', 'period', 'combo',
+                  'troughValue', 'cNum', 'condNow', 'period',
                   'conds','diffpeakTime', 'difftroughTime','.'))
 
 
@@ -47,11 +47,9 @@ getBasis = function(x, period = 24, nKnots = 4, intercept=FALSE){
                  Boundary.knots = knots[c(1, length(knots))])[, , drop = FALSE]
     colnames(b) = paste0('basis', 1:nKnots)}
 
-    b = b * rowSums(b)/nKnots
-
     b = addIntercept(b, intercept)
 
-    # b = scale(b, scale = FALSE)
+    b = scale(b, center = TRUE, scale = FALSE)
 
     return(b)}
 
@@ -104,7 +102,7 @@ getModelFit = function(x, metadata, period = 24, timeColname, conditionsColname,
 
   fit = limma::lmFit(x, design)
   fit = limma::eBayes(fit, trend = TRUE,...)
-
+  attr(fit, 'period') = period
 
   return(fit)
 }
@@ -140,8 +138,7 @@ getRhythmAsh = function(fit, covMethod = c('canonical', 'data-driven')
     & !is.null(npc)) {
 
     m1by1 = mashr::mash_1by1(data)
-    strong = do.call(mashr::get_significant_results
-      , c(m = m1by1, getSigResArgs))
+    strong = mashr::get_significant_results(m = m1by1)
 
     Upca = mashr::cov_pca(data = data, subset = strong, npc = npc)
 
@@ -158,6 +155,8 @@ getRhythmAsh = function(fit, covMethod = c('canonical', 'data-driven')
   pm = resMash$result$PosteriorMean
 
   pm = cbind(bMat[, 1:idxRemove, drop = FALSE], pm)
+
+  attr(pm, 'period') = attr(fit, 'period')
 
   return(pm)}
 
@@ -228,8 +227,9 @@ getCond = function(mat, i, nCond, nKnots){
 
 
 #' @export
-getRhythmStats = function(mat, period){ # just takes a mat with effects
+getRhythmStats = function(mat){ # just takes a mat with effects
 
+  period = attr(mat, 'period')
   ck = getCK(mat)
   nCond = ck[1]
   nKnots = ck[2]
@@ -268,6 +268,7 @@ getRhythmStats = function(mat, period){ # just takes a mat with effects
 
     return(statsNow) }
 
+  attr(statsAll, 'period') = period
   return(statsAll)
 
 }
@@ -286,20 +287,17 @@ fixDiffPhase = function(x, period){
 
 
 #' @export
-getDiffRhythmStats = function(dat, condIds, period){
+getDiffRhythmStats = function(dat, condIds){
 
+  period = attr(dat, 'period')
+  stopifnot(length(condIds) >=2, condIds %in% dat[, unique(cond)])
 
-      stopifnot(length(condIds) >=2, condIds %in% dat[, unique(cond)])
+  d = dat[cond %in% condIds]
+  d = d[order(factor(cond, levels = condIds))] #preserve order
 
-      comboIds = combn(condIds, 2)
+  d1 = d[, lapply(.SD, diff), by  = feature]
+  d1[, conds := paste(condIds, collapse = ':')]
 
-      d1 = foreach(combo = iter(comboIds, by = 'column'), .combine = rbind) %dopar% {
-
-        d = dat[cond %in% combo]
-        d0 = d[, lapply(.SD, diff), by  = feature]
-        d0[, conds := paste(combo, collapse = ':')]
-
-        return(d0) }
 
 
   cols = colnames(d1)[-1]

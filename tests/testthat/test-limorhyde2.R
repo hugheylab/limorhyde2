@@ -8,8 +8,8 @@ test_that('getModelFit cosinor is functional', {
 
   # path = '/Users/doraobodo/Documents/limorhyde2/tests/testthat'
 
-  # md0 = readRDS('/Users/doraobodo/Documents/limorhyde2/tests/testthat/test_zhang_hypoth_md.RDS')
-  # d0 = readRDS('/Users/doraobodo/Documents/limorhyde2/tests/testthat/test_zhang_hypoth_data.RDS')
+  md0 = readRDS('/Users/doraobodo/Documents/limorhyde2/tests/testthat/test_zhang_hypoth_md.RDS')
+  d0 = readRDS('/Users/doraobodo/Documents/limorhyde2/tests/testthat/test_zhang_hypoth_data.RDS')
 
 
   md0 = readRDS('test_zhang_hypoth_md.RDS')
@@ -17,10 +17,10 @@ test_that('getModelFit cosinor is functional', {
 
   goi = c('22139')#, '69642')
 
-  fit = getModelFit(d0, md0, period,nKnots,
+  fit = getModelFit(d0, md0, period,nKnots=4,
                      timeColname = 'time', conditionsColname = NULL)
-
-  # m = getRhythmAsh(fit)
+  # m = getRhythmAsh(fit, 'canonical', npc = nKnots+1)
+  # m = getRhythmStats(m)
 
 #
 #   fitC = getModelFit(d0, md0, period,nKnots,
