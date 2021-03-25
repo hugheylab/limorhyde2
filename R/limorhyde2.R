@@ -4,14 +4,13 @@
 #' @importFrom stats optim
 #' @importFrom iterators iter
 #' @importFrom zeallot %<-%
-#' @importFrom utils combn
+#' @importFrom utils combn tail
 NULL
 
 # data.table data.table as.data.table := setnames setorderv setcolorder setDT
 
-globalVariables(c('ampl', 'cond', 'feature', 'mNow', 'peakValue',
-                  'troughValue', 'cNum', 'condNow', 'period',
-                  'conds','diffpeakTime', 'difftroughTime','.'))
+globalVariables(c('ampl', 'cond', 'feature', 'nKnots', 'period','mNow', 'peak_value',
+                  'trough_value', 'cNum', 'condNow', 'peak_time', 'trough_time','.'))
 
 
 addIntercept = function(b, intercept) {
@@ -45,11 +44,12 @@ getBasis = function(x, period = 24, nKnots = 4, intercept=FALSE){
     knots = seq(0, period, length = nKnots + 2) # add 2 to include boundary values
     b = pbs::pbs(x %% period, knots = knots[-c(1, length(knots))],
                  Boundary.knots = knots[c(1, length(knots))])[, , drop = FALSE]
-    colnames(b) = paste0('basis', 1:nKnots)}
+    colnames(b) = paste0('basis', 1:nKnots)
+
+    b = b - (1/(nKnots+1)) }
 
     b = addIntercept(b, intercept)
 
-    b = scale(b, center = TRUE, scale = FALSE)
 
     return(b)}
 
@@ -65,7 +65,8 @@ getSm = function(md, timeColname, conditionsColname){
 
     colsKeep = c(timeColname)
     sm = md[, colsKeep, with=FALSE]
-    setnames(sm, colsKeep, 'time') } else{
+    setnames(sm, colsKeep, 'time')
+    sm[, cond := 'one']} else{
 
       stopifnot('Specify a string indicating the condition/treatment column name in metadata'=
                   length(conditionsColname) == 1L,
@@ -73,7 +74,8 @@ getSm = function(md, timeColname, conditionsColname){
                   conditionsColname %in% colnames(md),
                 is.character(conditionsColname))
       colsKeep = c(timeColname, conditionsColname)
-      sm = md[, colsKeep, with=FALSE]
+
+      sm = md[, colsKeep, with=FALSE] # or use :=
       setnames(sm, colsKeep, c('time','cond'))
   }
 
@@ -86,8 +88,7 @@ getSm = function(md, timeColname, conditionsColname){
 getModelFit = function(x, metadata, period = 24, timeColname, conditionsColname, nKnots,...){
 
   sm = getSm(metadata, timeColname, conditionsColname)
-
-
+  sm[, cond := as.factor(cond)]
   bMat = getBasis(sm$time, period, nKnots)
 
   if(is.null(conditionsColname)){
@@ -102,7 +103,11 @@ getModelFit = function(x, metadata, period = 24, timeColname, conditionsColname,
 
   fit = limma::lmFit(x, design)
   fit = limma::eBayes(fit, trend = TRUE,...)
-  attr(fit, 'period') = period
+
+  attr(fit$coefficients, 'period') = period
+  attr(fit$coefficients, 'nKnots') = nKnots
+  attr(fit$coefficients, 'cond') = unique(sm$cond)
+
 
   return(fit)
 }
@@ -123,6 +128,8 @@ getCK = function(mat){
 getRhythmAsh = function(fit, covMethod = c('canonical', 'data-driven')
   , getSigResArgs = list(), npc = NULL, ...){
 
+  c(period, nKnots, cond) %<-% attributes(fit$coefficients)[-2:-1]
+
   bMat = fit$coefficients
   idxRemove = getCK(bMat)[1]
 
@@ -138,7 +145,8 @@ getRhythmAsh = function(fit, covMethod = c('canonical', 'data-driven')
     & !is.null(npc)) {
 
     m1by1 = mashr::mash_1by1(data)
-    strong = mashr::get_significant_results(m = m1by1)
+
+    strong = do.call(mashr::get_significant_results, c(list(m1by1), getSigResArgs))
 
     Upca = mashr::cov_pca(data = data, subset = strong, npc = npc)
 
@@ -156,7 +164,9 @@ getRhythmAsh = function(fit, covMethod = c('canonical', 'data-driven')
 
   pm = cbind(bMat[, 1:idxRemove, drop = FALSE], pm)
 
-  attr(pm, 'period') = attr(fit, 'period')
+  attr(pm, 'period') = period
+  attr(pm, 'nKnots') = nKnots
+  attr(pm, 'cond') = cond
 
   return(pm)}
 
@@ -185,8 +195,8 @@ getOptimize = function(coFunc, tVec) {
   oMin = optim(par = tVec[which.min(y)], fn = coFunc, lower = tr[1], upper = tr[2],
                method = "L-BFGS-B")
 
-  res = data.table(peakTime = oMax$par, peakValue = oMax$value,
-                   troughTime = oMin$par, troughValue = oMin$value)
+  res = data.table(peak_time = oMax$par, peak_value = oMax$value,
+                   trough_time = oMin$par, trough_value = oMin$value)
 
 
   return(res)
@@ -229,15 +239,13 @@ getCond = function(mat, i, nCond, nKnots){
 #' @export
 getRhythmStats = function(mat){ # just takes a mat with effects
 
-  period = attr(mat, 'period')
-  ck = getCK(mat)
-  nCond = ck[1]
-  nKnots = ck[2]
+  c(period, nKnots, cond) %<-% attributes(mat)[-2:-1]
+
   t = seq(0, period, by = period/(nKnots *10))
 
-  statsAll = foreach(cNum = 1:nCond, .combine = rbind) %do% {
+  statsAll = foreach(cNum = 1:length(cond), .combine = rbind) %do% {
 
-    cMat = getCond(mat, cNum, nCond, nKnots)
+    cMat = getCond(mat, cNum, length(cond), nKnots)
     # isolate matrix for specific condition
     # maybe create function that isolates individual condition matrix by index in original matrix
 
@@ -258,17 +266,24 @@ getRhythmStats = function(mat){ # just takes a mat with effects
       res = getOptimize(funcR, t)
       res[, feature := rownames(mNow)]
 
-      res[, ampl := peakValue - troughValue]
+      res[, ampl := peak_value - trough_value]
 
       # res = data.table(funcR(t))
 
       return(res) }
 
-    statsNow[,cond := cNum]
+    if(length(cond) > 1) {
+
+      statsNow[,cond := cond[cNum]]
+    }
+
 
     return(statsNow) }
 
   attr(statsAll, 'period') = period
+  attr(statsAll, 'nKnots') = nKnots
+  attr(statsAll, 'cond') = cond
+
   return(statsAll)
 
 }
@@ -289,22 +304,21 @@ fixDiffPhase = function(x, period){
 #' @export
 getDiffRhythmStats = function(dat, condIds){
 
-  period = attr(dat, 'period')
+  c(period, nKnots, cond) %<-% tail(attributes(dat),3)
+
   stopifnot(length(condIds) >=2, condIds %in% dat[, unique(cond)])
 
   d = dat[cond %in% condIds]
   d = d[order(factor(cond, levels = condIds))] #preserve order
 
-  d1 = d[, lapply(.SD, diff), by  = feature]
-  d1[, conds := paste(condIds, collapse = ':')]
+  cols = setdiff(colnames(d), c('cond', 'feature'))
+  d1 = d[, lapply(.SD, diff), .SDcols = cols, by  = feature]
+  d1[, cond := paste(condIds, collapse = ':')]
 
+  d1[, peak_time := fixDiffPhase(peak_time, period)]
+  d1[, trough_time := fixDiffPhase(trough_time, period)]
 
-
-  cols = colnames(d1)[-1]
-  setnames(d1, cols, paste0("diff", cols))
-
-  d1[, diffpeakTime := fixDiffPhase(diffpeakTime, period)]
-  d1[, difftroughTime := fixDiffPhase(difftroughTime, period)]
+  setnames(d1, cols, paste0("diff_", cols))
 
 
   return(d1)
