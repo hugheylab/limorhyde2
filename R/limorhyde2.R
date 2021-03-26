@@ -126,7 +126,8 @@ getCK = function(mat){
 
 #' @export
 getRhythmAsh = function(fit, covMethod = c('canonical', 'data-driven')
-  , getSigResArgs = list(), npc = NULL, ...){
+  , getSigResArgs = list(), covEdArgs = list()
+  , npc = attr(fit$coefficients, 'nKnots'), ...){
 
   c(period, nKnots, cond) %<-% attributes(fit$coefficients)[-2:-1]
 
@@ -146,11 +147,13 @@ getRhythmAsh = function(fit, covMethod = c('canonical', 'data-driven')
 
     m1by1 = mashr::mash_1by1(data)
 
-    strong = do.call(mashr::get_significant_results, c(list(m1by1), getSigResArgs))
+    strong = do.call(mashr::get_significant_results
+      , c(list(m1by1), getSigResArgs))
 
     Upca = mashr::cov_pca(data = data, subset = strong, npc = npc)
 
-    Ued = mashr::cov_ed(data, Upca, subset = strong)
+    Ued = do.call(mashr::cov_ed, c(list(data = data), list(Ulist_init = Upca)
+      , list(subset = strong), covEdArgs))
 
   } else if ('data-driven' %in% covMethod
       & is.null(npc)) {
