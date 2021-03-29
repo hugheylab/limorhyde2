@@ -264,9 +264,10 @@ getRhythmStats = function(mat){ # just takes a mat with effects
 
 
       res = getOptimize(funcR, t)
-      res[, feature := rownames(mNow)]
 
+      res[, mean_value := mNow[1]]
       res[, ampl := peak_value - trough_value]
+      res[, feature := rownames(mNow)]
 
       # res = data.table(funcR(t))
 

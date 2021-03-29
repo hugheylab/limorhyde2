@@ -17,12 +17,14 @@ test_that('getModelFit cosinor is functional', {
 
   goi = c('22139')#, '69642')
 
-  fit = getModelFit(d0, md0, period,nKnots = nKnots,
+  fit = getModelFit(d0[1:3,], md0, period,nKnots = nKnots,
                      timeColname = 'time', conditionsColname = NULL)
-  # m = getRhythmAsh(fit, 'canonical', npc = nKnots+1)
+
+
+  m = getRhythmAsh(fit, 'canonical', npc = nKnots+1)
   #
-  # cStats = getRhythmStats(fit$coefficients)
-  # mStats = getRhythmStats(m)
+  cStats = getRhythmStats(fit$coefficients)
+  mStats = getRhythmStats(m)
   #
 #
 #   fitC = getModelFit(d0, md0, period,nKnots,
@@ -57,13 +59,13 @@ test_that('getRhythmStats spline is functional for two conditions', {
   md0 = readRDS('/Users/doraobodo/Documents/limorhyde2/tests/testthat/test_limorhyde2_two_cond_example_md.rds')
   d0 = readRDS('/Users/doraobodo/Documents/limorhyde2/tests/testthat/test_limorhyde2_two_cond_example_data.rds')
 
-  fit = getModelFit(d0, md0, period,nKnots,
+  fit = getModelFit(d0[1:100,], md0, period,nKnots,
                     timeColname = 'time', conditionsColname = 'cond')
 
   c = fit$coefficients
   m = getRhythmAsh(fit, 'data-driven', npc = nKnots-1)
 
-  cStats = getRhythmStats(c)
+  cStats = getRhythmStats(fit$coefficients)
   mStats = getRhythmStats(m)
 
   cDiffStats = getDiffRhythmStats(cStats, condIds = c("wt",'ko'))
@@ -105,6 +107,6 @@ test_that('getRhythmStats spline is functional for two conditions', {
   # cStatsSub = as.matrix(cStatsKO, rownames = 'feature') - as.matrix(cStatsWT, rownames = 'feature')
   # mStatsSub = mStatsKO - mStatsWT
 #
-# })
+})
 
 
