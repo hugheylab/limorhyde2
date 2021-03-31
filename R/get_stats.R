@@ -67,8 +67,7 @@ getRhythmStats = function(coefMat) {
   rhyStats = foreach(condIdx = 1:nConds, .combine = rbind) %do% {
     coefNow = getCoefMatOneCond(coefMat, condIdx, nConds, nKnots)
 
-    feo = foreach(co = iterators::iter(coefNow, by = 'row'), .combine = rbind,
-                  .options.future = list(scheduling = Inf))
+    feo = foreach(co = iterators::iter(coefNow, by = 'row'), .combine = rbind)
 
     rhyStatsNow = feo %dopar% {
       f = function(time) g(time) %*% t(co)

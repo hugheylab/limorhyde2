@@ -124,8 +124,7 @@ getRmsDiffRhy = function(coefMat, condLevels) {
   condIdx = match(condLevels, attr(coefMat, 'condLevels'))
   coefNow = getCoefMatDiffCond(coefMat, condIdx, nConds, nKnots)
 
-  feo = foreach(co = iterators::iter(coefNow, by = 'row'), .combine = c,
-                .options.future = list(scheduling = Inf))
+  feo = foreach(co = iterators::iter(coefNow, by = 'row'), .combine = c)
 
   r = feo %dopar% {
     f = function(time) (g(time) %*% t(co))^2
