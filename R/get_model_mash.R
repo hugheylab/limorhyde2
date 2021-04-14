@@ -1,31 +1,3 @@
-# #' @export
-# getModelFit = function(x, metadata, period = 24, timeColname, conditionsColname, nKnots,...){
-#
-#   sm = getSm(metadata, timeColname, conditionsColname)
-#   sm[, cond := as.factor(cond)]
-#   bMat = getBasis(sm$time, period, nKnots)
-#
-#   if(is.null(conditionsColname)){
-#     bMat = as.data.table(bMat)
-#     formFull = ~ .
-#
-#     } else{
-#       bMat = cbind(sm[, .(cond)], bMat)
-#       formFull = ~ cond * .}
-#
-#   design = stats::model.matrix(formFull, data = bMat)
-#
-#   fit = limma::lmFit(x, design)
-#   fit = limma::eBayes(fit, trend = TRUE,...)
-#
-#   attr(fit$coefficients, 'period') = period
-#   attr(fit$coefficients, 'nKnots') = nKnots
-#   attr(fit$coefficients, 'cond') = unique(sm$cond)
-#
-#
-#   return(fit)
-# }
-
 #' @export
 getModelFit = function(
   y, metadata, period = 24, nKnots = 4, timeColname = 'time',
@@ -54,58 +26,9 @@ getModelFit = function(
   return(fit)}
 
 
-# #' @export
-# getRhythmAsh = function(fit, covMethod = c('canonical', 'data-driven')
-#   , getSigResArgs = list(), covEdArgs = list()
-#   , npc = attr(fit$coefficients, 'nKnots'), ...){
-#
-#   c(period, nKnots, cond) %<-% attributes(fit$coefficients)[-2:-1]
-#
-#   bMat = fit$coefficients
-#   idxRemove = getCK(bMat)[1]
-#
-#   bHat = fit$coefficients[, -(1:idxRemove)]
-#   sHat = sqrt(fit$s2.post) * fit$stdev.unscaled[, -(1:idxRemove)]
-#
-#   data = mashr::mash_set_data(bHat, sHat)
-#   Uc = mashr::cov_canonical(data)
-#
-#   covType = match.arg(covMethod)
-#
-#   if ('data-driven' %in% covMethod
-#     & !is.null(npc)) {
-#
-#     m1by1 = mashr::mash_1by1(data)
-#
-#     strong = do.call(mashr::get_significant_results
-#       , c(list(m1by1), getSigResArgs))
-#
-#     Upca = mashr::cov_pca(data = data, subset = strong, npc = npc)
-#
-#     Ued = do.call(mashr::cov_ed, c(list(data = data), list(Ulist_init = Upca)
-#       , list(subset = strong), covEdArgs))
-#
-#   } else if ('data-driven' %in% covMethod
-#       & is.null(npc)) {
-#
-#     stop("Data-driven method specified without argument 'npc'.")
-#
-#   } else { Ued = NULL }
-#
-#   resMash = mashr::mash(data,c(Uc, Ued))
-#   pm = resMash$result$PosteriorMean
-#
-#   pm = cbind(bMat[, 1:idxRemove, drop = FALSE], pm)
-#
-#   attr(pm, 'period') = period
-#   attr(pm, 'nKnots') = nKnots
-#   attr(pm, 'cond') = cond
-#
-#   return(pm)}
-
 #' @export
 getMashedCoefs = function(
-  fit, mashCondCoefs = FALSE, covMethod = c('data-driven', 'canonical'),
+  fit, mashCondCoefs = TRUE, covMethod = c('data-driven', 'canonical'),
   getSigResArgs = list(), npc = attr(fit$coefficients, 'nKnots'),
   covEdArgs = list(), ...) {
 

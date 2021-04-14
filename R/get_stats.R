@@ -1,56 +1,3 @@
-# #' @export
-# getRhythmStats = function(mat){ # just takes a mat with effects
-#
-#   c(period, nKnots, cond) %<-% attributes(mat)[-2:-1]
-#
-#   t = seq(0, period, by = period/(nKnots *10))
-#
-#   statsAll = foreach(cNum = 1:length(cond), .combine = rbind) %do% {
-#
-#     cMat = getCond(mat, cNum, length(cond), nKnots)
-#     # isolate matrix for specific condition
-#     # maybe create function that isolates individual condition matrix by index in original matrix
-#
-#     statsNow = foreach(mNow = iter(cMat, by = "row"), .combine = rbind) %dopar% {
-#
-#       funcR = function(x, co = mNow, p = period, nk = nKnots){
-#         co2 = matrix(co, ncol = 1)
-#         b = getBasis(x, p, nk, intercept = TRUE)
-#
-#         y = b %*% co2
-#
-#
-#         return(y)
-#
-#       }
-#
-#
-#       res = getOptimize(funcR, t)
-#
-#       res[, mean_value := mNow[1]]
-#       res[, ampl := peak_value - trough_value]
-#       res[, feature := rownames(mNow)]
-#
-#       # res = data.table(funcR(t))
-#
-#       return(res) }
-#
-#     if(length(cond) > 1) {
-#
-#       statsNow[,cond := cond[cNum]]
-#     }
-#
-#
-#     return(statsNow) }
-#
-#   attr(statsAll, 'period') = period
-#   attr(statsAll, 'nKnots') = nKnots
-#   attr(statsAll, 'cond') = cond
-#
-#   return(statsAll)
-#
-# }
-
 #' @export
 getRhythmStats = function(coefMat) {
   c(period, condLevels, nKnots, nConds) %<-%
@@ -84,30 +31,6 @@ getRhythmStats = function(coefMat) {
   if (nConds == 1L) rhyStats[, cond := NULL]
   return(rhyStats[])}
 
-
-# #' @export
-# getDiffRhythmStats = function(dat, condIds){
-#
-#   c(period, nKnots, cond) %<-% tail(attributes(dat),3)
-#
-#   stopifnot(length(condIds) >=2, condIds %in% dat[, unique(cond)])
-#
-#   d = dat[cond %in% condIds]
-#   d = d[order(factor(cond, levels = condIds))] #preserve order
-#
-#   cols = setdiff(colnames(d), c('cond', 'feature'))
-#   d1 = d[, lapply(.SD, diff), .SDcols = cols, by  = feature]
-#   d1[, cond := paste(condIds, collapse = ':')]
-#
-#   d1[, peak_time := fixDiffPhase(peak_time, period)]
-#   d1[, trough_time := fixDiffPhase(trough_time, period)]
-#
-#   setnames(d1, cols, paste0("diff_", cols))
-#
-#
-#   return(d1)
-#
-# }
 
 #' @export
 getDiffRhythmStats = function(coefMat, rhyStats, condLevels) {

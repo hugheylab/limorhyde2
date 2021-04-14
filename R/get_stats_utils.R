@@ -1,35 +1,3 @@
-# f = function(x, coefs, nKnots, period, ...) {
-#   coefs = matrix(coefs, ncol = 1)
-#   b = getBasis(x, period, nKnots, intercept = TRUE)
-#
-#   # stopifnot('Number of basis components must match number of coefs provided' = ncol(b) == ncol(coefs))
-#
-#   y = b %*% coefs
-#
-#   return(y)
-# }
-
-
-# getOptimize = function(coFunc, tVec) {
-#
-#   y = coFunc(tVec)
-#   tr = range(tVec)
-#
-#   oMax = optim(par = tVec[which.max(y)], fn = coFunc, lower = tr[1], upper = tr[2],
-#                control = list(fnscale = -1), method = "L-BFGS-B")
-#
-#
-#   oMin = optim(par = tVec[which.min(y)], fn = coFunc, lower = tr[1], upper = tr[2],
-#                method = "L-BFGS-B")
-#
-#   res = data.table(peak_time = oMax$par, peak_value = oMax$value,
-#                    trough_time = oMin$par, trough_value = oMin$value)
-#
-#
-#   return(res)
-#
-# }
-
 getOptima = function(f, tt) {
   xr = f(tt)
   c(lower, upper) %<-% range(tt)
@@ -42,36 +10,6 @@ getOptima = function(f, tt) {
                  trough_phase = optMin$par, trough_value = optMin$value)
   return(d)}
 
-
-# getIdx = function(i, nCond, nKnots){
-#
-#   idx = c(i, nCond + (i-1)*nKnots + (1:nKnots))
-#
-#   return(idx)
-#
-# }
-
-# getCond = function(mat, i, nCond, nKnots){
-#
-#   cIdx = getIdx(1, nCond, nKnots)
-#   m0 = mat[, cIdx]
-#
-#   if(i == 1){
-#     return(m0)
-#   } else{
-#
-#     tIdx = getIdx(i, nCond, nKnots) #tIdx must be the same length as nKnots +1
-#
-#     m1 = mat[, tIdx]
-#
-#     m =  m0 + m1
-#
-#     colnames(m) = colnames(m1)
-#
-#     return(m) }
-#
-#
-# }
 
 getCoefMatOneCond = function(coefMat, condIdx, nConds, nKnots) {
   coefNow = coefMat[, c(1, (nConds + 1):(nConds + nKnots))]
@@ -86,16 +24,6 @@ getRmsAmp = function(f, co, period) {
   r = sqrt(stats::integrate(fSq, 0, period)$value / period)
   return(r)}
 
-
-# fixDiffPhase = function(x, period){
-#
-#   y = x %% period
-#   y  = ifelse(y > period / 2, yes = y - period, no = y)
-#   y  = ifelse(y < (-period / 2), yes = y + period, no = y)
-#
-#   return(y)
-#
-# }
 
 centerCircDiff = function(x, p) {
   z = x %% p
