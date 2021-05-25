@@ -2,10 +2,10 @@
 
 export(getBasis)
 export(getDiffRhythmStats)
-export(getMashedCoefs)
+export(getMashFit)
 export(getModelFit)
+export(getPosteriorSamples)
 export(getRhythmStats)
-export(getTopTable)
 importFrom(data.table,":=")
 importFrom(data.table,data.table)
 importFrom(foreach,"%do%")

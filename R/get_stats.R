@@ -1,9 +1,21 @@
 #' @export
-getRhythmStats = function(coefMat) {
-  c(period, condLevels, nKnots, nConds) %<-%
-    attributes(coefMat)[c('period', 'condLevels', 'nKnots', 'nConds')]
+getRhythmStats = function(
+  fit, coefType = c('posterior_mean', 'posterior_samples', 'raw'),
+  features = NULL) {
 
-  g = function(time) getBasis(time, period, nKnots, TRUE)
+  c(shifts, period, condLevels, nKnots, nConds) %<-%
+    fit[c('shifts', 'period', 'condLevels', 'nKnots', 'nConds')]
+
+  coefType = match.arg(coefType)
+  if (coefType == 'posterior_mean' && is.null(fit$mashCoefficients)) {
+    stop('No mash coefficients from which to calculate statistics.')
+  } else if (coefType == 'posterior_samples' && is.null(fit$mashPosteriorSamples)) {
+    stop('No mash posterior samples from which to calculate statistics.')}
+
+  g = function(time) {
+    do.call(cbind, lapply(shifts, function(shift) {
+      getBasis(time + shift, period, nKnots, TRUE)}))}
+
   tr = seq(0, period, length.out = nKnots * 20)
 
   if (nConds == 1L && is.null(condLevels)) {
@@ -11,66 +23,65 @@ getRhythmStats = function(coefMat) {
   } else if (!(nConds > 1 && nConds == length(condLevels))) {
     stop('Inconsistent coefficient matrix and condition levels.')}
 
-  rhyStats = foreach(condIdx = 1:nConds, .combine = rbind) %do% {
-    coefNow = getCoefMatOneCond(coefMat, condIdx, nConds, nKnots)
+  coefArray = getCoefArray(fit, coefType)
+  nPostSamps = dim(coefArray)[3L]
 
-    feo = foreach(co = iterators::iter(coefNow, by = 'row'), .combine = rbind)
+  doPost = if (nPostSamps == 1L) `%do%` else `%dopar%`
+  doFeat = if (nPostSamps == 1L) `%dopar%` else `%do%`
 
-    rhyStatsNow = feo %dopar% {
-      f = function(time) g(time) %*% t(co)
-      d = getOptima(f, tr)
-      d[, peak_trough_amp := peak_value - trough_value]
-      d[, rms_amp := getRmsAmp(f, co, period)]}
+  if (!is.null(features)) coefArray = coefArray[features, , , drop = FALSE]
 
-    rhyStatsNow[, mean_value := coefNow[, 1L]]
-    rhyStatsNow[, cond := condLevels[condIdx]]
-    rhyStatsNow[, feature := rownames(coefMat)]}
+  rhyStats = doPost(foreach(postSampIdx = 1:nPostSamps, .combine = rbind), {
+    coefMat = abind::adrop(coefArray[, , postSampIdx, drop = FALSE], drop = 3)
 
-  data.table::setcolorder(rhyStats, c('cond', 'feature'))
+    r1 = foreach(condIdx = 1:nConds, .combine = rbind) %do% {
+      coefNow = getCoefMatOneCond(
+        coefMat, condIdx, nConds, nKnots, length(shifts))
+
+      feo = foreach(co = iterators::iter(coefNow, by = 'row'), .combine = rbind)
+      r2 = doFeat(feo, {
+        f = function(time) (g(time) %*% t(co)) / length(shifts)
+        d = getOptima(f, tr)
+        d[, peak_trough_amp := peak_value - trough_value]
+        d[, rms_amp := getRmsAmp(f, co, period)]})
+
+      r2[, mean_value := coefNow[, 1L]]
+      r2[, cond := condLevels[condIdx]]
+      r2[, feature := rownames(coefMat)]}
+
+    r1[, posterior_sample := postSampIdx]})
+
+  data.table::setcolorder(rhyStats, c('cond', 'feature', 'posterior_sample'))
   rhyStats[, cond := factor(cond, condLevels)]
   if (nConds == 1L) rhyStats[, cond := NULL]
+  if (nPostSamps == 1L) rhyStats[, posterior_sample := NULL]
+  attr(rhyStats, 'coefType') = coefType
   return(rhyStats[])}
 
 
 #' @export
-getDiffRhythmStats = function(coefMat, rhyStats, condLevels) {
+getDiffRhythmStats = function(fit, rhyStats, condLevels) {
   stopifnot('cond' %in% colnames(rhyStats),
             length(condLevels) == 2L,
-            condLevels %in% unique(rhyStats$cond))
+            all(condLevels %in% fit$condLevels),
+            all(condLevels %in% unique(rhyStats$cond)))
 
   d0 = rhyStats[cond %in% condLevels]
   d0[, cond := factor(cond, condLevels)]
   data.table::setorderv(d0, 'cond')
-  period = attr(coefMat, 'period')
 
+  coefType = attr(rhyStats, 'coefType')
+  byCols = c('feature', if (coefType == 'posterior_samples') 'posterior_sample')
   cols = c('mean_value', 'peak_trough_amp', 'rms_amp', 'peak_phase', 'trough_phase')
-  diffRhyStats = d0[, lapply(.SD, diff), by = feature, .SDcols = cols]
-  diffRhyStats[, peak_phase := centerCircDiff(peak_phase, period)]
-  diffRhyStats[, trough_phase := centerCircDiff(trough_phase, period)]
+
+  diffRhyStats = d0[, lapply(.SD, diff), by = byCols, .SDcols = cols]
+  diffRhyStats[, peak_phase := centerCircDiff(peak_phase, fit$period)]
+  diffRhyStats[, trough_phase := centerCircDiff(trough_phase, fit$period)]
   data.table::setnames(diffRhyStats, cols, paste0('diff_', cols))
 
   # calculate rms difference in rhythmic fit between conditions
-  diffRhyStats[, rms_diff_rhy := getRmsDiffRhy(coefMat, condLevels)]
+  featureIdx = rownames(fit$coefficients) %in% unique(rhyStats$feature)
+  rmsDiffRhy = getRmsDiffRhy(fit, condLevels, coefType, featureIdx)
+  diffRhyStats = merge(diffRhyStats, rmsDiffRhy, sort = FALSE)
+  attr(diffRhyStats, 'coefType') = coefType
   return(diffRhyStats[])}
-
-
-#' @export
-getTopTable = function(fit, contrast = c('rhy', 'diff_rhy'), ...) {
-  contrast = match.arg(contrast)
-  c(nKnots, nConds, nCovars) %<-%
-    attributes(fit$coefficients)[c('nKnots', 'nConds', 'nCovars')]
-  stopifnot(nConds > 1 || contrast == 'rhy')
-
-  i = if (contrast == 'rhy') 0 else nKnots
-  d = limma::topTable(
-    fit, coef = (1 + nConds + i):(ncol(fit) - nCovars), number = Inf, ...)
-  data.table::setDT(d, keep.rownames = 'feature')
-  d = d[, .(feature, pval_rhy = P.Value, qval_rhy = adj.P.Val)]
-
-  if (contrast != 'rhy') {
-    data.table::setnames(d, 2:3, c('pval_diff_rhy', 'qval_diff_rhy'))
-    d1 = limma::topTable(fit, coef = 2:nConds, number = Inf, ...)
-    d1 = data.table::setDT(d1, keep.rownames = 'feature')[
-      , .(feature, pval_diff_mean = P.Value, qval_diff_mean = adj.P.Val)]
-    d = merge(d, d1, by = 'feature', sort = FALSE)}
-  return(d)}

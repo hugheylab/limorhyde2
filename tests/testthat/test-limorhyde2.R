@@ -1,15 +1,15 @@
 
 
 test_that('getModelFit cosinor is functional', {
-  library(data.table)
+  # library(data.table)
 
   period = 24
   nKnots = 4
 
   # path = '/Users/doraobodo/Documents/limorhyde2/tests/testthat'
 
-  md0 = readRDS('/Users/doraobodo/Documents/limorhyde2/tests/testthat/test_zhang_hypoth_md.RDS')
-  d0 = readRDS('/Users/doraobodo/Documents/limorhyde2/tests/testthat/test_zhang_hypoth_data.RDS')
+  # md0 = readRDS('/Users/doraobodo/Documents/limorhyde2/tests/testthat/test_zhang_hypoth_md.RDS')
+  # d0 = readRDS('/Users/doraobodo/Documents/limorhyde2/tests/testthat/test_zhang_hypoth_data.RDS')
 
 
   md0 = readRDS('test_zhang_hypoth_md.RDS')
@@ -49,15 +49,15 @@ test_that('getModelFit cosinor is functional', {
 })
 
 test_that('getRhythmStats spline is functional for two conditions', {
-  library(data.table)
+  # library(data.table)
 
   period = 24
   nKnots = 4
 
   # path = '/Users/doraobodo/Documents/limorhyde2/tests/testthat'
 
-  md0 = readRDS('/Users/doraobodo/Documents/limorhyde2/tests/testthat/test_limorhyde2_two_cond_example_md.rds')
-  d0 = readRDS('/Users/doraobodo/Documents/limorhyde2/tests/testthat/test_limorhyde2_two_cond_example_data.rds')
+  # md0 = readRDS('/Users/doraobodo/Documents/limorhyde2/tests/testthat/test_limorhyde2_two_cond_example_md.rds')
+  # d0 = readRDS('/Users/doraobodo/Documents/limorhyde2/tests/testthat/test_limorhyde2_two_cond_example_data.rds')
 
   fit = getModelFit(d0[1:100,], md0, period,nKnots,
                     timeColname = 'time', conditionsColname = 'cond')

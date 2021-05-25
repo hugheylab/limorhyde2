@@ -6,9 +6,9 @@ NULL
 
 globalVariables(c(
   'condIdx', '.SD', 'peak_phase', 'trough_phase', 'rms_diff_rhy', 'nConds',
-  'nK', 'nCon', 'nCov', 'lower', 'upper', 'nConds', 'co', 'peak_trough_amp',
-  'rms_amp', 'mean_value', 'P.Value', 'adj.P.Val', '.', 'cond', 'feature',
-  'nCovars', 'nKnots', 'peak_value', 'trough_value', 'period'))
+  'nK', 'nCon', 'nCov', 'lower', 'upper', 'co', 'peak_trough_amp', 'rms_amp',
+  'mean_value', '.', 'cond', 'feature', 'nKnots', 'peak_value', 'trough_value',
+  'period', 'shift', 'shifts', 'j', 'postSampIdx', 'posterior_sample'))
 
 
 addIntercept = function(b, intercept) {
@@ -96,7 +96,7 @@ getDesign = function(metadata, period, nKnots) {
 
 
 getNumKnotCondCovar = function(cols) {
-  nCovars = sum(startsWith(cols, 'covar'))
+  nCovs = sum(startsWith(cols, 'covar'))
   nConds = which(cols == 'basis1') - 1L
-  nKnots = as.integer((length(cols) - nConds - nCovars) / nConds)
-  return(c(nKnots, nConds, nCovars))}
+  nKnots = as.integer((length(cols) - nConds - nCovs) / nConds)
+  return(c(nKnots, nConds, nCovs))}
