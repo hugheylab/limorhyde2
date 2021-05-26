@@ -45,11 +45,12 @@ getRhythmStats = function(
         d[, peak_trough_amp := peak_value - trough_value]
         d[, rms_amp := getRmsAmp(f, co, period)]})
 
-      r2[, mean_value := coefNow[, 1L]]
-      r2[, cond := condLevels[condIdx]]
-      r2[, feature := rownames(coefMat)]}
+      idx = seq(1, ncol(coefNow), ncol(coefNow) / length(shifts))
+      set(r2, j = 'mean_value', value = rowMeans(coefNow[, idx, drop = FALSE]))
+      set(r2, j = 'cond', value = condLevels[condIdx])
+      set(r2, j = 'feature', value = rownames(coefMat))}
 
-    r1[, posterior_sample := postSampIdx]})
+    set(r1, j = 'posterior_sample', value = postSampIdx)})
 
   data.table::setcolorder(rhyStats, c('cond', 'feature', 'posterior_sample'))
   rhyStats[, cond := factor(cond, condLevels)]

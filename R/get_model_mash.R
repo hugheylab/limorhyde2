@@ -1,7 +1,7 @@
 #' @export
 getModelFit = function(
   y, metadata, period = 24, nKnots = 4, timeColname = 'time',
-  condColname = NULL, covarColnames = NULL, nShifts = 2,
+  condColname = NULL, covarColnames = NULL, nShifts = 3,
   method = c('trend', 'voom'), lmFitArgs = list(),
   eBayesArgs = if (method == 'trend') list(trend = TRUE) else list()) {
 
@@ -21,7 +21,7 @@ getModelFit = function(
 
   lmFits = foreach(shift = shifts) %do% {
     mNow = data.table::copy(m)
-    data.table::set(mNow, j = 'time', value = mNow$time + shift)
+    set(mNow, j = 'time', value = mNow$time + shift)
     design = getDesign(mNow, period, nKnots)
 
     v = if (method == 'voom') limma::voom(y, design) else y
@@ -30,8 +30,12 @@ getModelFit = function(
 
   fit = list(lmFits = lmFits)
   fit$coefficients = do.call(cbind, lapply(lmFits, `[[`, 'coefficients'))
-  fit$shifts = shifts
 
+  sufs = rep(paste0('_shift', 1:length(shifts)),
+             each = ncol(fit$coefficients) / length(shifts))
+  colnames(fit$coefficients) = paste0(colnames(fit$coefficients), sufs)
+
+  fit$shifts = shifts
   fit$period = period
   fit$condLevels = levels(m$cond) # always works
 
@@ -58,7 +62,7 @@ getMashFit = function(
 
   co = fit$coefficients
   se = do.call(
-    cbind, lapply(fit$lmFits, function(f) f$s2.post * f$stdev.unscaled))
+    cbind, lapply(fit$lmFits, function(f) sqrt(f$s2.post) * f$stdev.unscaled))
   c(shifts, nKnots, nConds) %<-% fit[c('shifts', 'nKnots', 'nConds')]
 
   idxStart = if (isTRUE(mashCondCoefs)) 2 else nConds + 1
