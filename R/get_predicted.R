@@ -39,7 +39,7 @@ getPredictedValues = function(
     set(mNow, j = 'time', value = mNow$time + shift)
     designNow = getDesign(mNow, fit$period, fit$nKnots)}
 
-  dPred = foreach(postSampIdx = 1:nPostSamps, .combine = rbind) %dopar% {
+  predVals = foreach(postSampIdx = 1:nPostSamps, .combine = rbind) %dopar% {
     coefMat = abind::adrop(coefArray[, , postSampIdx, drop = FALSE], drop = 3)
     r = coefMat %*% t(design) / length(fit$shifts)
     colnames(r) = mPred[[sampleColname]]
@@ -51,5 +51,26 @@ getPredictedValues = function(
     d3[, (sampleColname) := NULL]
     d3[, posterior_sample := postSampIdx]}
 
-  if (nPostSamps == 1L) dPred[, posterior_sample := NULL]
-  return(dPred[])}
+  if (nPostSamps == 1L) predVals[, posterior_sample := NULL]
+  return(predVals[])}
+
+
+#' @export
+getPredictedIntervals = function(predVals, groupCols, mass = 0.9) {
+  stopifnot(all(groupCols %in% colnames(predVals)),
+            'posterior_sample' %in% colnames(predVals),
+            'value' %in% colnames(predVals),
+            !any(c('posterior_sample', 'value') %in% groupCols),
+            length(mass) == 1L,
+            is.numeric(mass),
+            mass > 0,
+            mass < 1)
+
+  byCols = unique(c('feature', groupCols))
+  predInts = predVals[
+    , .(lower = stats::quantile(value, probs = (1 - mass) / 2),
+        med = stats::quantile(value, probs = 0.5),
+        upper = stats::quantile(value, probs = (1 + mass) / 2)),
+    by = byCols]
+
+  return(predInts)}

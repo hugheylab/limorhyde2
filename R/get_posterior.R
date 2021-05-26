@@ -1,5 +1,5 @@
 #' @export
-getPosteriorSamples = function(fit, nPosteriorSamples = 100, overwrite = FALSE) {
+getPosteriorSamples = function(fit, nPosteriorSamples = 200, overwrite = FALSE) {
 
   stopifnot(!is.null(fit$mashFit),
             isTRUE(overwrite) || is.null(fit$mashPosteriorSamples),
