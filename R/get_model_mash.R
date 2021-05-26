@@ -28,7 +28,11 @@ getModelFit = function(
     fitNow = do.call(limma::lmFit, c(list(v, design), lmFitArgs))
     fitNow = do.call(limma::eBayes, c(list(fitNow), eBayesArgs))}
 
-  fit = list(lmFits = lmFits)
+  fit = list(metadata = data.table::as.data.table(metadata),
+             timeColname = timeColname,
+             condColname = condColname,
+             covarColnames = covarColnames,
+             lmFits = lmFits)
   fit$coefficients = do.call(cbind, lapply(lmFits, `[[`, 'coefficients'))
 
   sufs = rep(paste0('_shift', 1:length(shifts)),

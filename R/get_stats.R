@@ -56,6 +56,8 @@ getRhythmStats = function(
   rhyStats[, cond := factor(cond, condLevels)]
   if (nConds == 1L) rhyStats[, cond := NULL]
   if (nPostSamps == 1L) rhyStats[, posterior_sample := NULL]
+
+  attr(rhyStats, 'statType') = 'rhy'
   attr(rhyStats, 'coefType') = coefType
   return(rhyStats[])}
 
@@ -84,5 +86,7 @@ getDiffRhythmStats = function(fit, rhyStats, condLevels) {
   featureIdx = rownames(fit$coefficients) %in% unique(rhyStats$feature)
   rmsDiffRhy = getRmsDiffRhy(fit, condLevels, coefType, featureIdx)
   diffRhyStats = merge(diffRhyStats, rmsDiffRhy, sort = FALSE)
+
+  attr(diffRhyStats, 'statType') = 'diff_rhy'
   attr(diffRhyStats, 'coefType') = coefType
   return(diffRhyStats[])}
