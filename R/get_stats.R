@@ -3,25 +3,21 @@ getRhythmStats = function(
   fit, coefType = c('posterior_mean', 'posterior_samples', 'raw'),
   features = NULL) {
 
-  c(shifts, period, condLevels, nKnots, nConds) %<-%
-    fit[c('shifts', 'period', 'condLevels', 'nKnots', 'nConds')]
-
   coefType = match.arg(coefType)
   if (coefType == 'posterior_mean' && is.null(fit$mashCoefficients)) {
     stop('No mash coefficients from which to calculate statistics.')
   } else if (coefType == 'posterior_samples' && is.null(fit$mashPosteriorSamples)) {
     stop('No mash posterior samples from which to calculate statistics.')}
 
+  c(shifts, period, condLevels, nKnots, nConds) %<-%
+    fit[c('shifts', 'period', 'condLevels', 'nKnots', 'nConds')]
+
   g = function(time) {
     do.call(cbind, lapply(shifts, function(shift) {
       getBasis(time + shift, period, nKnots, TRUE)}))}
 
   tr = seq(0, period, length.out = nKnots * 20)
-
-  if (nConds == 1L && is.null(condLevels)) {
-    condLevels = 'lava'
-  } else if (!(nConds > 1 && nConds == length(condLevels))) {
-    stop('Inconsistent coefficient matrix and condition levels.')}
+  if (nConds == 1L) condLevels = 'lava'
 
   coefArray = getCoefArray(fit, coefType)
   nPostSamps = dim(coefArray)[3L]
