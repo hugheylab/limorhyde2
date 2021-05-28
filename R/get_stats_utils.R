@@ -1,11 +1,11 @@
-getCoefArray = function(fit, coefType) {
-  coefName = switch(coefType,
+getCoefArray = function(fit, fitType) {
+  coefName = switch(fitType,
                     raw = 'coefficients',
                     posterior_mean = 'mashCoefficients',
                     posterior_samples = 'mashPosteriorSamples')
   coefArray = fit[[coefName]]
 
-  if (coefType != 'posterior_samples') {
+  if (fitType != 'posterior_samples') {
     coefArray = array(coefArray, dim = c(dim(coefArray), 1L),
                       dimnames = dimnames(coefArray))}
   return(coefArray)}
@@ -66,7 +66,7 @@ getCoefMatDiffCond = function(coefMat, condIdx, nConds, nKnots, nShifts) {
   return(coefKeep)}
 
 
-getRmsDiffRhy = function(fit, condLevels, coefType, featureIdx) {
+getRmsDiffRhy = function(fit, condLevels, fitType, featureIdx) {
   c(shifts, period, nKnots, nConds) %<-%
     fit[c('shifts', 'period', 'nKnots', 'nConds')]
 
@@ -74,7 +74,7 @@ getRmsDiffRhy = function(fit, condLevels, coefType, featureIdx) {
     do.call(cbind, lapply(shifts, function(shift) {
       getBasis(time + shift, period, nKnots, FALSE)}))}
 
-  coefArray = getCoefArray(fit, coefType)
+  coefArray = getCoefArray(fit, fitType)
   nPostSamps = dim(coefArray)[3L]
   coefArray = coefArray[featureIdx, , , drop = FALSE]
 

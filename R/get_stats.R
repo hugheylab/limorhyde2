@@ -1,13 +1,13 @@
 #' @export
 getRhythmStats = function(
-  fit, coefType = c('posterior_mean', 'posterior_samples', 'raw'),
+  fit, fitType = c('posterior_mean', 'posterior_samples', 'raw'),
   features = NULL) {
 
-  coefType = match.arg(coefType)
-  if (coefType == 'posterior_mean' && is.null(fit$mashCoefficients)) {
-    stop('No mash coefficients from which to calculate statistics.')
-  } else if (coefType == 'posterior_samples' && is.null(fit$mashPosteriorSamples)) {
-    stop('No mash posterior samples from which to calculate statistics.')}
+  fitType = match.arg(fitType)
+  if (fitType == 'posterior_mean' && is.null(fit$mashCoefficients)) {
+    stop('No posterior mean to calculate statistics, please run getPosteriorFit.')
+  } else if (fitType == 'posterior_samples' && is.null(fit$mashPosteriorSamples)) {
+    stop('No posterior samples to calculate statistics, please run getPosteriorSamples.')}
 
   c(shifts, period, condLevels, nKnots, nConds) %<-%
     fit[c('shifts', 'period', 'condLevels', 'nKnots', 'nConds')]
@@ -19,7 +19,7 @@ getRhythmStats = function(
   tr = seq(0, period, length.out = nKnots * 20)
   if (nConds == 1L) condLevels = 'lava'
 
-  coefArray = getCoefArray(fit, coefType)
+  coefArray = getCoefArray(fit, fitType)
   nPostSamps = dim(coefArray)[3L]
   if (!is.null(features)) coefArray = coefArray[features, , , drop = FALSE]
 
@@ -53,13 +53,14 @@ getRhythmStats = function(
   if (nPostSamps == 1L) rhyStats[, posterior_sample := NULL]
 
   attr(rhyStats, 'statType') = 'rhy'
-  attr(rhyStats, 'coefType') = coefType
+  attr(rhyStats, 'fitType') = fitType
   return(rhyStats[])}
 
 
 #' @export
 getDiffRhythmStats = function(fit, rhyStats, condLevels) {
   stopifnot('cond' %in% colnames(rhyStats),
+            attr(rhyStats, 'statType') == 'rhy',
             length(condLevels) == 2L,
             all(condLevels %in% fit$condLevels),
             all(condLevels %in% unique(rhyStats$cond)))
@@ -68,8 +69,8 @@ getDiffRhythmStats = function(fit, rhyStats, condLevels) {
   d0[, cond := factor(cond, condLevels)]
   data.table::setorderv(d0, 'cond')
 
-  coefType = attr(rhyStats, 'coefType')
-  byCols = c('feature', if (coefType == 'posterior_samples') 'posterior_sample')
+  fitType = attr(rhyStats, 'fitType')
+  byCols = c('feature', if (fitType == 'posterior_samples') 'posterior_sample')
   cols = c('mean_value', 'peak_trough_amp', 'rms_amp', 'peak_phase', 'trough_phase')
 
   diffRhyStats = d0[, lapply(.SD, diff), by = byCols, .SDcols = cols]
@@ -79,9 +80,9 @@ getDiffRhythmStats = function(fit, rhyStats, condLevels) {
 
   # calculate rms difference in rhythmic fit between conditions
   featureIdx = rownames(fit$coefficients) %in% unique(rhyStats$feature)
-  rmsDiffRhy = getRmsDiffRhy(fit, condLevels, coefType, featureIdx)
+  rmsDiffRhy = getRmsDiffRhy(fit, condLevels, fitType, featureIdx)
   diffRhyStats = merge(diffRhyStats, rmsDiffRhy, sort = FALSE)
 
   attr(diffRhyStats, 'statType') = 'diff_rhy'
-  attr(diffRhyStats, 'coefType') = coefType
+  attr(diffRhyStats, 'fitType') = fitType
   return(diffRhyStats[])}
