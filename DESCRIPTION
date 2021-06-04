@@ -1,22 +1,30 @@
 Package: limorhyde2
 Type: Package
-Title: title here
-Version: 0.0.0.9004
-Authors@R: as.person("Jake Hughey <jakejhughey@gmail.com> [aut, cre]")
+Title: Rhythmicity and differential rhythmicity analysis focused on effect sizes
+Version: 0.0.0.9008
+Authors@R: as.person(c(
+  "Jake Hughey <jakejhughey@gmail.com> [aut, cre]",
+  "Dora Obodo <dora.obodo@vanderbilt.edu> [aut]",
+  "Elliot Outland <ehoutland@gmail.com> [aut]"))
 Description: This does stuff.
 URL: https://github.com/hugheylab/limorhyde2
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
 Depends: R (>= 3.6)
 Imports:
-    ashr (>= 2.2-47),
-    data.table (>= 1.12.8),
-    doParallel (>= 1.0.15),
-    Deriv (>= 4.0),
-    foreach (>= 1.5.0),
-    iterators (>= 1.0.12),
-    limma (>= 3.42.2),
-    zeallot (>= 0.1.0)
+  abind (>= 1.4-5),
+  ashr (>= 2.2-51),
+  data.table (>= 1.12.8),
+  foreach (>= 1.5.0),
+  iterators (>= 1.0.12),
+  limma (>= 3.42.2),
+  mashr (>= 0.2.50),
+  pbs (>= 1.1),
+  zeallot (>= 0.1.0)
+Suggests:
+  doParallel (>= 1.0.15),
+  testthat (>= 3.0.0)
+Config/testthat/edition: 3
