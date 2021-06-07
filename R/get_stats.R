@@ -59,8 +59,8 @@ getRhythmStats = function(
 
 #' @export
 getDiffRhythmStats = function(fit, rhyStats, condLevels) {
-  stopifnot('cond' %in% colnames(rhyStats),
-            attr(rhyStats, 'statType') == 'rhy',
+  stopifnot(isTRUE(attr(rhyStats, 'statType') == 'rhy'),
+            'cond' %in% colnames(rhyStats),
             length(condLevels) == 2L,
             all(condLevels %in% fit$condLevels),
             all(condLevels %in% unique(rhyStats$cond)))
@@ -85,4 +85,38 @@ getDiffRhythmStats = function(fit, rhyStats, condLevels) {
 
   attr(diffRhyStats, 'statType') = 'diff_rhy'
   attr(diffRhyStats, 'fitType') = fitType
+  attr(diffRhyStats, 'condLevels') = condLevels
   return(diffRhyStats[])}
+
+
+#' @export
+getStatsIntervals = function(
+  posteriorStats, mass = 0.9, method = c('eti', 'hdi')) {
+  # TODO: extend for phase-based stats, possibly in 2D
+
+  stopifnot(isTRUE(attr(posteriorStats, 'fitType') == 'posterior_samples'),
+            isTRUE(attr(posteriorStats, 'statType') %in% c('rhy', 'diff_rhy')))
+  method = match.arg(method)
+
+  statType = attr(posteriorStats, 'statType')
+  idCols = c('feature', 'posterior_sample')
+  if (statType == 'diff_rhy') idCols = c('cond', idCols)
+
+  varName = 'statistic'
+  byCols = c(setdiff(idCols, 'posterior_sample'), varName)
+
+  measCols = if (statType == 'rhy') {
+    c('peak_value', 'trough_value', 'peak_trough_amp', 'rms_amp')
+  } else {
+    c('diff_mean_value', 'diff_peak_trough_amp', 'diff_rms_amp', 'rms_diff_rhy')}
+
+  d1 = data.table::melt(
+    posteriorStats, id.vars = idCols, measure.vars = measCols,
+    variable.name = varName, variable.factor = FALSE)
+  getInterval = if (method == 'eti') getEti else getHdi
+  d2 = d1[, getInterval(value, mass), by = byCols]
+
+  attr(d2, 'statType') = statType
+  attr(d2, 'mass') = mass
+  attr(d2, 'method') = method
+  return(d2)}

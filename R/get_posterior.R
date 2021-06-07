@@ -69,10 +69,3 @@ getPosteriorSamples = function(fit, nPosteriorSamples = 200, overwrite = FALSE) 
 
   fit$mashPosteriorSamples = coArray
   return(fit)}
-
-
-# TODO
-# #' @export
-# getPosteriorUncertainty = function(posteriorStats, ) {
-#   0
-#   return(d)} # data.table with one row per feature per statistic

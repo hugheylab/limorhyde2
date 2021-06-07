@@ -52,25 +52,27 @@ getFittedValues = function(
     d3[, posterior_sample := postSampIdx]}
 
   if (nPostSamps == 1L) fittedVals[, posterior_sample := NULL]
+  attr(fittedVals, 'fitType') = fitType
   return(fittedVals[])}
 
 
 #' @export
-getFittedIntervals = function(fittedVals, groupCols, mass = 0.9) {
-  stopifnot(all(groupCols %in% colnames(fittedVals)),
-            'posterior_sample' %in% colnames(fittedVals),
-            'value' %in% colnames(fittedVals),
+getFittedIntervals = function(
+  fittedVals, groupCols, mass = 0.9, method = c('eti', 'hdi')) {
+
+  stopifnot(isTRUE(attr(fittedVals, 'fitType') == 'posterior_samples'),
+            all(groupCols %in% colnames(fittedVals)),
             !any(c('posterior_sample', 'value') %in% groupCols),
             length(mass) == 1L,
             is.numeric(mass),
-            mass > 0,
+            mass > 0.5,
             mass < 1)
+  method = match.arg(method)
 
   byCols = unique(c('feature', groupCols))
-  fittedInts = fittedVals[
-    , .(lower = stats::quantile(value, probs = (1 - mass) / 2),
-        med = stats::quantile(value, probs = 0.5),
-        upper = stats::quantile(value, probs = (1 + mass) / 2)),
-    by = byCols]
+  getInterval = if (method == 'eti') getEti else getHdi
+  fittedInts = fittedVals[, getInterval(value, mass), by = byCols]
 
+  attr(fittedInts, 'mass') = mass
+  attr(fittedInts, 'method') = method
   return(fittedInts)}

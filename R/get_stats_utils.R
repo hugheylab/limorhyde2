@@ -96,3 +96,15 @@ getRmsDiffRhy = function(fit, condLevels, fitType, featureIdx) {
 
   if (nPostSamps == 1L) r[, posterior_sample := NULL]
   return(r[])}
+
+
+getEti = function(v, mass) {
+  r = stats::quantile(v, probs = c(1 - mass, 1 + mass) / 2)
+  d = data.table(lower = r[1L], upper = r[2L])
+  return(d)}
+
+
+getHdi = function(v, mass) {
+  r = HDInterval::hdi(v, credMass = mass)
+  d = data.table(lower = r[1L], upper = r[2L])
+  return(d)}
