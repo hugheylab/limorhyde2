@@ -18,7 +18,6 @@ addIntercept = function(b, intercept) {
   return(b)}
 
 
-#' @export
 getBasis = function(time, period = 24, nKnots = 4, intercept = TRUE) {
   stopifnot(length(period) == 1L,
             is.numeric(period),
