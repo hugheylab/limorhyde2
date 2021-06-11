@@ -59,19 +59,16 @@ getFittedValues = function(
 
 
 #' @export
-getFittedIntervals = function(
-  fittedVals, groupCols, mass = 0.9, method = c('eti', 'hdi')) {
+getFittedIntervals = function(fittedVals, mass = 0.9, method = c('eti', 'hdi')) {
 
   stopifnot(isTRUE(attr(fittedVals, 'fitType') == 'posterior_samples'),
-            all(groupCols %in% colnames(fittedVals)),
-            !any(c('posterior_sample', 'value') %in% groupCols),
             length(mass) == 1L,
             is.numeric(mass),
             mass > 0.5,
             mass < 1)
   method = match.arg(method)
 
-  byCols = unique(c('feature', groupCols))
+  byCols = setdiff(colnames(fittedVals), c('posterior_sample', 'value'))
   getInterval = if (method == 'eti') getEti else getHdi
   fittedInts = fittedVals[, getInterval(value, mass), by = byCols]
 

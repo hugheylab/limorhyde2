@@ -4,8 +4,6 @@ getPosteriorFit = function(
   npc = fit$nKnots, covEdArgs = list(), overwrite = FALSE, ...) {
 
   stopifnot(inherits(fit, 'limorhyde2'),
-            length(mashCondCoefs) == 1L,
-            is.logical(mashCondCoefs),
             length(npc) == 1L,
             is.numeric(npc),
             isTRUE(overwrite) || is.null(fit$mashFit))
