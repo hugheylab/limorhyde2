@@ -3,6 +3,8 @@ getFittedValues = function(
   fit, times, fitType = c('posterior_mean', 'posterior_samples', 'raw'),
   features = NULL) {
 
+  stopifnot(inherits(fit, 'limorhyde2'))
+
   fitType = match.arg(fitType)
   if (fitType == 'posterior_mean' && is.null(fit$mashCoefficients)) {
     stop('No posterior mean to calculate fitted values, please run getPosteriorFit.')

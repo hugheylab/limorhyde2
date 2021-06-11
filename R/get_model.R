@@ -47,4 +47,5 @@ getModelFit = function(
   fit$nKnots = nK
   fit$nConds = nCon
   fit$nCovs = nCov
+  class(fit) = 'limorhyde2'
   return(fit)}

@@ -3,14 +3,15 @@ getPosteriorFit = function(
   fit, covMethod = c('data-driven', 'canonical', 'both'), getSigResArgs = list(),
   npc = fit$nKnots, covEdArgs = list(), overwrite = FALSE, ...) {
 
-  mashCondCoefs = TRUE
-  covMethod = match.arg(covMethod)
-
-  stopifnot(length(mashCondCoefs) == 1L,
+  stopifnot(inherits(fit, 'limorhyde2'),
+            length(mashCondCoefs) == 1L,
             is.logical(mashCondCoefs),
             length(npc) == 1L,
             is.numeric(npc),
             isTRUE(overwrite) || is.null(fit$mashFit))
+
+  mashCondCoefs = TRUE
+  covMethod = match.arg(covMethod)
 
   co = fit$coefficients
   se = do.call(
