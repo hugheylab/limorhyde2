@@ -56,6 +56,22 @@ getFittedValues = function(
   return(fittedVals[])}
 
 
+#' Get credible intervals for fitted values
+#'
+#' \code{getFittedIntervals} constructs credible intervals for the fitted values
+#' of a model by group.
+#'
+#' @param fittedVals A data.table of posterior samples of fitted values.
+#' @param groupCols A vector of column names by which posterior samples are grouped.
+#' @param mass The probability mass for which to calculate the interval.
+#' @param method One of 'eti' or 'hdi'. Inputting 'eti' returns an equal-tailed
+#' interval (i.e., an interval with an equal probability mass in each tail);
+#' inputting 'hdi' returns a highest-posterior density interval (i.e., the
+#' narrowest interval containing the specified probability mass).
+#'
+#' @return A data.table with columns for the upper and lower bounds of the fitted
+#' value for each feature in each group.
+#'
 #' @export
 getFittedIntervals = function(
   fittedVals, groupCols, mass = 0.9, method = c('eti', 'hdi')) {

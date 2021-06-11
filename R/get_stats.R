@@ -1,3 +1,19 @@
+#' Calculate rhythmic statistics from a fitted model
+#'
+#' \code{getRhythmStats} returns the rhythmic statistics (i.e., peak-to-trough
+#' amplitude, root mean-squared amplitude, peak phase, and trough phase)
+#' calculated under a fitted linear model for selected features.
+#'
+#' @param fit A fitted linear model object, as provided by \code{getModelFit} or
+#' \code{getPosteriorFit}.
+#' @param fitType String indicating the type of linear model. Can be one of
+#' 'posterior_mean', 'posterior_samples', or 'raw'.
+#' @param features Vector containing the names of the features for which to
+#' calculate rhythmic statistics.
+#'
+#' @return A data.table with columns for each feature, rhythmic statistic, as well
+#' as condition and posterior sample, if applicable.
+#'
 #' @export
 getRhythmStats = function(
   fit, fitType = c('posterior_mean', 'posterior_samples', 'raw'),
@@ -57,6 +73,19 @@ getRhythmStats = function(
   return(rhyStats[])}
 
 
+#' Calculate differential rhythmic statistics between conditions
+#'
+#' \code{getDiffRhythmStats} returns the differential rhythmic statistics
+#' calculated for subjects under differing conditions.
+#'
+#' @param fit A fitted linear model object, as provided by \code{getModelFit} or
+#' \code{getPosteriorFit}.
+#' @param rhyStats A data.table of rhythmic statistics, as returned by
+#' \code{getRhythmStats}.
+#' @param condLevels A vector of strings listing the pair of conditions to be compared.
+#'
+#' @return A data.table of differential rhythmic statistics between paired conditions.
+#'
 #' @export
 getDiffRhythmStats = function(fit, rhyStats, condLevels) {
   stopifnot(isTRUE(attr(rhyStats, 'statType') == 'rhy'),
@@ -89,6 +118,21 @@ getDiffRhythmStats = function(fit, rhyStats, condLevels) {
   return(diffRhyStats[])}
 
 
+#' Calculate credible intervals for rhythmic statistics
+#'
+#' \code{getStatsIntervals} constructs credible intervals for each of the rhythmic
+#' statistics calculated in \code{getRhythmStats}.
+#'
+#' @param posteriorStats A data.table of posterior samples of rhythmic statistics.
+#' @param mass The probability mass for which to calculate the interval.
+#' @param method One of 'eti' or 'hdi'. Inputting 'eti' returns an equal-tailed
+#' interval (i.e., an interval with an equal probability mass in each tail);
+#' inputting 'hdi' returns a highest-posterior density interval (i.e., the
+#' narrowest interval containing the specified probability mass).
+#'
+#' @return A data.table with rows for each feature and rhythmic statistic,
+#' and columns for the upper and lower bounds of the credible interval.
+#'
 #' @export
 getStatsIntervals = function(
   posteriorStats, mass = 0.9, method = c('eti', 'hdi')) {
