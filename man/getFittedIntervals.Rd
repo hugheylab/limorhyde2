@@ -4,25 +4,25 @@
 \alias{getFittedIntervals}
 \title{Get credible intervals for fitted values}
 \usage{
-getFittedIntervals(fittedVals, groupCols, mass = 0.9, method = c("eti", "hdi"))
+getFittedIntervals(fittedVals, mass = 0.9, method = c("eti", "hdi"))
 }
 \arguments{
-\item{fittedVals}{A data.table of posterior samples of fitted values.}
-
-\item{groupCols}{A vector of column names by which posterior samples are grouped.}
+\item{fittedVals}{A data.table of posterior samples for fitted values from
+\code{getFittedValues}.}
 
 \item{mass}{The probability mass for which to calculate the interval.}
 
 \item{method}{One of 'eti' or 'hdi'. Inputting 'eti' returns an equal-tailed
-interval (i.e., an interval with an equal probability mass in each tail);
-inputting 'hdi' returns a highest-posterior density interval (i.e., the
-narrowest interval containing the specified probability mass).}
+interval and inputting 'hdi' returns a highest-posterior density interval.}
 }
 \value{
 A data.table with columns for the upper and lower bounds of the fitted
 value for each feature in each group.
 }
 \description{
-\code{getFittedIntervals} constructs credible intervals for the fitted values
-of a model by group.
+\code{getFittedIntervals} constructs credible intervals for the fitted values of
+a model by group.
+}
+\seealso{
+\link{getFittedValues}
 }

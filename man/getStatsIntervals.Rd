@@ -7,20 +7,25 @@
 getStatsIntervals(posteriorStats, mass = 0.9, method = c("eti", "hdi"))
 }
 \arguments{
-\item{posteriorStats}{A data.table of posterior samples of rhythmic statistics.}
+\item{posteriorStats}{A data.table of posterior samples of (differential)
+rhythmic statistics from \code{getRhythmStats} or \code{getDiffRhythmStats}.}
 
 \item{mass}{The probability mass for which to calculate the interval.}
 
 \item{method}{One of 'eti' or 'hdi'. Inputting 'eti' returns an equal-tailed
-interval (i.e., an interval with an equal probability mass in each tail);
-inputting 'hdi' returns a highest-posterior density interval (i.e., the
-narrowest interval containing the specified probability mass).}
+interval and inputting 'hdi' returns a highest-posterior density interval.}
 }
 \value{
-A data.table with rows for each feature and rhythmic statistic,
-and columns for the upper and lower bounds of the credible interval.
+A data.table with rows for each feature and (differential)
+rhythmic statistic, as well as condition if applicable. Columns correspond to
+the upper and lower bounds of the credible interval.
 }
 \description{
 \code{getStatsIntervals} constructs credible intervals for each of the rhythmic
-statistics calculated in \code{getRhythmStats}.
+statistics calculated in \code{getRhythmStats} or differential rhythmic statistics
+calculated in \code{getDiffRhythmStats}.
+}
+\seealso{
+\code{\link[=getRhythmStats]{getRhythmStats()}}, \link{getDiffRhythmStats},
+\code{\link[stats]{quantiles}} ,\code{\link[HDInterval]{hdi}}
 }

@@ -11,21 +11,23 @@ getRhythmStats(
 )
 }
 \arguments{
-\item{fit}{A fitted linear model object, as provided by \code{getModelFit} or
+\item{fit}{A limorhyde2 fit object, as provided by \code{getModelFit} or
 \code{getPosteriorFit}.}
 
-\item{fitType}{String indicating the type of linear model. Can be one of
+\item{fitType}{String indicating whether to calculate statistics on the
+posterior mean, posterior samples, or raw model fit. Can be one of
 'posterior_mean', 'posterior_samples', or 'raw'.}
 
-\item{features}{Vector containing the names of the features for which to
-calculate rhythmic statistics.}
+\item{features}{Vector containing the names, row numbers, or logical conditions for
+features on which to calculate rhythmic statistics.}
 }
 \value{
-A data.table with columns for each feature, rhythmic statistic, as well
-as condition and posterior sample, if applicable.
+A data.table with rows for each feature and columns for rhythmic statistic
+(mean value, peak-to-trough amplitude, root mean-squared amplitude,
+peak phase, and trough phase), as well as condition and posterior sample,
+if applicable.
 }
 \description{
-\code{getRhythmStats} returns the rhythmic statistics (i.e., peak-to-trough
-amplitude, root mean-squared amplitude, peak phase, and trough phase)
-calculated under a fitted linear model for selected features.
+\code{getRhythmStats}returns the rhythmic statistics calculated under a
+fitted linear model for selected features.
 }

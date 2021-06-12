@@ -7,18 +7,21 @@
 getDiffRhythmStats(fit, rhyStats, condLevels)
 }
 \arguments{
-\item{fit}{A fitted linear model object, as provided by \code{getModelFit} or
+\item{fit}{A limorhyde2 fit object, as provided by \code{getModelFit} or
 \code{getPosteriorFit}.}
 
 \item{rhyStats}{A data.table of rhythmic statistics, as returned by
-\code{getRhythmStats}.}
+\code{getRhythmStats}. The \code{fitType} of rhyStats is inherited by the returned
+object.}
 
-\item{condLevels}{A vector of strings listing the pair of conditions to be compared.}
+\item{condLevels}{A character vector containing the two conditions to compare.}
 }
 \value{
-A data.table of differential rhythmic statistics between paired conditions.
+A data.table of differential rhythmic statistics (differential mean value,
+differential peak-trough amplitude, differential root mean-squared amplitude,
+differential peak phase, and differential trough phase) between paired conditions.
 }
 \description{
 \code{getDiffRhythmStats} returns the differential rhythmic statistics
-calculated for subjects under differing conditions.
+calculated for  under differing conditions.
 }
