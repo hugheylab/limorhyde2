@@ -58,34 +58,32 @@ getFittedValues = function(
 
 #' Get credible intervals for fitted values
 #'
-#' \code{getFittedIntervals} constructs credible intervals for the fitted values
-#' of a model by group.
+#' `getFittedIntervals` constructs credible intervals for the fitted values of
+#' a model by group.
 #'
-#' @param fittedVals A data.table of posterior samples of fitted values.
-#' @param groupCols A vector of column names by which posterior samples are grouped.
+#' @param fittedVals A data.table of posterior samples for fitted values from
+#' `getFittedValues`.
 #' @param mass The probability mass for which to calculate the interval.
 #' @param method One of 'eti' or 'hdi'. Inputting 'eti' returns an equal-tailed
-#' interval (i.e., an interval with an equal probability mass in each tail);
-#' inputting 'hdi' returns a highest-posterior density interval (i.e., the
-#' narrowest interval containing the specified probability mass).
+#' interval and inputting 'hdi' returns a highest-posterior density interval.
 #'
 #' @return A data.table with columns for the upper and lower bounds of the fitted
 #' value for each feature in each group.
 #'
+#' @seealso [getFittedValues]
+#'
 #' @export
 getFittedIntervals = function(
-  fittedVals, groupCols, mass = 0.9, method = c('eti', 'hdi')) {
+  fittedVals, mass = 0.9, method = c('eti', 'hdi')) {
 
   stopifnot(isTRUE(attr(fittedVals, 'fitType') == 'posterior_samples'),
-            all(groupCols %in% colnames(fittedVals)),
-            !any(c('posterior_sample', 'value') %in% groupCols),
             length(mass) == 1L,
             is.numeric(mass),
             mass > 0.5,
             mass < 1)
   method = match.arg(method)
 
-  byCols = unique(c('feature', groupCols))
+  byCols = setdiff(colnames(fittedVals), c('posterior_sample', 'value'))
   getInterval = if (method == 'eti') getEti else getHdi
   fittedInts = fittedVals[, getInterval(value, mass), by = byCols]
 
