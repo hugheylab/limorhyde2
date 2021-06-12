@@ -21,6 +21,8 @@ getRhythmStats = function(
   fit, fitType = c('posterior_mean', 'posterior_samples', 'raw'),
   features = NULL) {
 
+  stopifnot(inherits(fit, 'limorhyde2'))
+
   fitType = match.arg(fitType)
   if (fitType == 'posterior_mean' && is.null(fit$mashCoefficients)) {
     stop('No posterior mean to calculate statistics, please run getPosteriorFit.')
@@ -93,7 +95,8 @@ getRhythmStats = function(
 #'
 #' @export
 getDiffRhythmStats = function(fit, rhyStats, condLevels) {
-  stopifnot(isTRUE(attr(rhyStats, 'statType') == 'rhy'),
+  stopifnot(inherits(fit, 'limorhyde2'),
+            isTRUE(attr(rhyStats, 'statType') == 'rhy'),
             'cond' %in% colnames(rhyStats),
             length(condLevels) == 2L,
             all(condLevels %in% fit$condLevels),

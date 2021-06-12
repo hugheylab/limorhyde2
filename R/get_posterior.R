@@ -1,16 +1,41 @@
+#' perform multivariate adaptive shrinkage (mashr) on a fitted model
+#' and return the posterior fit
+#'
+#' given a linear model fit, from `getModelFit`,
+#' compute moderated coefficients using multivariate adaptive shrinkage (mashr).
+#'
+#' @param fit A fitted linear model object, as provided by `getModelFit`
+#' or `getPosteriorFit`.
+#' @param covMethod string indicating type of covariance matrices to compute
+#' when fitting the `mash` model. Can take one of 'data-driven', 'canonical', 'or both'
+#' @param getSigResArgs list of argument to be passed to
+#' `mashr::get_significant_results()`. Used to find significant effects
+#' from at least one condition.
+#' @param npc number of principle components to use in
+#' principle component analysis of fitted model
+#' @param covEdArgs list specifying argument-value pairs
+#' to be passed to `mashr::cov_ed()`.
+#' @param overwrite TRUE or FALSE to recompute mashr fit
+#'
+#' @return a `LimoRhyde2` class object containing everything found in `fit`
+#' with added elements:
+#'
+#' * `mashData` a data object of class `mash`
+#' * `mashFit` list of mash fit results
+#' * `mashCoefficients` matrix of resulting posterior model coefficients
+#'
 #' @export
 getPosteriorFit = function(
   fit, covMethod = c('data-driven', 'canonical', 'both'), getSigResArgs = list(),
   npc = fit$nKnots, covEdArgs = list(), overwrite = FALSE, ...) {
 
-  mashCondCoefs = TRUE
-  covMethod = match.arg(covMethod)
-
-  stopifnot(length(mashCondCoefs) == 1L,
-            is.logical(mashCondCoefs),
+  stopifnot(inherits(fit, 'limorhyde2'),
             length(npc) == 1L,
             is.numeric(npc),
             isTRUE(overwrite) || is.null(fit$mashFit))
+
+  mashCondCoefs = TRUE
+  covMethod = match.arg(covMethod)
 
   co = fit$coefficients
   se = do.call(
@@ -47,6 +72,23 @@ getPosteriorFit = function(
   return(fit)}
 
 
+#' Draw samples from posterior estimate distributions from a fitted model
+#'
+#' After performing shrinkage on a linear model with `getPosteriorFit`,
+#' draw samples from the posterior distribution of estimates.
+#'
+#' @param fit A fitted linear model object, as provided
+#' by `getModelFit` or `getPosteriorFit`.
+#' @param nPosteriorSamples number of samples to draw
+#' from the posterior distribution of each effect
+#' @param overwrite TRUE or FALSE to replace existing posteriorSamples
+#'
+#' @return a `LimoRhyde2` class object containing
+#' everything found in `fit` with added element:
+#'
+#' * `mashPosteriorSamples`  an m x n x p array with
+#' m features, n model coefficients, and p posterior samples
+#'
 #' @export
 getPosteriorSamples = function(fit, nPosteriorSamples = 200, overwrite = FALSE) {
 

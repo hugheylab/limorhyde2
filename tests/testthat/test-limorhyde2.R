@@ -17,9 +17,10 @@ test_that('getModelFit cosinor is functional', {
 
   goi = c('22139')#, '69642')
 
-  fit = getModelFit(d0[1:3,], md0, period,nKnots = nKnots,
-                     timeColname = 'time', conditionsColname = NULL)
+  fit = getModelFit(d0[1:5000,], md0, period,nKnots = nKnots,
+                     timeColname = 'time', condColname = NULL)
 
+  fit2 = getFittedValues(fit, times = 3,fitType = 'raw')
 
   m = getRhythmAsh(fit, 'canonical', npc = nKnots+1)
   #
