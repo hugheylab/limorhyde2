@@ -1,20 +1,20 @@
-#' perform multivariate adaptive shrinkage (mashr) on a fitted model
+#' Perform multivariate adaptive shrinkage (mashr) on a fitted model
 #' and return the posterior fit
 #'
-#' given a linear model fit, from `getModelFit`,
+#' Given a linear model fit, from `getModelFit`,
 #' compute moderated coefficients using multivariate adaptive shrinkage (mashr).
 #'
 #' @param fit A fitted linear model object, as provided by `getModelFit`
 #' or `getPosteriorFit`.
 #' @param covMethod string indicating type of covariance matrices to compute
-#' when fitting the `mash` model. Can take one of 'data-driven', 'canonical', 'or both'
+#' when fitting the `mash` model. Can take one of 'data-driven', 'canonical', or 'both'
 #' @param getSigResArgs list of argument to be passed to
-#' `mashr::get_significant_results()`. Used to find significant effects
+#' \code{\link[mashr]{get_significant_results}}. Used to find significant effects
 #' from at least one condition.
 #' @param npc number of principle components to use in
 #' principle component analysis of fitted model
 #' @param covEdArgs list specifying argument-value pairs
-#' to be passed to `mashr::cov_ed()`.
+#' to be passed to \code{\link[mashr]{cov_ed}}.
 #' @param overwrite TRUE or FALSE to recompute mashr fit
 #'
 #' @return a `LimoRhyde2` class object containing everything found in `fit`
@@ -23,7 +23,10 @@
 #' * `mashData` a data object of class `mash`
 #' * `mashFit` list of mash fit results
 #' * `mashCoefficients` matrix of resulting posterior model coefficients
-#' @seealso [getModelFit]
+#'
+#' @seealso [getModelFit], \code{\link[mashr]{get_significant_results}},
+#' \code{\link[mashr]{cov_ed}}
+#'
 #' @export
 getPosteriorFit = function(
   fit, covMethod = c('data-driven', 'canonical', 'both'), getSigResArgs = list(),
