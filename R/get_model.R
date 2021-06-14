@@ -13,10 +13,10 @@
 #' @param period number specifying the period for time variable.
 #' Must be same unit as sample timepoints.
 #' @param nKnots number of knots or internal breakpoints of periodic spline
-#' @param timeColname string of column in `metadata` with times samples
-#' were acquired.
-#' @param condColname string of column in `metadata` with condition/group
-#' names(if any) for each sample
+#' @param timeColname string of column in `metadata` with the time each sample
+#' was acquired.
+#' @param condColname string indicating column in `metadata` with condition/group
+#' name(if any) for each sample
 #' @param covarColnames string vector of covariate column names in `metadata`
 #' to include in linear model
 #' @param nShifts number of times to offset or shift time vector. Model will fit
@@ -29,7 +29,7 @@
 #' @return a `LimoRhyde2` class object with the results of
 #' \code{\link[limma]{lmFit}}  including:
 #'
-#' * `coefficients` a matrix with rows for each feature.
+#' * `coefficients` a matrix with features as rows.
 #' Columns are coefficient estimates for `nShift` fitted models.
 #'
 #' @seealso \code{\link[limma]{lmFit}}, \code{\link[limma]{mFit}},

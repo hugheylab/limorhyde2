@@ -6,7 +6,7 @@
 #'
 #' @param fit A fitted linear model object, as provided by `getModelFit`
 #' or `getPosteriorFit`.
-#' @param covMethod string indicating type of covariance matrices to compute
+#' @param covMethod string indicating types of covariance matrices to compute
 #' when fitting the `mash` model. Can take one of 'data-driven', 'canonical', or 'both'
 #' @param getSigResArgs list of argument to be passed to
 #' \code{\link[mashr]{get_significant_results}}. Used to find significant effects
