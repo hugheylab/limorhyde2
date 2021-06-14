@@ -10,7 +10,7 @@
 #' corresponds to a time sample.
 #' @param metadata a data.table specifying experimental design information for
 #' each sample. Each row is a sample with metadata given in columns.
-#' @param period number specifying the period for periodic time variable.
+#' @param period number specifying the period for time variable.
 #' Must be same unit as sample timepoints.
 #' @param nKnots number of knots or internal breakpoints of periodic spline
 #' @param timeColname string of column in `metadata` with times samples
