@@ -1,4 +1,4 @@
-#' fit a linear model to the measurements of each gene
+#' Fit a linear model to the measurements of each feature
 #'
 #' Given a data matrix where each row is a gene and each column is a time sample,
 #'  `getModelFit` returns a list object from fitting a linear model to the

@@ -80,7 +80,7 @@ getRhythmStats = function(
 #' Calculate differential rhythmic statistics between conditions
 #'
 #' `getDiffRhythmStats` returns the differential rhythmic statistics
-#' calculated for  under differing conditions.
+#' calculated under differing conditions.
 #'
 #' @param fit A limorhyde2 fit object, as provided by `getModelFit` or
 #' `getPosteriorFit`.

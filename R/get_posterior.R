@@ -23,7 +23,7 @@
 #' * `mashData` a data object of class `mash`
 #' * `mashFit` list of mash fit results
 #' * `mashCoefficients` matrix of resulting posterior model coefficients
-#'
+#' @seealso [getModelFit]
 #' @export
 getPosteriorFit = function(
   fit, covMethod = c('data-driven', 'canonical', 'both'), getSigResArgs = list(),

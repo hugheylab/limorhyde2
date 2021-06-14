@@ -1,16 +1,16 @@
 #' Compute the predicted expression values from a linear fitted model
 #'
-#' Calculates the fitted values for each gene at given times.
+#' Calculates the fitted values for selected features at given times.
 #' If shifted models are given, average fitted values at the given timepoints.
-#' @param fit A fitted linear model object, as provided by
+#' @param fit A LimoRhyde2 object, as provided by
 #' `getModelFit` or `getPosteriorFit`.
 #' @param times A vector of timepoints at which to compute fitted response values
 #' @param fitType String indicating whether to calculate statistics on the
 #' posterior mean, posterior samples, or raw model fit. Can be one of
 #' posterior_mean', 'posterior_samples', or 'raw'.
-#' @param features a vector of selected feature indices to calculate fitted values
+#' @param features a vector of selected feature names, row numbers, or logical conditions for which to calculate fitted values
 #'
-#' @return a data.table with time and fitted expression values columns for each feature.
+#' @return a data.table with time and fitted expression columns for each feature.
 #'
 #' @export
 getFittedValues = function(
@@ -84,7 +84,7 @@ getFittedValues = function(
 #' interval and inputting 'hdi' returns a highest-posterior density interval.
 #'
 #' @return A data.table with columns for the upper and lower bounds of the fitted
-#' value for each feature in each group.
+#' value for each feature in each group. The `fitType` is inherited.
 #'
 #' @seealso [getFittedValues]
 #'
