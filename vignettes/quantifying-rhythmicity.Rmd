@@ -1,0 +1,69 @@
+---
+title: "Quantifying rhythmicity with LimoRhyde2"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{quantifying-rhythmicity}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+We begin by preparing the R environment.
+
+```{r setup}
+library(limorhyde2)
+library(data.table)
+library(ggplot2)
+
+dataPath = '../data/'
+```
+Next, we load the sample data.
+
+```{r}
+y = load(file.path(dataPath, 'mouse_liver_d.rda'))
+md = load(file.path(dataPath, 'mouse_liver_md.rda'))
+```
+
+The first step of the LimoRhyde2 workflow is to obtain a linear model fit using the
+`getModelFit` function. For the example data, the name of the column containing 
+the time at which a sample was taken is 'time', and in our sample analysis,
+we want to fit the data using three offsets.
+
+```{r, results='hide'}
+f = getModelFit(y = y, metadata = md, nShifts = 3, timeColname = 'time')
+```
+
+Next, we obtain a model with moderated estimates using `getPosteriorFit`. We use
+the argument `covMethod = 'data-driven'` to fit a model based on covariance matrices
+generated from the data.
+
+```{r, results='hide'}
+mf = getPosteriorFit(f, covMethod = 'data-driven')
+```
+
+From the moderated model, we can get obtain estimates of the rhythmic statistics
+for a select set of genes using `getRhythmStats`. Note that `getRhythmStats` can
+be used with any `limoRhyde2` fit object, moderated or raw.
+
+```{r}
+rs = getRhythmStats(mf, fitType = 'posterior_mean', features = )
+head(rs, 10)
+```
+
+We can also fit time courses based on the shrunken estimates using `getFittedValues`.
+
+```{r, results='hide'}
+fv = getFittedValues(mf, times = seq(0, 24, by = 2), 
+                     fitType = 'posterior_mean', features = )
+```
+
+
+
+```{r}
+```
