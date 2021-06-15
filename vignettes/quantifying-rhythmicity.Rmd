@@ -10,7 +10,8 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  rmarkdown.html_vignette.check_title = FALSE
 )
 ```
 
@@ -68,10 +69,11 @@ fv = getFittedValues(mf, times = seq(0, 24, by = 2),
 
 Below, we plot the fitted values from the moderated model.
 
-```{r}
+```{r, fig.align='center', fig.width=8, fig.asp=0.5625}
 
 ggplot(data = fv, aes(x = time, y = value)) +
   geom_point() +
-  facet_wrap(vars(feature), scales = 'free_y')
+  facet_wrap(vars(feature), scales = 'free_y') +
+  ylab('expression')
 
 ```
