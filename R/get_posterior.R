@@ -12,8 +12,6 @@ getPosteriorFit = function(
   covMethod = match.arg(covMethod)
 
   co = fit$coefficients
-  se = do.call(
-    cbind, lapply(fit$lmFits, function(f) sqrt(f$s2.post) * f$stdev.unscaled))
   c(shifts, nKnots, nConds) %<-% fit[c('shifts', 'nKnots', 'nConds')]
 
   idxStart = if (isTRUE(mashCondCoefs)) 2 else nConds + 1
@@ -24,7 +22,7 @@ getPosteriorFit = function(
     rep((0:(length(shifts) - 1)) * ncol(co) / length(shifts),
         each = length(idxTmp))
 
-  md = mashr::mash_set_data(co[, idx], se[, idx])
+  md = mashr::mash_set_data(co[, idx], fit$stdErrors[, idx])
 
   uc = if (covMethod == 'data-driven') NULL else mashr::cov_canonical(md)
 
