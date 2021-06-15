@@ -26,8 +26,8 @@ dataPath = '../data/'
 Next, we load the sample data.
 
 ```{r}
-y = load(file.path(dataPath, 'mouse_liver_d.rda'))
-md = load(file.path(dataPath, 'mouse_liver_md.rda'))
+load(file.path(dataPath, 'mouse_liver_d.rda'))
+load(file.path(dataPath, 'mouse_liver_md.rda'))
 ```
 
 The first step of the LimoRhyde2 workflow is to obtain a linear model fit using the
@@ -36,7 +36,8 @@ the time at which a sample was taken is 'time', and in our sample analysis,
 we want to fit the data using three offsets.
 
 ```{r, results='hide'}
-f = getModelFit(y = y, metadata = md, nShifts = 3, timeColname = 'time')
+f = getModelFit(y = mouse_liver_d, metadata = mouse_liver_md, nShifts = 3, 
+                timeColname = 'time')
 ```
 
 Next, we obtain a model with moderated estimates using `getPosteriorFit`. We use
@@ -52,18 +53,25 @@ for a select set of genes using `getRhythmStats`. Note that `getRhythmStats` can
 be used with any `limoRhyde2` fit object, moderated or raw.
 
 ```{r}
-rs = getRhythmStats(mf, fitType = 'posterior_mean', features = )
-head(rs, 10)
+set.seed(21056)
+sampleGenes = sample(rownames(mouse_liver_d), 5)
+
+rs = getRhythmStats(mf, fitType = 'posterior_mean', features = sampleGenes)
 ```
 
 We can also fit time courses based on the shrunken estimates using `getFittedValues`.
 
 ```{r, results='hide'}
 fv = getFittedValues(mf, times = seq(0, 24, by = 2), 
-                     fitType = 'posterior_mean', features = )
+                     fitType = 'posterior_mean', features = sampleGenes)
 ```
 
-
+Below, we plot the fitted values from the moderated model.
 
 ```{r}
+
+ggplot(data = fv, aes(x = time, y = value)) +
+  geom_point() +
+  facet_wrap(vars(feature), scales = 'free_y')
+
 ```
