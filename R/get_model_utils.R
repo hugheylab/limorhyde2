@@ -94,6 +94,16 @@ getDesign = function(metadata, period, nKnots) {
   return(design)}
 
 
+getShifts = function(nShifts, nKnots, period) {
+  if (is.null(nKnots) || nKnots == 2) {
+    shifts = 0 # cosinor is invariant to shifts
+  } else {
+    knotInterval = period / (nKnots + 1)
+    shiftInterval = knotInterval / nShifts
+    shifts = seq(0, knotInterval - shiftInterval, shiftInterval)}
+  return(shifts)}
+
+
 getNumKnotCondCovar = function(cols) {
   nCovs = sum(startsWith(cols, 'covar'))
   nConds = which(cols == 'basis1') - 1L

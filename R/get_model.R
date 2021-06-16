@@ -49,20 +49,15 @@ getModelFit = function(
   y, metadata, period = 24, nKnots = 4, timeColname = 'time',
   condColname = NULL, covarColnames = NULL, nShifts = 3,
   method = c('trend', 'voom'), lmFitArgs = list(),
-  eBayesArgs = if (method == 'trend') list(trend = TRUE) else list()) {
+  eBayesArgs = if (method == 'trend') list(trend = TRUE) else list(),
+  keepLmFits = FALSE) {
 
   stopifnot(ncol(y) == nrow(metadata),
             is.numeric(nShifts),
             length(nShifts) == 1L)
   method = match.arg(method)
 
-  if (is.null(nKnots) || nKnots == 2) {
-    shifts = 0 # cosinor is invariant to shifts
-  } else {
-    knotInterval = period / (nKnots + 1)
-    shiftInterval = knotInterval / nShifts
-    shifts = seq(0, knotInterval - shiftInterval, shiftInterval)}
-
+  shifts = getShifts(nShifts, nKnots, period)
   m = getMetadata(metadata, timeColname, condColname, covarColnames)
 
   lmFits = foreach(shift = shifts) %do% {
@@ -77,9 +72,11 @@ getModelFit = function(
   fit = list(metadata = data.table::as.data.table(metadata),
              timeColname = timeColname,
              condColname = condColname,
-             covarColnames = covarColnames,
-             lmFits = lmFits)
+             covarColnames = covarColnames)
+
   fit$coefficients = do.call(cbind, lapply(lmFits, `[[`, 'coefficients'))
+  fit$stdErrors = do.call(
+    cbind, lapply(lmFits, function(f) sqrt(f$s2.post) * f$stdev.unscaled))
 
   sufs = rep(paste0('_shift', 1:length(shifts)),
              each = ncol(fit$coefficients) / length(shifts))
@@ -93,5 +90,7 @@ getModelFit = function(
   fit$nKnots = nK
   fit$nConds = nCon
   fit$nCovs = nCov
+
+  if (isTRUE(keepLmFits)) fit$lmFits = lmFits
   class(fit) = 'limorhyde2'
   return(fit)}
