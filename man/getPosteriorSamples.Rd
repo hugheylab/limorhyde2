@@ -7,16 +7,16 @@
 getPosteriorSamples(fit, nPosteriorSamples = 200, overwrite = FALSE)
 }
 \arguments{
-\item{fit}{A fitted linear model object, as provided
-by \code{getModelFit} or \code{getPosteriorFit}.}
+\item{fit}{A limorhyde2 object, as provided
+by \code{getModelFit()} or \code{getPosteriorFit()}.}
 
 \item{nPosteriorSamples}{number of samples to draw
 from the posterior distribution of each effect}
 
-\item{overwrite}{TRUE or FALSE to replace existing posteriorSamples}
+\item{overwrite}{Logical for whether to recompute posterior samples if it already exists.}
 }
 \value{
-a \code{LimoRhyde2} class object containing
+a limoRhyde2 object containing
 everything found in \code{fit} with added element:
 \itemize{
 \item \code{mashPosteriorSamples}  an m x n x p array with
@@ -24,6 +24,7 @@ m features, n model coefficients, and p posterior samples
 }
 }
 \description{
-After performing shrinkage on a linear model with \code{getPosteriorFit},
-draw samples from the posterior distribution of estimates.
+After applying a mash model with \code{getPosteriorFit()}, which computes
+posterior distribution of each effect, use \code{getPosteriorSamples} to
+sample from the posterior for a set of estimates for each coefficient.
 }

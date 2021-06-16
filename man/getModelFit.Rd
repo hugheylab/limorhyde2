@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_model.R
 \name{getModelFit}
 \alias{getModelFit}
-\title{fit a linear model to the measurements of each gene}
+\title{Fit a linear model to the measurements of each feature}
 \usage{
 getModelFit(
   y,
@@ -19,48 +19,61 @@ getModelFit(
 )
 }
 \arguments{
-\item{y}{a matrix-like data object where each row is a gene and each column
+\item{y}{A matrix-like data object where each row is a feature and each column
 corresponds to a time sample.}
 
-\item{metadata}{a data.table specifying experimental design information for
-each sample. Each row is a sample and metadata given in columns.}
+\item{metadata}{A data.table specifying experimental design information for
+each sample. Each row is a sample with metadata given in columns.}
 
-\item{period}{number specifying the period for periodic time variable.
+\item{period}{Number specifying the period for time variable.
 Must be same unit as sample timepoints.}
 
-\item{nKnots}{number of knots or internal breakpoints of periodic spline}
+\item{nKnots}{Number of knots or internal breakpoints of periodic spline.}
 
-\item{timeColname}{string of column in \code{metadata} with times samples
-were acquired.}
+\item{timeColname}{String of column in \code{metadata} with the time each sample
+was acquired.}
 
-\item{condColname}{string of column in \code{metadata} with condition/group
-names(if any) for each sample}
+\item{condColname}{String indicating column in \code{metadata} with condition/group
+name(if any) for each sample.}
 
-\item{covarColnames}{string vector of covariate column names in \code{metadata}
-to include in linear model}
+\item{covarColnames}{String vector of covariate column names in \code{metadata}
+to include in linear model.}
 
-\item{nShifts}{number of times to offset or shift time vector. Model will fit
+\item{nShifts}{Number of times to offset or shift time vector. Model will fit
 data using each new shifted time vector.}
 
-\item{method}{string indicating the fitting method for limma \code{mFit}.
-Takes one of \verb{‘trend’ and ‘voom’}}
+\item{method}{String indicating the fitting method for \code{\link[limma:lmFit]{limma::lmFit()}}.
+Takes one of 'trend' or 'voom'.}
 
-\item{lmFitArgs}{list of arguments for limma \code{lmFit}}
+\item{lmFitArgs}{List of arguments for \code{\link[limma:lmFit]{limma::lmFit()}}.}
 
-\item{eBayesArgs}{list of arguments for \code{limma::eBayes}}
+\item{eBayesArgs}{List of arguments for \code{\link[limma:ebayes]{limma::eBayes()}}.}
 }
 \value{
-a \code{LimoRhyde2} class object with the results of
-\code{limma::lmFit} including:
+A limoRhyde2 object with elements:
 \itemize{
-\item \code{coefficients} a matrix with rows for each feature.
+\item \code{metadata}: See \code{metadata} argument above.
+\item \code{timeColname}: See \code{timeColname} argument above.
+\item \code{condColname}: See \code{condColname} argument above.
+\item \code{covarColnames}: See \code{covarColnames} argument above.
+\item \code{lmFits}: List of linear model objects with fit results for all models.
+\item \code{coefficients}: A matrix with features as rows.
 Columns are coefficient estimates for \code{nShift} fitted models.
+\item \code{shifts}: vector of shift time values
+\item \code{period}: See \code{period} argument above
+\item \code{condLevels}: Vector of strings indication names of conditions if available.
+\item \code{nKnots}: See \code{nKnots} argument above.
+\item \code{nConds}: Number of groups or conditions.
+\item \code{nCovs}: Number of covariates.
 }
 }
 \description{
-Given a data matrix where each row is a gene and each column is a time sample,
+Given a data matrix where each row is a feature and each column is a time sample,
 \code{getModelFit} returns a list object from fitting a linear model to the
-expression of each gene. To create the linear model, the function decomposes
+measurements of each feature To create the linear model, the function decomposes
 a periodic time variable into multiple linear components based on sine and
 cosine terms or periodic spline terms of the same period.
+}
+\seealso{
+\code{\link[limma:lmFit]{limma::lmFit()}}, \code{\link[limma:ebayes]{limma::eBayes()}}
 }

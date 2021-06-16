@@ -1,39 +1,48 @@
 #' Fit a linear model to the measurements of each feature
 #'
-#' Given a data matrix where each row is a gene and each column is a time sample,
+#' Given a data matrix where each row is a feature and each column is a time sample,
 #' `getModelFit` returns a list object from fitting a linear model to the
-#' expression of each gene. To create the linear model, the function decomposes
+#' measurements of each feature To create the linear model, the function decomposes
 #' a periodic time variable into multiple linear components based on sine and
 #' cosine terms or periodic spline terms of the same period.
 #'
-#' @param y a matrix-like data object where each row is a gene and each column
+#' @param y A matrix-like data object where each row is a feature and each column
 #' corresponds to a time sample.
-#' @param metadata a data.table specifying experimental design information for
+#' @param metadata A data.table specifying experimental design information for
 #' each sample. Each row is a sample with metadata given in columns.
-#' @param period number specifying the period for time variable.
+#' @param period Number specifying the period for time variable.
 #' Must be same unit as sample timepoints.
-#' @param nKnots number of knots or internal breakpoints of periodic spline
-#' @param timeColname string of column in `metadata` with the time each sample
+#' @param nKnots Number of knots or internal breakpoints of periodic spline.
+#' @param timeColname String of column in `metadata` with the time each sample
 #' was acquired.
-#' @param condColname string indicating column in `metadata` with condition/group
-#' name(if any) for each sample
-#' @param covarColnames string vector of covariate column names in `metadata`
-#' to include in linear model
-#' @param nShifts number of times to offset or shift time vector. Model will fit
+#' @param condColname String indicating column in `metadata` with condition/group
+#' name(if any) for each sample.
+#' @param covarColnames String vector of covariate column names in `metadata`
+#' to include in linear model.
+#' @param nShifts Number of times to offset or shift time vector. Model will fit
 #' data using each new shifted time vector.
-#' @param method string indicating the fitting method for \code{\link[limma]{mFit}}.
-#' Takes one of 'trend' or 'voom'
-#' @param lmFitArgs list of arguments for \code{\link[limma]{lmFit}}
-#' @param eBayesArgs list of arguments for \code{\link[limma]{eBayes}}
+#' @param method String indicating the fitting method for [limma::lmFit()].
+#' Takes one of 'trend' or 'voom'.
+#' @param lmFitArgs List of arguments for [limma::lmFit()].
+#' @param eBayesArgs List of arguments for [limma::eBayes()].
 #'
-#' @return a `LimoRhyde2` class object with the results of
-#' \code{\link[limma]{lmFit}}  including:
+#' @return A limoRhyde2 object with elements:
 #'
-#' * `coefficients` a matrix with features as rows.
+#' * `metadata`: See `metadata` argument above.
+#' * `timeColname`: See `timeColname` argument above.
+#' * `condColname`: See `condColname` argument above.
+#' * `covarColnames`: See `covarColnames` argument above.
+#' * `lmFits`: List of linear model objects with fit results for all models.
+#' * `coefficients`: A matrix with features as rows.
 #' Columns are coefficient estimates for `nShift` fitted models.
+#' * `shifts`: vector of shift time values
+#' * `period`: See `period` argument above
+#' * `condLevels`: Vector of strings indication names of conditions if available.
+#' * `nKnots`: See `nKnots` argument above.
+#' * `nConds`: Number of groups or conditions.
+#' * `nCovs`: Number of covariates.
 #'
-#' @seealso \code{\link[limma]{lmFit}}, \code{\link[limma]{mFit}},
-#' \code{\link[limma]{eBayes}}
+#' @seealso [limma::lmFit()], [limma::eBayes()]
 #'
 #' @export
 getModelFit = function(

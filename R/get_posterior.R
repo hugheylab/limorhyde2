@@ -1,21 +1,22 @@
-#' Perform multivariate adaptive shrinkage (mashr) on a fitted model
-#' and return the posterior fit
+#' Perform multivariate adaptive shrinkage (mash) on a fitted model
 #'
-#' Given a linear model fit, from `getModelFit`,
-#' compute moderated coefficients using multivariate adaptive shrinkage (mashr).
 #'
-#' @param fit A fitted linear model object, as provided by `getModelFit`
-#' or `getPosteriorFit`.
+#' Given a linear model fit, from `getModelFit()`,
+#' `getPosteriorFit()` fits a mash model to coefficients to improve coefficient estimates.
+#' The mash model returns moderated coefficients as Posterior Means.
+#'
+#' @param fit A fitted linear model object, as provided by `getModelFit()`
+#' or `getPosteriorFit()`.
 #' @param covMethod string indicating types of covariance matrices to compute
 #' when fitting the `mash` model. Can take one of 'data-driven', 'canonical', or 'both'
 #' @param getSigResArgs list of argument to be passed to
-#' \code{\link[mashr]{get_significant_results}}. Used to find significant effects
+#' [mashr::get_significant_results]. Used to find significant effects
 #' from at least one condition.
 #' @param npc number of principle components to use in
 #' principle component analysis of fitted model
 #' @param covEdArgs list specifying argument-value pairs
-#' to be passed to \code{\link[mashr]{cov_ed}}.
-#' @param overwrite TRUE or FALSE to recompute mashr fit
+#' to be passed to [mashr::cov_ed].
+#' @param overwrite Logical for whether to recompute mashr fit if it already exists.
 #'
 #' @return a `LimoRhyde2` class object containing everything found in `fit`
 #' with added elements:
@@ -23,9 +24,10 @@
 #' * `mashData` a data object of class `mash`
 #' * `mashFit` list of mash fit results
 #' * `mashCoefficients` matrix of resulting posterior model coefficients
+#' * `mashIdx` vector of fit coefficient indices included in `mash`fitting
 #'
-#' @seealso [getModelFit], \code{\link[mashr]{get_significant_results}},
-#' \code{\link[mashr]{cov_ed}}
+#' @seealso [getModelFit()], [mashr::get_significant_results()],
+#' [mashr::cov_ed()]
 #'
 #' @export
 getPosteriorFit = function(
@@ -77,16 +79,17 @@ getPosteriorFit = function(
 
 #' Draw samples from posterior estimate distributions from a fitted model
 #'
-#' After performing shrinkage on a linear model with `getPosteriorFit`,
-#' draw samples from the posterior distribution of estimates.
+#' After applying a mash model with `getPosteriorFit()`, which computes
+#' posterior distribution of each effect, use `getPosteriorSamples` to
+#' sample from the posterior for a set of estimates for each coefficient.
 #'
-#' @param fit A fitted linear model object, as provided
-#' by `getModelFit` or `getPosteriorFit`.
+#' @param fit A limorhyde2 object, as provided
+#' by `getModelFit()` or `getPosteriorFit()`.
 #' @param nPosteriorSamples number of samples to draw
 #' from the posterior distribution of each effect
-#' @param overwrite TRUE or FALSE to replace existing posteriorSamples
+#' @param overwrite Logical for whether to recompute posterior samples if it already exists.
 #'
-#' @return a `LimoRhyde2` class object containing
+#' @return a limoRhyde2 object containing
 #' everything found in `fit` with added element:
 #'
 #' * `mashPosteriorSamples`  an m x n x p array with

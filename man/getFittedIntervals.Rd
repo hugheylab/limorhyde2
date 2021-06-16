@@ -8,21 +8,21 @@ getFittedIntervals(fittedVals, mass = 0.9, method = c("eti", "hdi"))
 }
 \arguments{
 \item{fittedVals}{A data.table of posterior samples for fitted values from
-\code{getFittedValues}.}
+\code{getFittedValues()}.}
 
 \item{mass}{The probability mass for which to calculate the interval.}
 
-\item{method}{One of 'eti' or 'hdi'. Inputting 'eti' returns an equal-tailed
-interval and inputting 'hdi' returns a highest-posterior density interval.}
+\item{method}{"String for type of interval: 'eti' for equal-tailed or 'hdi' for
+highest (posterior) density.}
 }
 \value{
 A data.table with columns for the upper and lower bounds of the fitted
 value for each feature in each group.
 }
 \description{
-\code{getFittedIntervals} constructs credible intervals for the fitted values of
+\code{getFittedIntervals()} constructs credible intervals for the fitted values of
 a model by group.
 }
 \seealso{
-\link{getFittedValues}
+\code{\link[=getFittedValues]{getFittedValues()}}
 }

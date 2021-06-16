@@ -23,5 +23,5 @@ differential peak phase, and differential trough phase) between paired condition
 }
 \description{
 \code{getDiffRhythmStats} returns the differential rhythmic statistics
-calculated for  under differing conditions.
+calculated under differing conditions.
 }

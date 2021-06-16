@@ -2,8 +2,7 @@
 % Please edit documentation in R/get_posterior.R
 \name{getPosteriorFit}
 \alias{getPosteriorFit}
-\title{perform multivariate adaptive shrinkage (mashr) on a fitted model
-and return the posterior fit}
+\title{Perform multivariate adaptive shrinkage (mash) on a fitted model}
 \usage{
 getPosteriorFit(
   fit,
@@ -16,23 +15,23 @@ getPosteriorFit(
 )
 }
 \arguments{
-\item{fit}{A fitted linear model object, as provided by \code{getModelFit}
-or \code{getPosteriorFit}.}
+\item{fit}{A fitted linear model object, as provided by \code{getModelFit()}
+or \code{getPosteriorFit()}.}
 
-\item{covMethod}{string indicating type of covariance matrices to compute
-when fitting the \code{mash} model. Can take one of 'data-driven', 'canonical', 'or both'}
+\item{covMethod}{string indicating types of covariance matrices to compute
+when fitting the \code{mash} model. Can take one of 'data-driven', 'canonical', or 'both'}
 
 \item{getSigResArgs}{list of argument to be passed to
-\code{mashr::get_significant_results()}. Used to find significant effects
+\link[mashr:get_significant_results]{mashr::get_significant_results}. Used to find significant effects
 from at least one condition.}
 
 \item{npc}{number of principle components to use in
 principle component analysis of fitted model}
 
 \item{covEdArgs}{list specifying argument-value pairs
-to be passed to \code{mashr::cov_ed()}.}
+to be passed to \link[mashr:cov_ed]{mashr::cov_ed}.}
 
-\item{overwrite}{TRUE or FALSE to recompute mashr fit}
+\item{overwrite}{Logical for whether to recompute mashr fit if it already exists.}
 }
 \value{
 a \code{LimoRhyde2} class object containing everything found in \code{fit}
@@ -41,9 +40,15 @@ with added elements:
 \item \code{mashData} a data object of class \code{mash}
 \item \code{mashFit} list of mash fit results
 \item \code{mashCoefficients} matrix of resulting posterior model coefficients
+\item \code{mashIdx} vector of fit coefficient indices included in \code{mash}fitting
 }
 }
 \description{
-given a linear model fit, from \code{getModelFit},
-compute moderated coefficients using multivariate adaptive shrinkage (mashr).
+Given a linear model fit, from \code{getModelFit()},
+\code{getPosteriorFit()} fits a mash model to coefficients to improve coefficient estimates.
+The mash model returns moderated coefficients as Posterior Means.
+}
+\seealso{
+\code{\link[=getModelFit]{getModelFit()}}, \code{\link[mashr:get_significant_results]{mashr::get_significant_results()}},
+\code{\link[mashr:cov_ed]{mashr::cov_ed()}}
 }

@@ -1,17 +1,16 @@
-#' Compute the predicted expression values from a linear fitted model
+#' Compute the predicted values from a fitted model
 #'
 #' Calculates the fitted values for selected features at given times.
-#' If shifted models are given, average fitted values at the given timepoints.
-#' @param fit A LimoRhyde2 object, as provided by `getModelFit` or
-#' `getPosteriorFit`.
+#'
+#' @param fit A 'limoRhyde2' object, as provided by `getModelFit()` or
+#' `getPosteriorFit()`.
 #' @param times A vector of timepoints at which to compute fitted response values
 #' @param fitType String indicating whether to calculate statistics on the
-#' posterior mean, posterior samples, or raw model fit. Can be one of
-#' posterior_mean', 'posterior_samples', or 'raw'.
+#' posterior mean, posterior samples, or raw model fit.
 #' @param features a vector of selected feature names, row numbers, or logical
-#' conditions for which to calculate fitted values
+#' values for which to calculate fitted values
 #'
-#' @return a data.table with time and fitted expression columns for each feature.
+#' @return a data.table with columns for time and fitted value for each feature.
 #'
 #' @export
 getFittedValues = function(
@@ -75,19 +74,19 @@ getFittedValues = function(
 
 #' Get credible intervals for fitted values
 #'
-#' `getFittedIntervals` constructs credible intervals for the fitted values of
+#' `getFittedIntervals()` constructs credible intervals for the fitted values of
 #' a model by group.
 #'
 #' @param fittedVals A data.table of posterior samples for fitted values from
-#' `getFittedValues`.
+#' `getFittedValues()`.
 #' @param mass The probability mass for which to calculate the interval.
-#' @param method One of 'eti' or 'hdi'. Inputting 'eti' returns an equal-tailed
-#' interval and inputting 'hdi' returns a highest-posterior density interval.
+#' @param method "String for type of interval: 'eti' for equal-tailed or 'hdi' for
+#'  highest (posterior) density.
 #'
 #' @return A data.table with columns for the upper and lower bounds of the fitted
-#' value for each feature in each group. The `fitType` is inherited.
+#' value for each feature in each group.
 #'
-#' @seealso [getFittedValues]
+#' @seealso [getFittedValues()]
 #'
 #' @export
 getFittedIntervals = function(
