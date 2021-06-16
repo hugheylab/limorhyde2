@@ -11,13 +11,7 @@ getModelFit = function(
             length(nShifts) == 1L)
   method = match.arg(method)
 
-  if (is.null(nKnots) || nKnots == 2) {
-    shifts = 0 # cosinor is invariant to shifts
-  } else {
-    knotInterval = period / (nKnots + 1)
-    shiftInterval = knotInterval / nShifts
-    shifts = seq(0, knotInterval - shiftInterval, shiftInterval)}
-
+  shifts = getShifts(nShifts, nKnots, period)
   m = getMetadata(metadata, timeColname, condColname, covarColnames)
 
   lmFits = foreach(shift = shifts) %do% {

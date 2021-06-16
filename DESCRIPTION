@@ -1,7 +1,7 @@
 Package: limorhyde2
 Type: Package
 Title: Rhythmicity and differential rhythmicity analysis focused on effect sizes
-Version: 0.0.0.9012
+Version: 0.0.0.9013
 Authors@R: as.person(c(
   "Jake Hughey <jakejhughey@gmail.com> [aut, cre]",
   "Dora Obodo <dora.obodo@vanderbilt.edu> [aut]",
