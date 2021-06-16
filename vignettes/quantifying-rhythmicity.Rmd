@@ -13,6 +13,7 @@ knitr::opts_chunk$set(
   comment = "#>",
   rmarkdown.html_vignette.check_title = FALSE
 )
+#add intro and headers
 ```
 
 We begin by preparing the R environment.
@@ -21,23 +22,21 @@ We begin by preparing the R environment.
 library(limorhyde2)
 library(data.table)
 library(ggplot2)
+library(qs)
 
-dataPath = '../data/'
+dataPath = '../data/' #check where to store data
 ```
 Next, we load the sample data.
 
 ```{r}
-load(file.path(dataPath, 'mouse_liver_d.rda'))
-load(file.path(dataPath, 'mouse_liver_md.rda'))
+load(file.path(dataPath, 'mouse_liver_d.rda')) #save as qs
+load(file.path(dataPath, 'mouse_liver_md.rda')) #save as qs 
 ```
 
-The first step of the LimoRhyde2 workflow is to obtain a linear model fit using the
-`getModelFit` function. For the example data, the name of the column containing 
-the time at which a sample was taken is 'time', and in our sample analysis,
-we want to fit the data using three offsets.
+The first step of the LimoRhyde2 workflow is to fit a series of linear models for each genomic feature. For the example data, the name of the column containing the time at which a sample was taken is 'time'.
 
 ```{r, results='hide'}
-f = getModelFit(y = mouse_liver_d, metadata = mouse_liver_md, nShifts = 3, 
+fit = getModelFit(y = mouse_liver_d, metadata = mouse_liver_md, 
                 timeColname = 'time')
 ```
 
@@ -46,33 +45,42 @@ the argument `covMethod = 'data-driven'` to fit a model based on covariance matr
 generated from the data.
 
 ```{r, results='hide'}
-mf = getPosteriorFit(f, covMethod = 'data-driven')
+#consider removiing covMethod arg
+#add more detail on what functions are doing at a high level
+fit = getPosteriorFit(fit, covMethod = 'data-driven')
 ```
 
 From the moderated model, we can get obtain estimates of the rhythmic statistics
 for a select set of genes using `getRhythmStats`. Note that `getRhythmStats` can
-be used with any `limoRhyde2` fit object, moderated or raw.
+be used with any `limorhyde2` fit object, moderated or raw.
 
 ```{r}
+# by default, getRhythmStats estimates from posterior mean coefs, but can also use raw
+# pick clock genes for sample
 set.seed(21056)
-sampleGenes = sample(rownames(mouse_liver_d), 5)
+sampleGenes = sample(rownames(mouse_liver_d), 3)
 
-rs = getRhythmStats(mf, fitType = 'posterior_mean', features = sampleGenes)
+
+rhyStats = getRhythmStats(fit, features = sampleGenes)
+rhyStats
 ```
 
-We can also fit time courses based on the shrunken estimates using `getFittedValues`.
+We can also fit time courses based on the moderated estimates using `getFittedValues`.
 
 ```{r, results='hide'}
-fv = getFittedValues(mf, times = seq(0, 24, by = 2), 
-                     fitType = 'posterior_mean', features = sampleGenes)
+#reword 'fit time courses'
+fittedVals = getFittedValues(fit, times = seq(0, 24, by = 2), features = sampleGenes)
 ```
 
 Below, we plot the fitted values from the moderated model.
 
 ```{r, fig.align='center', fig.width=8, fig.asp=0.5625}
 
-ggplot(data = fv, aes(x = time, y = value)) +
-  geom_point() +
+# more specific axis titles
+# geom_point for actual vals, geom line for fit
+# show gene symbols instead of ids, or give gene names in text
+ggplot(data = fittedVals, aes(x = time, y = value)) +
+  geom_line() +
   facet_wrap(vars(feature), scales = 'free_y') +
   ylab('expression')
 
