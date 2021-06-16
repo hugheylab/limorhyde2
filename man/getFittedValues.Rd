@@ -12,7 +12,7 @@ getFittedValues(
 )
 }
 \arguments{
-\item{fit}{A 'limoRhyde2' object, as provided by \code{getModelFit()} or
+\item{fit}{A 'limorhyde2' object, as provided by \code{getModelFit()} or
 \code{getPosteriorFit()}.}
 
 \item{times}{A vector of timepoints at which to compute fitted response values}

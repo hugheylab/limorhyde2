@@ -26,7 +26,7 @@
 #' @param lmFitArgs List of arguments for [limma::lmFit()].
 #' @param eBayesArgs List of arguments for [limma::eBayes()].
 #'
-#' @return A limoRhyde2 object with elements:
+#' @return A limorhyde2 object with elements:
 #'
 #' * `metadata`: See `metadata` argument above.
 #' * `timeColname`: See `timeColname` argument above.

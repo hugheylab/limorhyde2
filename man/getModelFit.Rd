@@ -50,7 +50,7 @@ Takes one of 'trend' or 'voom'.}
 \item{eBayesArgs}{List of arguments for \code{\link[limma:ebayes]{limma::eBayes()}}.}
 }
 \value{
-A limoRhyde2 object with elements:
+A limorhyde2 object with elements:
 \itemize{
 \item \code{metadata}: See \code{metadata} argument above.
 \item \code{timeColname}: See \code{timeColname} argument above.

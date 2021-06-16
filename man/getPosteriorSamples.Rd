@@ -16,7 +16,7 @@ from the posterior distribution of each effect}
 \item{overwrite}{Logical for whether to recompute posterior samples if it already exists.}
 }
 \value{
-a limoRhyde2 object containing
+a limorhyde2 object containing
 everything found in \code{fit} with added element:
 \itemize{
 \item \code{mashPosteriorSamples}  an m x n x p array with

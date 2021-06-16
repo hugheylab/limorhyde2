@@ -1,16 +1,13 @@
 #' Compute the predicted values from a fitted model
 #'
-#' Calculates the fitted values for selected features at given times.
+#' Calculates the fitted values for selected features at given times for all combinations of conditions and covariates.
 #'
-#' @param fit A 'limoRhyde2' object, as provided by `getModelFit()` or
-#' `getPosteriorFit()`.
+#' @param fit A 'limorhyde2' object, as provided by `getModelFit` or `getPosteriorFit`.
 #' @param times A vector of timepoints at which to compute fitted response values
-#' @param fitType String indicating whether to calculate statistics on the
-#' posterior mean, posterior samples, or raw model fit.
-#' @param features a vector of selected feature names, row numbers, or logical
-#' values for which to calculate fitted values
+#' @param fitType String indicating whether to calculate statistics on the posterior mean, posterior samples, or raw model fit.
+#' @param features a vector of selected feature names, row numbers, or logical values for which to calculate fitted values
 #'
-#' @return a data.table with columns for time and fitted value for each feature.
+#' @return a data.table with fitted values for each feature (and possibly feature-condition or feature-covariate pairs) at each of the specified timepoints.
 #'
 #' @export
 getFittedValues = function(
@@ -74,19 +71,16 @@ getFittedValues = function(
 
 #' Get credible intervals for fitted values
 #'
-#' `getFittedIntervals()` constructs credible intervals for the fitted values of
+#' `getFittedIntervals` constructs credible intervals for the fitted values of
 #' a model by group.
 #'
-#' @param fittedVals A data.table of posterior samples for fitted values from
-#' `getFittedValues()`.
+#' @param fittedVals A data.table of posterior samples for fitted values from `getFittedValues`.
 #' @param mass The probability mass for which to calculate the interval.
-#' @param method "String for type of interval: 'eti' for equal-tailed or 'hdi' for
-#'  highest (posterior) density.
+#' @param method String for type of interval: 'eti' for equal-tailed or 'hdi' for highest (posterior) density. Equal-tailed intervals use [stats::quantiles], while HPD intervals use [HDInterval::hdi].
 #'
-#' @return A data.table with columns for the upper and lower bounds of the fitted
-#' value for each feature in each group.
+#' @return A data.table with columns for the upper and lower bounds of the fitted value for each feature (and possibly feature-condition or feature-covariate combination).
 #'
-#' @seealso [getFittedValues()]
+#' @seealso [getFittedValues], [stats::quantiles], [HDInterval::hdi]
 #'
 #' @export
 getFittedIntervals = function(
