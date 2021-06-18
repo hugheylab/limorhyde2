@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_model.R
 \name{getModelFit}
 \alias{getModelFit}
-\title{Fit a linear model to the measurements of each feature}
+\title{Fit linear models for rhythmicity in one or more conditions}
 \usage{
 getModelFit(
   y,
@@ -15,65 +15,76 @@ getModelFit(
   nShifts = 3,
   method = c("trend", "voom"),
   lmFitArgs = list(),
-  eBayesArgs = if (method == "trend") list(trend = TRUE) else list()
+  eBayesArgs = if (method == "trend") list(trend = TRUE) else list(),
+  keepLmFits = FALSE
 )
 }
 \arguments{
-\item{y}{A matrix-like data object where each row is a feature and each column
-corresponds to a time sample.}
+\item{y}{Matrix-like object of measurements, with rows corresponding to
+features and columns to samples.}
 
-\item{metadata}{A data.table specifying experimental design information for
-each sample. Each row is a sample with metadata given in columns.}
+\item{metadata}{data.frame containing experimental design information for
+each sample. Rows of \code{metadata} must correspond to columns of \code{y}. Row
+names are ignored.}
 
-\item{period}{Number specifying the period for time variable.
-Must be same unit as sample timepoints.}
+\item{period}{Number specifying the period for the time variable, in the same
+units as the values in the \code{timeColname} column.}
 
-\item{nKnots}{Number of knots or internal breakpoints of periodic spline.}
+\item{nKnots}{Number of internal knots for the periodic spline for the time
+variable. Use \code{NULL} to fit a cosinor-based model instead of a spline-based
+model.}
 
-\item{timeColname}{String of column in \code{metadata} with the time each sample
-was acquired.}
+\item{timeColname}{String indicating the column in \code{metadata} containing the
+time at which each sample was acquired.}
 
-\item{condColname}{String indicating column in \code{metadata} with condition/group
-name(if any) for each sample.}
+\item{condColname}{String indicating the column in \code{metadata} containing the
+condition in which each sample was acquired. \code{NULL} indicates all samples
+came from the same condition. If not \code{NULL}, the model will include main
+effects and interactions with the terms for time.}
 
-\item{covarColnames}{String vector of covariate column names in \code{metadata}
-to include in linear model.}
+\item{covarColnames}{Character vector indicating the columns in \code{metadata}
+containing covariates to include in the model. \code{NULL} indicates no
+covariates.}
 
-\item{nShifts}{Number of times to offset or shift time vector. Model will fit
-data using each new shifted time vector.}
+\item{nShifts}{Number of shifted models to fit. Only used for periodic
+splines, not for cosinor. Do not change from the default unless you know
+what you're doing.}
 
-\item{method}{String indicating the fitting method for \code{\link[limma:lmFit]{limma::lmFit()}}.
-Takes one of 'trend' or 'voom'.}
+\item{method}{String indicating how to fit the mean-variance relationship in
+the data. Use 'trend' for microarray data and 'voom' for RNA-seq count
+data.}
 
-\item{lmFitArgs}{List of arguments for \code{\link[limma:lmFit]{limma::lmFit()}}.}
+\item{lmFitArgs}{List of arguments passed to \code{\link[limma:lmFit]{limma::lmFit()}}.}
 
-\item{eBayesArgs}{List of arguments for \code{\link[limma:ebayes]{limma::eBayes()}}.}
+\item{eBayesArgs}{List of arguments passed to \code{\link[limma:ebayes]{limma::eBayes()}}.}
+
+\item{keepLmFits}{Logical indicating whether to keep the complete fit objects
+from \code{limma}. Not needed by any functions in \code{limorhyde2}.}
 }
 \value{
-A limorhyde2 object with elements:
+A \code{limorhyde2} object with elements:
 \itemize{
-\item \code{metadata}: See \code{metadata} argument above.
-\item \code{timeColname}: See \code{timeColname} argument above.
-\item \code{condColname}: See \code{condColname} argument above.
-\item \code{covarColnames}: See \code{covarColnames} argument above.
-\item \code{lmFits}: List of linear model objects with fit results for all models.
-\item \code{coefficients}: A matrix with features as rows.
-Columns are coefficient estimates for \code{nShift} fitted models.
-\item \code{shifts}: vector of shift time values
-\item \code{period}: See \code{period} argument above
-\item \code{condLevels}: Vector of strings indication names of conditions if available.
-\item \code{nKnots}: See \code{nKnots} argument above.
-\item \code{nConds}: Number of groups or conditions.
+\item \code{metadata}: As supplied above, converted to a \code{data.table}.
+\item \code{timeColname}: As supplied above.
+\item \code{condColname}: As supplied above.
+\item \code{covarColnames}: As supplied above.
+\item \code{coefficients}: Matrix with rows corresponding to features and columns to
+model terms, including all shifted models.
+\item \code{shifts}: Numeric vector ...
+\item \code{period}: As supplied above.
+\item \code{condLevels}: If \code{condColname} is not \code{NULL}, a vector of unique values of
+the condition variable.
+\item \code{nKnots}: Number of knots, where 2 indicates a cosinor-based model.
+\item \code{nConds}: Number of conditions.
 \item \code{nCovs}: Number of covariates.
+\item \code{lmFits}: If \code{keepLmFits} is \code{TRUE}, a list of fit objects from \code{limma},
+with length equal to length of the \code{shifts} element.
 }
 }
 \description{
-Given a data matrix where each row is a feature and each column is a time sample,
-\code{getModelFit} returns a list object from fitting a linear model to the
-measurements of each feature To create the linear model, the function decomposes
-a periodic time variable into multiple linear components based on sine and
-cosine terms or periodic spline terms of the same period.
+This is the first step in an analysis using \code{limorhyde2}, the second is to
+moderate the fits using \code{\link[=getPosteriorFit]{getPosteriorFit()}}.
 }
 \seealso{
-\code{\link[limma:lmFit]{limma::lmFit()}}, \code{\link[limma:ebayes]{limma::eBayes()}}
+\code{\link[=getPosteriorFit]{getPosteriorFit()}}
 }

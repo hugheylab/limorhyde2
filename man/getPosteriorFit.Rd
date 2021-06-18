@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_posterior.R
 \name{getPosteriorFit}
 \alias{getPosteriorFit}
-\title{Perform multivariate adaptive shrinkage (mash) on a fitted model}
+\title{Compute posterior fit for linear models for rhythmicity}
 \usage{
 getPosteriorFit(
   fit,
@@ -15,40 +15,46 @@ getPosteriorFit(
 )
 }
 \arguments{
-\item{fit}{A fitted linear model object, as provided by \code{getModelFit()}
-or \code{getPosteriorFit()}.}
+\item{fit}{A \code{limorhyde2} object.}
 
-\item{covMethod}{string indicating types of covariance matrices to compute
-when fitting the \code{mash} model. Can take one of 'data-driven', 'canonical', or 'both'}
+\item{covMethod}{String indicating the type(s) of covariance matrices to use
+for the mash fit.}
 
-\item{getSigResArgs}{list of argument to be passed to
-\link[mashr:get_significant_results]{mashr::get_significant_results}. Used to find significant effects
-from at least one condition.}
+\item{getSigResArgs}{List of arguments passed to
+\code{\link[mashr:get_significant_results]{mashr::get_significant_results()}}. Only used if \code{covMethod} is
+'data-driven' or 'both'.}
 
-\item{npc}{number of principle components to use in
-principle component analysis of fitted model}
+\item{npc}{Number of principal components passed to \code{\link[mashr:cov_pca]{mashr::cov_pca()}}. Only
+used if \code{covMethod} is 'data-driven' or 'both'.}
 
-\item{covEdArgs}{list specifying argument-value pairs
-to be passed to \link[mashr:cov_ed]{mashr::cov_ed}.}
+\item{covEdArgs}{List of arguments passed to \code{\link[mashr:cov_ed]{mashr::cov_ed()}}. Only used if
+\code{covMethod} is 'data-driven' or 'both'.}
 
-\item{overwrite}{Logical for whether to recompute mashr fit if it already exists.}
+\item{overwrite}{Logical for whether to recompute the mash fit if it already
+exists.}
+
+\item{...}{Additional arguments passed to \code{\link[mashr:mash]{mashr::mash()}}.}
 }
 \value{
-a \code{LimoRhyde2} class object containing everything found in \code{fit}
-with added elements:
+A \code{limorhyde2} object containing everything in \code{fit} with added or
+updated elements:
 \itemize{
-\item \code{mashData} a data object of class \code{mash}
-\item \code{mashFit} list of mash fit results
-\item \code{mashCoefficients} matrix of resulting posterior model coefficients
-\item \code{mashIdx} vector of fit coefficient indices included in \code{mash}fitting
+\item \code{mashData}: \code{mash} data object
+\item \code{mashFit}: \code{mash} fit object
+\item \code{mashCoefficients}: Matrix of posterior mean coefficients, with rows
+corresponding to features and columns to model terms.
+\item \code{mashIdx}: Vector indicating which model terms were included in the mash
+fit.
 }
 }
 \description{
-Given a linear model fit, from \code{getModelFit()},
-\code{getPosteriorFit()} fits a mash model to coefficients to improve coefficient estimates.
-The mash model returns moderated coefficients as Posterior Means.
+This is the second step in an analysis using \code{limorhyde2}, the first is to
+fit linear models using \code{\link[=getModelFit]{getModelFit()}}. This function obtains posterior
+estimates of coefficients using multivariate adaptive shrinkage (mash), which
+learns patterns in the data and accounts for noise in the original fits. The
+defaults for arguments should work well in most cases, so only change them if
+you know what you're doing.
 }
 \seealso{
-\code{\link[=getModelFit]{getModelFit()}}, \code{\link[mashr:get_significant_results]{mashr::get_significant_results()}},
-\code{\link[mashr:cov_ed]{mashr::cov_ed()}}
+\code{\link[=getModelFit]{getModelFit()}}, \code{\link[=getRhythmStats]{getRhythmStats()}}, \code{\link[=getExpectedMeas]{getExpectedMeas()}}
 }

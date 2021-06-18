@@ -1,18 +1,44 @@
-#' Calculate rhythmic statistics from a fitted model
+#' Compute rhythmic statistics from fitted models
 #'
-#' `getRhythmStats`returns the rhythmic statistics calculated under a `limorhyde2` model for selected features.
+#' This function uses [stats::optim()] to compute various properties of
+#' fitted curves with respect to time, potentially in each condition and for
+#' each posterior sample, and adjusting for any covariates. Register a parallel
+#' backend to minimize runtime, e.g., using [doParallel::registerDoParallel()].
 #'
-#' @param fit A limorhyde2 fit object, as provided by `getModelFit` or `getPosteriorFit`.
-#' @param fitType String with potential values of 'posterior_mean', 'posterior_samples', or 'raw' indicating the type of `limorhyde2` object on which to calculate rhythmic statistics.
-#' @param features Vector containing the names, row numbers, or logical conditions for features on which to calculate rhythmic statistics.
+#' @param fit A `limorhyde2` object.
+#' @param fitType String indicating which fitted models to use to compute the
+#'   rhythmic statistics. A typical analysis using `limorhyde2` will be based on
+#'   'posterior_mean', the default.
+#' @param features Vector of names, row numbers, or logical values for
+#'   subsetting the features. `NULL` indicates all features.
 #'
-#' @return A data.table with rows for each feature and columns for the following rhythmic statistics
-#' * mean value: mean y value for given feature
-#' * peak-to-trough amplitude: peak amplitude - trough amplitude
-#' * root mean-squared amplitude: square root of mean squared difference between fitted time and intercept integrated across period length for given feature
-#' * peak phase: phase at which peak y-value occurs
-#' * trough phase: phase at which minimum y-value occurs
-#' as well as condition and posterior sample, if applicable.
+#' @return A `data.table` containing the following rhythmic statistics:
+#'
+#' * `peak_phase`: time between 0 and `fit$period` at which the peak or maximum
+#'   value occurs
+#' * `peak_value`
+#' * `trough_phase`: time between 0 and `fit$period` at which the trough or
+#'   minimum value occurs
+#' * `trough_value`
+#' * `peak_trough_amp`: `peak_value - trough_value`
+#' * `rms_amp`: root mean square difference between fitted curve and mean value
+#'   between time 0 and `fit$period`
+#' * `mean_value`: between time 0 and `fit$period`
+#'
+#' The rows of the `data.table` depend on the `fit` object and `fitType`:
+#'
+#' * `fit` contains data from one condition and `fitType` is posterior_mean' or
+#'   'raw': one row per feature.
+#' * `fit` contains data from one condition and `fitType` is
+#'   'posterior_samples': one row per feature per posterior sample.
+#'  * `fit` contains data from multiple conditions and `fitType` is
+#'   'posterior_mean' or 'raw': one row per feature per condition.
+#'  * `fit` contains data from multiple conditions and `fitType` is
+#'   'posterior_samples': one row per feature per condition per posterior
+#'   sample.
+#'
+#' @seealso [getModelFit()], [getPosteriorFit()],  [getPosteriorSamples()],
+#'   [getDiffRhythmStats()], [getStatsIntervals()]
 #'
 #' @export
 getRhythmStats = function(
@@ -20,12 +46,8 @@ getRhythmStats = function(
   features = NULL) {
 
   stopifnot(inherits(fit, 'limorhyde2'))
-
   fitType = match.arg(fitType)
-  if (fitType == 'posterior_mean' && is.null(fit$mashCoefficients)) {
-    stop('No posterior mean to calculate statistics, please run getPosteriorFit.')
-  } else if (fitType == 'posterior_samples' && is.null(fit$mashPosteriorSamples)) {
-    stop('No posterior samples to calculate statistics, please run getPosteriorSamples.')}
+  checkFitType(fit, fitType)
 
   c(shifts, period, condLevels, nKnots, nConds) %<-%
     fit[c('shifts', 'period', 'condLevels', 'nKnots', 'nConds')]
@@ -75,21 +97,37 @@ getRhythmStats = function(
   return(rhyStats[])}
 
 
-#' Calculate differential rhythmic statistics between conditions
+#' Compute differentially rhythmic statistics from fitted models
 #'
-#' `getDiffRhythmStats` returns differences in rhythmic statistics calculated under pairs of
-#'  conditions.
+#' This function computes differences in rhythmicity between fitted curves for a
+#' given pair of conditions. Register a parallel backend to minimize runtime,
+#' e.g., using [doParallel::registerDoParallel()].
 #'
-#' @param fit A limorhyde2 fit object, as provided by `getModelFit` or `getPosteriorFit`.
-#' @param rhyStats A data.table of rhythmic statistics, as returned by `getRhythmStats`. The data.table returned by `getDiffRhythmStats` inherits its `fitType` from `rhyStats`.
-#' @param condLevels A character vector containing the two conditions to compare.
+#' @param fit A `limorhyde2` object containing data from multiple conditions.
+#' @param rhyStats A `data.table` of rhythmic statistics, as returned by
+#'   [getRhythmStats()], for fitted models in `fit`.
+#' @param condLevels A character vector indicating the two conditions to
+#'   compare. Differences will be returned as the value for `condLevels[2]`
+#'   minus the value for `condLevels[1]`.
 #'
-#' @return A data.table of the following differential rhythmic statistics
-#' * differential mean value: difference in mean value of y-value between features under paired conditions
-#' * differential peak-trough amplitude: difference in peak-trough amplitude between paired conditions
-#' * differential root mean-squared amplitude: square root of mean squared difference between y-values in paired conditions integrated across period length
-#' * differential peak phase: circular difference in peak phase between paired conditions
-#' * differential trough phase: circular difference in trough phase between paired conditions.
+#' @return A `data.table` containing the following differentially rhythmic
+#'   statistics:
+#'
+#' * `diff_mean_value`
+#' * `diff_peak_trough_amp`
+#' * `diff_rms_amp`
+#' * `diff_peak_phase`: circular difference between `-fit$period/2` and
+#'   `fit$period/2`
+#' * `diff_trough_phase`: circular difference between `-fit$period/2` and
+#'   `fit$period/2`
+#' * `rms_diff_rhy`: root mean square difference in mean-centered fitted curves
+#'
+#' The rows of the `data.table` depend on the 'fitType' attribute of `rhyStats`:
+#'
+#' * 'fitType' is 'posterior_mean' or 'raw': one row per feature.
+#' * 'fitType' is 'posterior_samples': one row per feature per posterior sample.
+#'
+#' @seealso [getRhythmStats()], [getStatsIntervals()]
 #'
 #' @export
 getDiffRhythmStats = function(fit, rhyStats, condLevels) {
@@ -124,17 +162,24 @@ getDiffRhythmStats = function(fit, rhyStats, condLevels) {
   return(diffRhyStats[])}
 
 
-#' Calculate credible intervals for rhythmic statistics
+#' Compute credible intervals for rhythmic or differentially rhythmic statistics
 #'
-#' `getStatsIntervals` constructs credible intervals for each of the rhythmic statistics calculated in `getRhythmStats` or differential rhythmic statistics calculated in `getDiffRhythmStats`.
+#' This function uses posterior samples to quantify uncertainty in the
+#' properties of fitted curves.
 #'
-#' @param posteriorStats A data.table of posterior samples of (differential) rhythmic statistics from `getRhythmStats` or `getDiffRhythmStats`.
-#' @param mass The probability mass for which to calculate the interval.
-#' @param method String for type of interval: 'eti' for equal-tailed or 'hdi' for highest (posterior) density. Equal-tailed intervals use [stats::quantiles], while HPD intervals use [HDInterval::hdi].
+#' @param posteriorStats A `data.table` of statistics for posterior samples, as
+#'   returned by [getRhythmStats()] or [getDiffRhythmStats()].
+#' @param mass Number between 0 and 1 indicating the probability mass for which
+#'   to calculate the intervals.
+#' @param method String indicating the type of interval: 'eti' for equal-tailed
+#'   using [stats::quantile()], or 'hdi' for highest density using
+#'   [HDInterval::hdi()].
 #'
-#' @return A data.table with rows for each feature and (differential) rhythmic statistic, as well as condition if applicable. Columns correspond to the upper and lower bounds of the credible interval.
+#' @return A `data.table` containing lower and upper bounds of various
+#'   statistics for each feature or each feature-condition pair.
 #'
-#' @seealso [getRhythmStats], [getDiffRhythmStats], [stats::quantiles] ,[HDInterval::hdi]
+#' @seealso [getRhythmStats()], [getDiffRhythmStats()],
+#'   [getExpectedMeasIntervals()]
 #'
 #' @export
 getStatsIntervals = function(

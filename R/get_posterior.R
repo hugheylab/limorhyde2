@@ -1,22 +1,37 @@
-#' Perform multivariate adaptive shrinkage (mash) on a fitted model
+#' Compute posterior fit for linear models for rhythmicity
 #'
-#' Given a linear model fit, from `getModelFit`, `getPosteriorFit` fits a mash model to coefficients to improve coefficient estimates. The mash model returns moderated coefficients as Posterior Means.
+#' This is the second step in an analysis using `limorhyde2`, the first is to
+#' fit linear models using [getModelFit()]. This function obtains posterior
+#' estimates of coefficients using multivariate adaptive shrinkage (mash), which
+#' learns patterns in the data and accounts for noise in the original fits. The
+#' defaults for arguments should work well in most cases, so only change them if
+#' you know what you're doing.
 #'
-#' @param fit A `limorhyde2` fit object, as provided by `getModelFit` or `getPosteriorFit`.
-#' @param covMethod String indicating types of covariance matrices to compute when fitting the `mash` model. Can take one of 'data-driven', 'canonical', or 'both'
-#' @param getSigResArgs List of argument to be passed to [mashr::get_significant_results]. Used to find significant effects from at least one condition.
-#' @param npc Number of principle components to use in principal component analysis of fitted model
-#' @param covEdArgs List specifying argument-value pairs to be passed to [mashr::cov_ed].
-#' @param overwrite Logical for whether to recompute mashr fit if it already exists.
+#' @param fit A `limorhyde2` object.
+#' @param covMethod String indicating the type(s) of covariance matrices to use
+#'   for the mash fit.
+#' @param getSigResArgs List of arguments passed to
+#'   [mashr::get_significant_results()]. Only used if `covMethod` is
+#'   'data-driven' or 'both'.
+#' @param npc Number of principal components passed to [mashr::cov_pca()]. Only
+#'   used if `covMethod` is 'data-driven' or 'both'.
+#' @param covEdArgs List of arguments passed to [mashr::cov_ed()]. Only used if
+#'   `covMethod` is 'data-driven' or 'both'.
+#' @param overwrite Logical for whether to recompute the mash fit if it already
+#'   exists.
+#' @param ... Additional arguments passed to [mashr::mash()].
 #'
-#' @return A `limorhyde2` class object containing everything found in `fit` with added elements:
+#' @return A `limorhyde2` object containing everything in `fit` with added or
+#'   updated elements:
 #'
-#' * `mashData` a data object of class `mash`
-#' * `mashFit` list of mash fit results
-#' * `mashCoefficients` matrix of resulting posterior model coefficients
-#' * `mashIdx` vector of fit coefficient indices included in `mash`fitting
+#' * `mashData`: `mash` data object
+#' * `mashFit`: `mash` fit object
+#' * `mashCoefficients`: Matrix of posterior mean coefficients, with rows
+#'   corresponding to features and columns to model terms.
+#' * `mashIdx`: Vector indicating which model terms were included in the mash
+#'   fit.
 #'
-#' @seealso [getModelFit], [mashr::get_significant_results], [mashr::cov_ed]
+#' @seealso [getModelFit()], [getRhythmStats()], [getExpectedMeas()]
 #'
 #' @export
 getPosteriorFit = function(
@@ -64,16 +79,26 @@ getPosteriorFit = function(
   return(fit)}
 
 
-#' Draw samples from posterior estimate distributions from a fitted model
+#' Draw samples from posterior distributions of fitted models
 #'
-#' After applying a mash model with `getPosteriorFit`, which computes posterior distribution of each effect, use `getPosteriorSamples` to sample from the posterior for a set of estimates for each coefficient.
+#' This is an optional step in an analysis using `limorhyde2`, and is useful for
+#' quantifying uncertainty in posterior estimates of fitted curves and rhythmic
+#' statistics. The function calls [mashr::mash_compute_posterior_matrices()].
 #'
-#' @param fit A limorhyde2 object, as provided by `getModelFit` or `getPosteriorFit`.
-#' @param nPosteriorSamples number of samples to draw from the posterior distribution of each effect
-#' @param overwrite Logical indicating whether to posterior samples should be recomputed.
+#' @param fit A `limorhyde2' object containing posterior fits.
+#' @param nPosteriorSamples Number of samples to draw from each posterior
+#'   distribution.
+#' @param overwrite Logical indicating whether to recompute posterior samples if
+#'   they already exist.
 #'
-#' @return a limorhyde2 object containing everything found in `fit` with added element:
-#' * `mashPosteriorSamples`: An m x n x p array with m features, n model coefficients, and p posterior samples
+#' @return A `limorhyde2` object containing everything in `fit` with added or
+#'   updated element:
+#'
+#' * `mashPosteriorSamples`: a three-dimensional array of coefficients, with dim
+#'   1 corresponding to features, dim 2 to model terms, and dim 3 to posterior
+#'   samples.
+#'
+#' @seealso [getPosteriorFit()], [getRhythmStats()], [getExpectedMeas()]
 #'
 #' @export
 getPosteriorSamples = function(fit, nPosteriorSamples = 200, overwrite = FALSE) {
