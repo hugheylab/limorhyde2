@@ -1,6 +1,6 @@
 # limorhyde2
 
-`limorhyde2` is an approach to analyze rhythmic, genome-scale data in a way that focuses on effect sizes, not hypothesis testing or model selection. For a detailed description of `limorhyde2` along with examples showing its utility on data from one or more conditions, check out the [preprint]().
+`limorhyde2` is an approach to analyze rhythmic, genome-scale data in a way that focuses on effect sizes. For a detailed description of `limorhyde2` along with examples showing its utility on data from one or more conditions, check out the [preprint]().
 
 ## Installation
 
