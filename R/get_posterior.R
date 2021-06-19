@@ -38,14 +38,15 @@ getPosteriorFit = function(
   fit, covMethod = c('data-driven', 'canonical', 'both'), getSigResArgs = list(),
   npc = fit$nKnots, covEdArgs = list(), overwrite = FALSE, ...) {
 
-  stopifnot(inherits(fit, 'limorhyde2'),
-            length(npc) == 1L,
-            is.numeric(npc),
-            isTRUE(overwrite) || is.null(fit$mashFit))
+  assertClass(fit, 'limorhyde2')
+  covMethod = match.arg(covMethod)
+  assertList(getSigResArgs)
+  assertCount(npc, positive = TRUE)
+  assertList(covEdArgs)
+  assertLogical(overwrite, len = 1L)
+  assertTRUE(overwrite || is.null(fit$mashFit))
 
   mashCondCoefs = TRUE
-  covMethod = match.arg(covMethod)
-
   co = fit$coefficients
   c(shifts, nKnots, nConds) %<-% fit[c('shifts', 'nKnots', 'nConds')]
 
@@ -103,13 +104,11 @@ getPosteriorFit = function(
 #' @export
 getPosteriorSamples = function(fit, nPosteriorSamples = 200, overwrite = FALSE) {
 
-  stopifnot(!is.null(fit$mashFit),
-            isTRUE(overwrite) || is.null(fit$mashPosteriorSamples),
-            length(nPosteriorSamples) == 1L,
-            is.numeric(nPosteriorSamples),
-            nPosteriorSamples >= 10)
-
-  nPostSamps = round(nPosteriorSamples)
+  assertClass(fit, 'limorhyde2')
+  assertNumber(nPosteriorSamples, lower = 10)
+  nPostSamps = assertCount(nPosteriorSamples, coerce = TRUE)
+  assertLogical(overwrite, len = 1L)
+  assertTRUE(overwrite || is.null(fit$mashPosteriorSamples))
 
   mp = mashr::mash_compute_posterior_matrices(
     fit$mashFit, fit$mashData, algorithm.version = 'R',

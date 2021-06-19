@@ -45,7 +45,7 @@ getRhythmStats = function(
   fit, fitType = c('posterior_mean', 'posterior_samples', 'raw'),
   features = NULL) {
 
-  stopifnot(inherits(fit, 'limorhyde2'))
+  assertClass(fit, 'limorhyde2')
   fitType = match.arg(fitType)
   checkFitType(fit, fitType)
 
@@ -131,12 +131,14 @@ getRhythmStats = function(
 #'
 #' @export
 getDiffRhythmStats = function(fit, rhyStats, condLevels) {
-  stopifnot(inherits(fit, 'limorhyde2'),
-            isTRUE(attr(rhyStats, 'statType') == 'rhy'),
-            'cond' %in% colnames(rhyStats),
-            length(condLevels) == 2L,
-            all(condLevels %in% fit$condLevels),
-            all(condLevels %in% unique(rhyStats$cond)))
+  assertClass(fit, 'limorhyde2')
+  assertTRUE(fit$nConds >= 2)
+  assertDataTable(rhyStats)
+  assertTRUE(attr(rhyStats, 'statType') == 'rhy')
+  assertTRUE('cond' %in% colnames(rhyStats))
+  assertAtomicVector(condLevels, len = 2L)
+  assertSubset(condLevels, fit$condLevels)
+  assertSubset(condLevels, unique(rhyStats$cond))
 
   d0 = rhyStats[cond %in% condLevels]
   d0[, cond := factor(cond, condLevels)]
@@ -186,8 +188,10 @@ getStatsIntervals = function(
   posteriorStats, mass = 0.9, method = c('eti', 'hdi')) {
   # TODO: extend for phase-based stats, possibly in 2D
 
-  stopifnot(isTRUE(attr(posteriorStats, 'fitType') == 'posterior_samples'),
-            isTRUE(attr(posteriorStats, 'statType') %in% c('rhy', 'diff_rhy')))
+  assertDataTable(posteriorStats)
+  assertTRUE(attr(posteriorStats, 'fitType') == 'posterior_samples')
+  assertChoice(attr(posteriorStats, 'statType'), c('rhy', 'diff_rhy'))
+  assertNumber(mass, lower = 0.5, upper = 1 - .Machine$double.eps)
   method = match.arg(method)
 
   statType = attr(posteriorStats, 'statType')

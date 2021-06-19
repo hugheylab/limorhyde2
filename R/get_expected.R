@@ -23,7 +23,8 @@ getExpectedMeas = function(
   fit, times, fitType = c('posterior_mean', 'posterior_samples', 'raw'),
   features = NULL) {
 
-  stopifnot(inherits(fit, 'limorhyde2'))
+  assertClass(fit, 'limorhyde2')
+  assertNumeric(times, finite = TRUE, any.missing = FALSE)
   fitType = match.arg(fitType)
   checkFitType(fit, fitType)
 
@@ -97,11 +98,9 @@ getExpectedMeas = function(
 getExpectedMeasIntervals = function(
   expectedMeas, mass = 0.9, method = c('eti', 'hdi')) {
 
-  stopifnot(isTRUE(attr(expectedMeas, 'fitType') == 'posterior_samples'),
-            length(mass) == 1L,
-            is.numeric(mass),
-            mass > 0.5,
-            mass < 1)
+  assertDataTable(expectedMeas)
+  assertTRUE(attr(expectedMeas, 'fitType') == 'posterior_samples')
+  assertNumber(mass, lower = 0.5, upper = 1 - .Machine$double.eps)
   method = match.arg(method)
 
   byCols = setdiff(colnames(expectedMeas), c('posterior_sample', 'value'))

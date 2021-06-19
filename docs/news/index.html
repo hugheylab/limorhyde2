@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Compute credible intervals for expected measurements — getExpectedMeasIntervals • limorhyde2</title>
+<title>Changelog • limorhyde2</title>
 
 
 <!-- jquery -->
@@ -39,9 +39,7 @@
 
 
 
-<meta property="og:title" content="Compute credible intervals for expected measurements — getExpectedMeasIntervals" />
-<meta property="og:description" content="This functions uses posterior samples to quantify uncertainty in the
-expected measurements from fitted models." />
+<meta property="og:title" content="Changelog" />
 
 
 
@@ -60,7 +58,7 @@ expected measurements from fitted models." />
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-reference-topic">
+    <div class="container template-news">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -112,54 +110,25 @@ expected measurements from fitted models." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Compute credible intervals for expected measurements</h1>
-    <small class="dont-index">Source: <a href='https://github.com/hugheylab/limorhyde2/blob/master/R/get_expected.R'><code>R/get_expected.R</code></a></small>
-    <div class="hidden name"><code>getExpectedMeasIntervals.Rd</code></div>
+      <h1 data-toc-skip>Changelog <small></small></h1>
+      <small>Source: <a href='https://github.com/hugheylab/limorhyde2/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div class="ref-description">
-    <p>This functions uses posterior samples to quantify uncertainty in the
-expected measurements from fitted models.</p>
-    </div>
-
-    <pre class="usage"><span class='fu'>getExpectedMeasIntervals</span><span class='op'>(</span><span class='va'>expectedMeas</span>, mass <span class='op'>=</span> <span class='fl'>0.9</span>, method <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"eti"</span>, <span class='st'>"hdi"</span><span class='op'>)</span><span class='op'>)</span></pre>
-
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>expectedMeas</th>
-      <td><p>A <code>data.table</code> of expected measurements for posterior
-samples, as returned by <code><a href='getExpectedMeas.html'>getExpectedMeas()</a></code>.</p></td>
-    </tr>
-    <tr>
-      <th>mass</th>
-      <td><p>Number between 0 and 1 indicating the probability mass for which
-to calculate the intervals.</p></td>
-    </tr>
-    <tr>
-      <th>method</th>
-      <td><p>String indicating the type of interval: 'eti' for equal-tailed
-using <code><a href='https://rdrr.io/r/stats/quantile.html'>stats::quantile()</a></code>, or 'hdi' for highest density using
-<code><a href='https://rdrr.io/pkg/HDInterval/man/hdi.html'>HDInterval::hdi()</a></code>.</p></td>
-    </tr>
-    </table>
-
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>A <code>data.table</code> containing lower and upper bounds of the expected
-measurement for each combination of feature, time, and possibly condition
-and covariate.</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p><code><a href='getExpectedMeas.html'>getExpectedMeas()</a></code>, <code><a href='getStatsIntervals.html'>getStatsIntervals()</a></code></p></div>
-
+    <div id="limorhyde2-0009015" class="section level1">
+<h1 class="page-header" data-toc-text="0.0.0.9015">
+<a href="#limorhyde2-0009015" class="anchor"></a>limorhyde2 0.0.0.9015</h1>
+<ul>
+<li>Revamped input checking to use the checkmate package</li>
+</ul>
+</div>
   </div>
+
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
     </nav>
   </div>
+
 </div>
 
 

@@ -70,7 +70,8 @@ A \code{limorhyde2} object with elements:
 \item \code{covarColnames}: As supplied above.
 \item \code{coefficients}: Matrix with rows corresponding to features and columns to
 model terms, including all shifted models.
-\item \code{shifts}: Numeric vector ...
+\item \code{shifts}: Numeric vector indicating amount by which timepoints were shifted
+for each shifted model.
 \item \code{period}: As supplied above.
 \item \code{condLevels}: If \code{condColname} is not \code{NULL}, a vector of unique values of
 the condition variable.

@@ -41,7 +41,8 @@
 #' * `covarColnames`: As supplied above.
 #' * `coefficients`: Matrix with rows corresponding to features and columns to
 #'   model terms, including all shifted models.
-#' * `shifts`: Numeric vector ...
+#' * `shifts`: Numeric vector indicating amount by which timepoints were shifted
+#'   for each shifted model.
 #' * `period`: As supplied above.
 #' * `condLevels`: If `condColname` is not `NULL`, a vector of unique values of
 #'   the condition variable.
@@ -61,10 +62,33 @@ getModelFit = function(
   eBayesArgs = if (method == 'trend') list(trend = TRUE) else list(),
   keepLmFits = FALSE) {
 
-  stopifnot(ncol(y) == nrow(metadata),
-            is.numeric(nShifts),
-            length(nShifts) == 1L)
+  assertDataFrame(metadata)
+  assertTRUE(ncol(y) == nrow(metadata))
+
+  assertNumber(period, lower = .Machine$double.eps, finite = TRUE)
+
+  assertNumber(nKnots, lower = 3, null.ok = TRUE)
+  nKnots = assertCount(nKnots, null.ok = TRUE, coerce = TRUE)
+
+  assertString(timeColname)
+  assertChoice(timeColname, colnames(metadata))
+  assertNumeric(metadata[[timeColname]], finite = TRUE, any.missing = FALSE)
+
+  assertString(condColname, null.ok = TRUE)
+  if (!is.null(condColname)) {
+    assertTRUE(condColname != timeColname)
+    assertChoice(condColname, colnames(metadata))}
+
+  assertCharacter(covarColnames, null.ok = TRUE)
+  if (!is.null(covarColnames)) {
+    assertDisjunct(covarColnames, c(timeColname, condColname))
+    assertSubset(covarColnames, colnames(metadata))}
+
+  nShifts = assertCount(nShifts, positive = TRUE, coerce = TRUE)
   method = match.arg(method)
+  assertList(lmFitArgs)
+  assertList(eBayesArgs)
+  assertLogical(keepLmFits, len = 1L)
 
   shifts = getShifts(nShifts, nKnots, period)
   m = getMetadata(metadata, timeColname, condColname, covarColnames)
