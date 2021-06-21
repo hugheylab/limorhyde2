@@ -138,7 +138,7 @@ getDiffRhythmStats = function(fit, rhyStats, condLevels) {
   assertTRUE('cond' %in% colnames(rhyStats))
   assertAtomicVector(condLevels, len = 2L)
   assertSubset(condLevels, fit$condLevels)
-  assertSubset(condLevels, unique(rhyStats$cond))
+  assertSubset(condLevels, levels(rhyStats$cond))
 
   d0 = rhyStats[cond %in% condLevels]
   set(d0, j = 'cond', value = factor(d0$cond, condLevels))
