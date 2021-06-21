@@ -78,7 +78,7 @@ getRhythmStats = function(
         f = function(time) (g(time) %*% t(co)) / length(shifts)
         d = getOptima(f, tr)
         d[, peak_trough_amp := peak_value - trough_value]
-        d[, rms_amp := getRmsAmp(f, co, period)]})
+        set(d, j = 'rms_amp', value = getRmsAmp(f, co, period))})
 
       idx = seq(1, ncol(coefNow), ncol(coefNow) / length(shifts))
       set(r2, j = 'mean_value', value = rowMeans(coefNow[, idx, drop = FALSE]))
@@ -92,8 +92,8 @@ getRhythmStats = function(
   if (nConds == 1L) rhyStats[, cond := NULL]
   if (nPostSamps == 1L) rhyStats[, posterior_sample := NULL]
 
-  attr(rhyStats, 'statType') = 'rhy'
-  attr(rhyStats, 'fitType') = fitType
+  setattr(rhyStats, 'statType', 'rhy')
+  setattr(rhyStats, 'fitType', fitType)
   return(rhyStats[])}
 
 
@@ -141,7 +141,7 @@ getDiffRhythmStats = function(fit, rhyStats, condLevels) {
   assertSubset(condLevels, unique(rhyStats$cond))
 
   d0 = rhyStats[cond %in% condLevels]
-  d0[, cond := factor(cond, condLevels)]
+  set(d0, j = 'cond', value = factor(d0$cond, condLevels))
   data.table::setorderv(d0, 'cond')
 
   fitType = attr(rhyStats, 'fitType')
@@ -158,9 +158,9 @@ getDiffRhythmStats = function(fit, rhyStats, condLevels) {
   rmsDiffRhy = getRmsDiffRhy(fit, condLevels, fitType, featureIdx)
   diffRhyStats = merge(diffRhyStats, rmsDiffRhy, sort = FALSE)
 
-  attr(diffRhyStats, 'statType') = 'diff_rhy'
-  attr(diffRhyStats, 'fitType') = fitType
-  attr(diffRhyStats, 'condLevels') = condLevels
+  setattr(diffRhyStats, 'statType', 'diff_rhy')
+  setattr(diffRhyStats, 'fitType', fitType)
+  setattr(diffRhyStats, 'condLevels', condLevels)
   return(diffRhyStats[])}
 
 
@@ -212,7 +212,7 @@ getStatsIntervals = function(
   getInterval = if (method == 'eti') getEti else getHdi
   d2 = d1[, getInterval(value, mass), by = byCols]
 
-  attr(d2, 'statType') = statType
-  attr(d2, 'mass') = mass
-  attr(d2, 'method') = method
+  setattr(d2, 'statType', statType)
+  setattr(d2, 'mass', mass)
+  setattr(d2, 'method', method)
   return(d2)}

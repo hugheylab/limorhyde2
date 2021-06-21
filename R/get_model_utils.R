@@ -1,5 +1,5 @@
 #' @import checkmate
-#' @importFrom data.table data.table := set
+#' @importFrom data.table data.table := set setattr
 #' @importFrom foreach foreach %do% %dopar%
 #' @importFrom zeallot %<-%
 NULL
@@ -7,13 +7,13 @@ NULL
 
 globalVariables(c(
   'condIdx', '.SD', 'peak_phase', 'trough_phase', 'rms_diff_rhy', 'nConds',
-  'nK', 'nCon', 'nCov', 'lower', 'upper', 'co', 'peak_trough_amp', 'rms_amp',
-  'mean_value', '.', 'cond', 'feature', 'nKnots', 'peak_value', 'trough_value',
-  'period', 'shift', 'shifts', 'j', 'postSampIdx', 'posterior_sample', 'value'))
+  'lower', 'upper', 'co', 'peak_trough_amp', '.', 'cond', 'feature', 'nKnots',
+  'peak_value', 'trough_value', 'period', 'shift', 'shifts', 'postSampIdx',
+  'posterior_sample', 'value'))
 
 
 getShifts = function(nShifts, nKnots, period) {
-  if (is.null(nKnots)) {
+  if (nKnots == 2L) {
     shifts = 0 # cosinor is invariant to shifts
   } else {
     knotInterval = period / (nKnots + 1)
@@ -26,7 +26,7 @@ getMetadata = function(metadata, timeColname, condColname, covarColnames) {
   m = data.table(time = metadata[[timeColname]])
 
   if (!is.null(condColname)) {
-    m[, cond := factor(metadata[[condColname]])]}
+    set(m, j = 'cond', value = factor(metadata[[condColname]]))}
 
   if (!is.null(covarColnames)) {
     covarColnames = unique(covarColnames)
@@ -44,7 +44,7 @@ addIntercept = function(b, intercept) {
 
 
 getBasis = function(time, period, nKnots, intercept) {
-  if (is.null(nKnots)) {
+  if (nKnots == 2L) {
     nKnots = 2L
     tt = time / period * 2 * pi
     b = cbind(cos(tt), sin(tt))

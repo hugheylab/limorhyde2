@@ -102,7 +102,7 @@ getRmsDiffRhy = function(fit, condLevels, fitType, featureIdx) {
                     posterior_sample = postSampIdx,
                     rms_diff_rhy = r1)})
 
-  if (nPostSamps == 1L) r[, posterior_sample := NULL]
+  if (nPostSamps == 1L) set(r, j = 'posterior_sample', value = NULL)
   return(r[])}
 
 

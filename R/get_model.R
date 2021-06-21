@@ -69,6 +69,8 @@ getModelFit = function(
 
   assertNumber(nKnots, lower = 3, null.ok = TRUE)
   nKnots = assertCount(nKnots, null.ok = TRUE, coerce = TRUE)
+  if (is.null(nKnots)) nKnots = 2L
+  # after this point, nKnots should never be NULL
 
   assertString(timeColname)
   assertChoice(timeColname, colnames(metadata))
@@ -119,10 +121,10 @@ getModelFit = function(
   fit$period = period
   fit$condLevels = levels(m$cond) # always works
 
-  c(nK, nCon, nCov) %<-% getNumKnotCondCovar(colnames(lmFits[[1L]]))
-  fit$nKnots = nK
-  fit$nConds = nCon
-  fit$nCovs = nCov
+  nums = getNumKnotCondCovar(colnames(lmFits[[1L]]))
+  fit$nKnots = nums[1L]
+  fit$nConds = nums[2L]
+  fit$nCovs = nums[3L]
 
   if (isTRUE(keepLmFits)) fit$lmFits = lmFits
   class(fit) = 'limorhyde2'

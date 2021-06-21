@@ -67,11 +67,11 @@ getExpectedMeas = function(
       d1, id.vars = 'feature', variable.name = sampleColname,
       variable.factor = FALSE)
     d3 = merge(mNew, d2, by = sampleColname, sort = FALSE)
-    d3[, (sampleColname) := NULL]
-    d3[, posterior_sample := postSampIdx]}
+    set(d3, j = sampleColname, value = NULL)
+    set(d3, j = 'posterior_sample', value = postSampIdx)}
 
   if (nPostSamps == 1L) expectedMeas[, posterior_sample := NULL]
-  attr(expectedMeas, 'fitType') = fitType
+  setattr(expectedMeas, 'fitType', fitType)
   return(expectedMeas[])}
 
 
@@ -107,6 +107,6 @@ getExpectedMeasIntervals = function(
   getInterval = if (method == 'eti') getEti else getHdi
   expectedInts = expectedMeas[, getInterval(value, mass), by = byCols]
 
-  attr(expectedInts, 'mass') = mass
-  attr(expectedInts, 'method') = method
+  setattr(expectedInts, 'mass', mass)
+  setattr(expectedInts, 'method', method)
   return(expectedInts)}
