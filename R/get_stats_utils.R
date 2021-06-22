@@ -1,3 +1,11 @@
+checkFitType = function(fit, fitType) {
+  if (fitType == 'posterior_mean' && is.null(fit$mashCoefficients)) {
+    stop('No posterior mean, please run getPosteriorFit.')
+  } else if (fitType == 'posterior_samples' && is.null(fit$mashPosteriorSamples)) {
+    stop('No posterior samples, please run getPosteriorSamples.')}
+  invisible()}
+
+
 getCoefArray = function(fit, fitType) {
   coefName = switch(fitType,
                     raw = 'coefficients',
@@ -94,7 +102,7 @@ getRmsDiffRhy = function(fit, condLevels, fitType, featureIdx) {
                     posterior_sample = postSampIdx,
                     rms_diff_rhy = r1)})
 
-  if (nPostSamps == 1L) r[, posterior_sample := NULL]
+  if (nPostSamps == 1L) set(r, j = 'posterior_sample', value = NULL)
   return(r[])}
 
 

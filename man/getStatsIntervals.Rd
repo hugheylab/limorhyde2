@@ -2,30 +2,30 @@
 % Please edit documentation in R/get_stats.R
 \name{getStatsIntervals}
 \alias{getStatsIntervals}
-\title{Calculate credible intervals for rhythmic statistics}
+\title{Compute credible intervals for rhythmic or differentially rhythmic statistics}
 \usage{
 getStatsIntervals(posteriorStats, mass = 0.9, method = c("eti", "hdi"))
 }
 \arguments{
-\item{posteriorStats}{A data.table of posterior samples of (differential)
-rhythmic statistics from \code{getRhythmStats} or \code{getDiffRhythmStats}.}
+\item{posteriorStats}{A \code{data.table} of statistics for posterior samples, as
+returned by \code{\link[=getRhythmStats]{getRhythmStats()}} or \code{\link[=getDiffRhythmStats]{getDiffRhythmStats()}}.}
 
-\item{mass}{The probability mass for which to calculate the interval.}
+\item{mass}{Number between 0 and 1 indicating the probability mass for which
+to calculate the intervals.}
 
-\item{method}{One of 'eti' or 'hdi'. Inputting 'eti' returns an equal-tailed
-interval and inputting 'hdi' returns a highest-posterior density interval.}
+\item{method}{String indicating the type of interval: 'eti' for equal-tailed
+using \code{\link[stats:quantile]{stats::quantile()}}, or 'hdi' for highest density using
+\code{\link[HDInterval:hdi]{HDInterval::hdi()}}.}
 }
 \value{
-A data.table with rows for each feature and (differential)
-rhythmic statistic, as well as condition if applicable. Columns correspond to
-the upper and lower bounds of the credible interval.
+A \code{data.table} containing lower and upper bounds of various
+statistics for each feature or each feature-condition pair.
 }
 \description{
-\code{getStatsIntervals} constructs credible intervals for each of the rhythmic
-statistics calculated in \code{getRhythmStats} or differential rhythmic statistics
-calculated in \code{getDiffRhythmStats}.
+This function uses posterior samples to quantify uncertainty in the
+properties of fitted curves.
 }
 \seealso{
-\code{\link[=getRhythmStats]{getRhythmStats()}}, \link{getDiffRhythmStats},
-\code{\link[stats]{quantiles}} ,\code{\link[HDInterval]{hdi}}
+\code{\link[=getRhythmStats]{getRhythmStats()}}, \code{\link[=getDiffRhythmStats]{getDiffRhythmStats()}},
+\code{\link[=getExpectedMeasIntervals]{getExpectedMeasIntervals()}}
 }

@@ -1,12 +1,14 @@
 Package: limorhyde2
 Type: Package
-Title: Rhythmicity and differential rhythmicity analysis focused on effect sizes
-Version: 0.0.0.9011
+Title: Quantify rhythmicity and differential rhythmicity in genome-scale data
+Version: 0.0.0.9017
 Authors@R: as.person(c(
   "Jake Hughey <jakejhughey@gmail.com> [aut, cre]",
   "Dora Obodo <dora.obodo@vanderbilt.edu> [aut]",
   "Elliot Outland <ehoutland@gmail.com> [aut]"))
-Description: This does stuff.
+Description: Fit linear models based on periodic splines, moderate model
+  coefficients using mutivariate adaptive shrinkage, then compute properties of
+  the moderated curves.
 URL: https://github.com/hugheylab/limorhyde2
 License: GPL-2
 Encoding: UTF-8
@@ -17,6 +19,7 @@ Depends: R (>= 3.6)
 Imports:
   abind (>= 1.4-5),
   ashr (>= 2.2-51),
+  checkmate (>= 2.0.0),
   data.table (>= 1.12.8),
   foreach (>= 1.5.0),
   HDInterval (>= 0.2.2),
@@ -26,9 +29,7 @@ Imports:
   pbs (>= 1.1),
   zeallot (>= 0.1.0)
 Suggests:
-    knitr,
-    doParallel (>= 1.0.15),
-    testthat (>= 3.0.0),
-    rmarkdown
+  doParallel (>= 1.0.15),
+  qs (>= 0.24.1),
+  testthat (>= 3.0.0)
 Config/testthat/edition: 3
-VignetteBuilder: knitr

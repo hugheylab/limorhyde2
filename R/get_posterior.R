@@ -1,48 +1,53 @@
-#' Perform multivariate adaptive shrinkage (mashr) on a fitted model
-#' and return the posterior fit
+#' Compute posterior fit for linear models for rhythmicity
 #'
-#' Given a linear model fit, from `getModelFit`,
-#' compute moderated coefficients using multivariate adaptive shrinkage (mashr).
+#' This is the second step in an analysis using `limorhyde2`, the first is to
+#' fit linear models using [getModelFit()]. This function obtains posterior
+#' estimates of coefficients using multivariate adaptive shrinkage (mash), which
+#' learns patterns in the data and accounts for noise in the original fits. The
+#' defaults for arguments should work well in most cases, so only change them if
+#' you know what you're doing.
 #'
-#' @param fit A fitted linear model object, as provided by `getModelFit`
-#' or `getPosteriorFit`.
-#' @param covMethod string indicating types of covariance matrices to compute
-#' when fitting the `mash` model. Can take one of 'data-driven', 'canonical', or 'both'
-#' @param getSigResArgs list of argument to be passed to
-#' \code{\link[mashr]{get_significant_results}}. Used to find significant effects
-#' from at least one condition.
-#' @param npc number of principle components to use in
-#' principle component analysis of fitted model
-#' @param covEdArgs list specifying argument-value pairs
-#' to be passed to \code{\link[mashr]{cov_ed}}.
-#' @param overwrite TRUE or FALSE to recompute mashr fit
+#' @param fit A `limorhyde2` object.
+#' @param covMethod String indicating the type(s) of covariance matrices to use
+#'   for the mash fit.
+#' @param getSigResArgs List of arguments passed to
+#'   [mashr::get_significant_results()]. Only used if `covMethod` is
+#'   'data-driven' or 'both'.
+#' @param npc Number of principal components passed to [mashr::cov_pca()]. Only
+#'   used if `covMethod` is 'data-driven' or 'both'.
+#' @param covEdArgs List of arguments passed to [mashr::cov_ed()]. Only used if
+#'   `covMethod` is 'data-driven' or 'both'.
+#' @param overwrite Logical for whether to recompute the mash fit if it already
+#'   exists.
+#' @param ... Additional arguments passed to [mashr::mash()].
 #'
-#' @return a `LimoRhyde2` class object containing everything found in `fit`
-#' with added elements:
+#' @return A `limorhyde2` object containing everything in `fit` with added or
+#'   updated elements:
 #'
-#' * `mashData` a data object of class `mash`
-#' * `mashFit` list of mash fit results
-#' * `mashCoefficients` matrix of resulting posterior model coefficients
+#' * `mashData`: `mash` data object
+#' * `mashFit`: `mash` fit object
+#' * `mashCoefficients`: Matrix of posterior mean coefficients, with rows
+#'   corresponding to features and columns to model terms.
+#' * `mashIdx`: Vector indicating which model terms were included in the mash
+#'   fit.
 #'
-#' @seealso [getModelFit], \code{\link[mashr]{get_significant_results}},
-#' \code{\link[mashr]{cov_ed}}
+#' @seealso [getModelFit()], [getRhythmStats()], [getExpectedMeas()]
 #'
 #' @export
 getPosteriorFit = function(
   fit, covMethod = c('data-driven', 'canonical', 'both'), getSigResArgs = list(),
   npc = fit$nKnots, covEdArgs = list(), overwrite = FALSE, ...) {
 
-  stopifnot(inherits(fit, 'limorhyde2'),
-            length(npc) == 1L,
-            is.numeric(npc),
-            isTRUE(overwrite) || is.null(fit$mashFit))
+  assertClass(fit, 'limorhyde2')
+  covMethod = match.arg(covMethod)
+  assertList(getSigResArgs)
+  assertCount(npc, positive = TRUE)
+  assertList(covEdArgs)
+  assertLogical(overwrite, len = 1L)
+  assertTRUE(overwrite || is.null(fit$mashFit))
 
   mashCondCoefs = TRUE
-  covMethod = match.arg(covMethod)
-
   co = fit$coefficients
-  se = do.call(
-    cbind, lapply(fit$lmFits, function(f) sqrt(f$s2.post) * f$stdev.unscaled))
   c(shifts, nKnots, nConds) %<-% fit[c('shifts', 'nKnots', 'nConds')]
 
   idxStart = if (isTRUE(mashCondCoefs)) 2 else nConds + 1
@@ -53,7 +58,7 @@ getPosteriorFit = function(
     rep((0:(length(shifts) - 1)) * ncol(co) / length(shifts),
         each = length(idxTmp))
 
-  md = mashr::mash_set_data(co[, idx], se[, idx])
+  md = mashr::mash_set_data(co[, idx], fit$stdErrors[, idx])
 
   uc = if (covMethod == 'data-driven') NULL else mashr::cov_canonical(md)
 
@@ -75,33 +80,35 @@ getPosteriorFit = function(
   return(fit)}
 
 
-#' Draw samples from posterior estimate distributions from a fitted model
+#' Draw samples from posterior distributions of fitted models
 #'
-#' After performing shrinkage on a linear model with `getPosteriorFit`,
-#' draw samples from the posterior distribution of estimates.
+#' This is an optional step in an analysis using `limorhyde2`, and is useful for
+#' quantifying uncertainty in posterior estimates of fitted curves and rhythmic
+#' statistics. The function calls [mashr::mash_compute_posterior_matrices()].
 #'
-#' @param fit A fitted linear model object, as provided
-#' by `getModelFit` or `getPosteriorFit`.
-#' @param nPosteriorSamples number of samples to draw
-#' from the posterior distribution of each effect
-#' @param overwrite TRUE or FALSE to replace existing posteriorSamples
+#' @param fit A `limorhyde2' object containing posterior fits.
+#' @param nPosteriorSamples Number of samples to draw from each posterior
+#'   distribution.
+#' @param overwrite Logical indicating whether to recompute posterior samples if
+#'   they already exist.
 #'
-#' @return a `LimoRhyde2` class object containing
-#' everything found in `fit` with added element:
+#' @return A `limorhyde2` object containing everything in `fit` with added or
+#'   updated element:
 #'
-#' * `mashPosteriorSamples`  an m x n x p array with
-#' m features, n model coefficients, and p posterior samples
+#' * `mashPosteriorSamples`: a three-dimensional array of coefficients, with dim
+#'   1 corresponding to features, dim 2 to model terms, and dim 3 to posterior
+#'   samples.
+#'
+#' @seealso [getPosteriorFit()], [getRhythmStats()], [getExpectedMeas()]
 #'
 #' @export
 getPosteriorSamples = function(fit, nPosteriorSamples = 200, overwrite = FALSE) {
 
-  stopifnot(!is.null(fit$mashFit),
-            isTRUE(overwrite) || is.null(fit$mashPosteriorSamples),
-            length(nPosteriorSamples) == 1L,
-            is.numeric(nPosteriorSamples),
-            nPosteriorSamples >= 10)
-
-  nPostSamps = round(nPosteriorSamples)
+  assertClass(fit, 'limorhyde2')
+  assertNumber(nPosteriorSamples, lower = 10)
+  nPostSamps = assertCount(nPosteriorSamples, coerce = TRUE)
+  assertLogical(overwrite, len = 1L)
+  assertTRUE(overwrite || is.null(fit$mashPosteriorSamples))
 
   mp = mashr::mash_compute_posterior_matrices(
     fit$mashFit, fit$mashData, algorithm.version = 'R',

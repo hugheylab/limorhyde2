@@ -1,4 +1,5 @@
-#' @importFrom data.table data.table := set
+#' @import checkmate
+#' @importFrom data.table data.table := set setattr
 #' @importFrom foreach foreach %do% %dopar%
 #' @importFrom zeallot %<-%
 NULL
@@ -6,9 +7,33 @@ NULL
 
 globalVariables(c(
   'condIdx', '.SD', 'peak_phase', 'trough_phase', 'rms_diff_rhy', 'nConds',
-  'nK', 'nCon', 'nCov', 'lower', 'upper', 'co', 'peak_trough_amp', 'rms_amp',
-  'mean_value', '.', 'cond', 'feature', 'nKnots', 'peak_value', 'trough_value',
-  'period', 'shift', 'shifts', 'j', 'postSampIdx', 'posterior_sample', 'value'))
+  'lower', 'upper', 'co', 'peak_trough_amp', '.', 'cond', 'feature', 'nKnots',
+  'peak_value', 'trough_value', 'period', 'shift', 'shifts', 'postSampIdx',
+  'posterior_sample', 'value'))
+
+
+getShifts = function(nShifts, nKnots, period) {
+  if (nKnots == 2L) {
+    shifts = 0 # cosinor is invariant to shifts
+  } else {
+    knotInterval = period / (nKnots + 1)
+    shiftInterval = knotInterval / nShifts
+    shifts = seq(0, knotInterval - shiftInterval, shiftInterval)}
+  return(shifts)}
+
+
+getMetadata = function(metadata, timeColname, condColname, covarColnames) {
+  m = data.table(time = metadata[[timeColname]])
+
+  if (!is.null(condColname)) {
+    set(m, j = 'cond', value = factor(metadata[[condColname]]))}
+
+  if (!is.null(covarColnames)) {
+    covarColnames = unique(covarColnames)
+    for (covarName in covarColnames) {
+      set(m, j = paste0('covar_', covarName), value = metadata[[covarName]])}}
+
+  return(m[])}
 
 
 addIntercept = function(b, intercept) {
@@ -18,19 +43,9 @@ addIntercept = function(b, intercept) {
   return(b)}
 
 
-getBasis = function(time, period = 24, nKnots = 4, intercept = TRUE) {
-  stopifnot(length(period) == 1L,
-            is.numeric(period),
-            period > 0,
-            length(nKnots) == 1L,
-            is.numeric(nKnots),
-            is.null(nKnots) || nKnots >= 2,
-            length(intercept) == 1L,
-            is.logical(intercept))
-
-  if (is.null(nKnots)) nKnots = 2
-
-  if (nKnots == 2) {
+getBasis = function(time, period, nKnots, intercept) {
+  if (nKnots == 2L) {
+    nKnots = 2L
     tt = time / period * 2 * pi
     b = cbind(cos(tt), sin(tt))
   } else {
@@ -43,30 +58,6 @@ getBasis = function(time, period = 24, nKnots = 4, intercept = TRUE) {
   colnames(b) = paste0('basis', 1:nKnots)
   b = addIntercept(b, intercept)
   return(b)}
-
-
-getMetadata = function(metadata, timeColname, condColname, covarColnames) {
-  stopifnot(length(timeColname) == 1L,
-            timeColname %in% colnames(metadata),
-            is.numeric(metadata[[timeColname]]),
-            is.null(condColname) || length(condColname) == 1L)
-
-  m = data.table(time = metadata[[timeColname]])
-
-  if (!is.null(condColname)) {
-    stopifnot(condColname != timeColname,
-              condColname %in% colnames(metadata))
-    m[, cond := factor(metadata[[condColname]])]}
-
-  if (!is.null(covarColnames)) {
-    covarColnames = unique(covarColnames)
-    stopifnot(!any(covarColnames %in% c(timeColname, condColname)),
-              all(covarColnames %in% colnames(metadata)))
-    for (covarName in covarColnames) {
-      data.table::set(
-        m, NULL, paste0('covar_', covarName), metadata[[covarName]])}}
-
-  return(m[])}
 
 
 getDesign = function(metadata, period, nKnots) {

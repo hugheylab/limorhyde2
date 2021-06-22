@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_stats.R
 \name{getRhythmStats}
 \alias{getRhythmStats}
-\title{Calculate rhythmic statistics from a fitted model}
+\title{Compute rhythmic statistics from fitted models}
 \usage{
 getRhythmStats(
   fit,
@@ -11,23 +11,50 @@ getRhythmStats(
 )
 }
 \arguments{
-\item{fit}{A limorhyde2 fit object, as provided by \code{getModelFit} or
-\code{getPosteriorFit}.}
+\item{fit}{A \code{limorhyde2} object.}
 
-\item{fitType}{String indicating whether to calculate statistics on the
-posterior mean, posterior samples, or raw model fit. Can be one of
-'posterior_mean', 'posterior_samples', or 'raw'.}
+\item{fitType}{String indicating which fitted models to use to compute the
+rhythmic statistics. A typical analysis using \code{limorhyde2} will be based on
+'posterior_mean', the default.}
 
-\item{features}{Vector containing the names, row numbers, or logical conditions for
-features on which to calculate rhythmic statistics.}
+\item{features}{Vector of names, row numbers, or logical values for
+subsetting the features. \code{NULL} indicates all features.}
 }
 \value{
-A data.table with rows for each feature and columns for rhythmic statistic
-(mean value, peak-to-trough amplitude, root mean-squared amplitude,
-peak phase, and trough phase), as well as condition and posterior sample,
-if applicable.
+A \code{data.table} containing the following rhythmic statistics:
+\itemize{
+\item \code{peak_phase}: time between 0 and \code{fit$period} at which the peak or maximum
+value occurs
+\item \code{peak_value}
+\item \code{trough_phase}: time between 0 and \code{fit$period} at which the trough or
+minimum value occurs
+\item \code{trough_value}
+\item \code{peak_trough_amp}: \code{peak_value - trough_value}
+\item \code{rms_amp}: root mean square difference between fitted curve and mean value
+between time 0 and \code{fit$period}
+\item \code{mean_value}: between time 0 and \code{fit$period}
+}
+
+The rows of the \code{data.table} depend on the \code{fit} object and \code{fitType}:
+\itemize{
+\item \code{fit} contains data from one condition and \code{fitType} is posterior_mean' or
+'raw': one row per feature.
+\item \code{fit} contains data from one condition and \code{fitType} is
+'posterior_samples': one row per feature per posterior sample.
+\item \code{fit} contains data from multiple conditions and \code{fitType} is
+'posterior_mean' or 'raw': one row per feature per condition.
+\item \code{fit} contains data from multiple conditions and \code{fitType} is
+'posterior_samples': one row per feature per condition per posterior
+sample.
+}
 }
 \description{
-\code{getRhythmStats}returns the rhythmic statistics calculated under a
-fitted linear model for selected features.
+This function uses \code{\link[stats:optim]{stats::optim()}} to compute various properties of
+fitted curves with respect to time, potentially in each condition and for
+each posterior sample, and adjusting for any covariates. Register a parallel
+backend to minimize runtime, e.g., using \code{\link[doParallel:registerDoParallel]{doParallel::registerDoParallel()}}.
+}
+\seealso{
+\code{\link[=getModelFit]{getModelFit()}}, \code{\link[=getPosteriorFit]{getPosteriorFit()}},  \code{\link[=getPosteriorSamples]{getPosteriorSamples()}},
+\code{\link[=getDiffRhythmStats]{getDiffRhythmStats()}}, \code{\link[=getStatsIntervals]{getStatsIntervals()}}
 }

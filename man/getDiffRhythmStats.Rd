@@ -2,26 +2,45 @@
 % Please edit documentation in R/get_stats.R
 \name{getDiffRhythmStats}
 \alias{getDiffRhythmStats}
-\title{Calculate differential rhythmic statistics between conditions}
+\title{Compute differentially rhythmic statistics from fitted models}
 \usage{
 getDiffRhythmStats(fit, rhyStats, condLevels)
 }
 \arguments{
-\item{fit}{A limorhyde2 fit object, as provided by \code{getModelFit} or
-\code{getPosteriorFit}.}
+\item{fit}{A \code{limorhyde2} object containing data from multiple conditions.}
 
-\item{rhyStats}{A data.table of rhythmic statistics, as returned by
-\code{getRhythmStats}. The \code{fitType} of rhyStats is inherited by the returned
-object.}
+\item{rhyStats}{A \code{data.table} of rhythmic statistics, as returned by
+\code{\link[=getRhythmStats]{getRhythmStats()}}, for fitted models in \code{fit}.}
 
-\item{condLevels}{A character vector containing the two conditions to compare.}
+\item{condLevels}{A character vector indicating the two conditions to
+compare. Differences will be returned as the value for \code{condLevels[2]}
+minus the value for \code{condLevels[1]}.}
 }
 \value{
-A data.table of differential rhythmic statistics (differential mean value,
-differential peak-trough amplitude, differential root mean-squared amplitude,
-differential peak phase, and differential trough phase) between paired conditions.
+A \code{data.table} containing the following differentially rhythmic
+statistics:
+\itemize{
+\item \code{diff_mean_value}
+\item \code{diff_peak_trough_amp}
+\item \code{diff_rms_amp}
+\item \code{diff_peak_phase}: circular difference between \code{-fit$period/2} and
+\code{fit$period/2}
+\item \code{diff_trough_phase}: circular difference between \code{-fit$period/2} and
+\code{fit$period/2}
+\item \code{rms_diff_rhy}: root mean square difference in mean-centered fitted curves
+}
+
+The rows of the \code{data.table} depend on the 'fitType' attribute of \code{rhyStats}:
+\itemize{
+\item 'fitType' is 'posterior_mean' or 'raw': one row per feature.
+\item 'fitType' is 'posterior_samples': one row per feature per posterior sample.
+}
 }
 \description{
-\code{getDiffRhythmStats} returns the differential rhythmic statistics
-calculated for  under differing conditions.
+This function computes differences in rhythmicity between fitted curves for a
+given pair of conditions. Register a parallel backend to minimize runtime,
+e.g., using \code{\link[doParallel:registerDoParallel]{doParallel::registerDoParallel()}}.
+}
+\seealso{
+\code{\link[=getRhythmStats]{getRhythmStats()}}, \code{\link[=getStatsIntervals]{getStatsIntervals()}}
 }

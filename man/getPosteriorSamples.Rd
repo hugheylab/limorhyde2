@@ -2,28 +2,33 @@
 % Please edit documentation in R/get_posterior.R
 \name{getPosteriorSamples}
 \alias{getPosteriorSamples}
-\title{Draw samples from posterior estimate distributions from a fitted model}
+\title{Draw samples from posterior distributions of fitted models}
 \usage{
 getPosteriorSamples(fit, nPosteriorSamples = 200, overwrite = FALSE)
 }
 \arguments{
-\item{fit}{A fitted linear model object, as provided
-by \code{getModelFit} or \code{getPosteriorFit}.}
+\item{fit}{A `limorhyde2' object containing posterior fits.}
 
-\item{nPosteriorSamples}{number of samples to draw
-from the posterior distribution of each effect}
+\item{nPosteriorSamples}{Number of samples to draw from each posterior
+distribution.}
 
-\item{overwrite}{TRUE or FALSE to replace existing posteriorSamples}
+\item{overwrite}{Logical indicating whether to recompute posterior samples if
+they already exist.}
 }
 \value{
-a \code{LimoRhyde2} class object containing
-everything found in \code{fit} with added element:
+A \code{limorhyde2} object containing everything in \code{fit} with added or
+updated element:
 \itemize{
-\item \code{mashPosteriorSamples}  an m x n x p array with
-m features, n model coefficients, and p posterior samples
+\item \code{mashPosteriorSamples}: a three-dimensional array of coefficients, with dim
+1 corresponding to features, dim 2 to model terms, and dim 3 to posterior
+samples.
 }
 }
 \description{
-After performing shrinkage on a linear model with \code{getPosteriorFit},
-draw samples from the posterior distribution of estimates.
+This is an optional step in an analysis using \code{limorhyde2}, and is useful for
+quantifying uncertainty in posterior estimates of fitted curves and rhythmic
+statistics. The function calls \code{\link[mashr:mash_compute_posterior_matrices]{mashr::mash_compute_posterior_matrices()}}.
+}
+\seealso{
+\code{\link[=getPosteriorFit]{getPosteriorFit()}}, \code{\link[=getRhythmStats]{getRhythmStats()}}, \code{\link[=getExpectedMeas]{getExpectedMeas()}}
 }
