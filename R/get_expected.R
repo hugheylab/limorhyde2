@@ -16,7 +16,8 @@
 #'
 #' @return A `data.table`.
 #'
-#' @seealso [getModelFit()], [getPosteriorFit()], [getPosteriorSamples()]
+#' @seealso [getModelFit()], [getPosteriorFit()], [getPosteriorSamples()],
+#'   [getExpectedMeasIntervals()]
 #'
 #' @export
 getExpectedMeas = function(

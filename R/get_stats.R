@@ -195,8 +195,8 @@ getStatsIntervals = function(
   method = match.arg(method)
 
   statType = attr(posteriorStats, 'statType')
-  idCols = c('feature', 'posterior_sample')
-  if (statType == 'diff_rhy') idCols = c('cond', idCols)
+  idCols = intersect(c('cond', 'feature', 'posterior_sample'),
+                     colnames(posteriorStats))
 
   varName = 'statistic'
   byCols = c(setdiff(idCols, 'posterior_sample'), varName)

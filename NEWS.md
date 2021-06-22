@@ -1,3 +1,6 @@
+# limorhyde2 0.0.0.9017
+* Fixed bug in getStatsIntervals
+
 # limorhyde2 0.0.0.9016
 * Cleaned up logic around nKnots for cosinor
 * Fixed setting attributes for data.tables
