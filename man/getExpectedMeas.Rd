@@ -34,5 +34,6 @@ conditions and covariates (if they exist). Register a parallel backend to
 minimize runtime, e.g., using \code{\link[doParallel:registerDoParallel]{doParallel::registerDoParallel()}}.
 }
 \seealso{
-\code{\link[=getModelFit]{getModelFit()}}, \code{\link[=getPosteriorFit]{getPosteriorFit()}}, \code{\link[=getPosteriorSamples]{getPosteriorSamples()}}
+\code{\link[=getModelFit]{getModelFit()}}, \code{\link[=getPosteriorFit]{getPosteriorFit()}}, \code{\link[=getPosteriorSamples]{getPosteriorSamples()}},
+\code{\link[=getExpectedMeasIntervals]{getExpectedMeasIntervals()}}
 }
