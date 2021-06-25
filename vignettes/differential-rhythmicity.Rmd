@@ -1,0 +1,75 @@
+---
+title: "Differential rhythmicity with LimoRhyde2"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Differential rhythmicity with LimoRhyde2}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  rmarkdown.html_vignette.check_title = FALSE 
+)
+```
+
+## Introduction
+
+Here we show how to use LimoRhyde2 to compare rhythmicity between two conditions. The data are microarray samples of mouse liver tissues with two conditions, wild-type and knockout.
+
+## Setup
+
+We begin by preparing the R environment.
+
+```{r setup}
+library(limorhyde2)
+library(data.table)
+library(ggplot2)
+library(qs)
+foreach::registerDoSEQ()
+
+theme_set(theme_bw())
+```
+
+## Load the data
+
+Next, we load the sample data. The data consist of a gene-by-sample expression matrix and a data.table of sample metadata.
+
+```{r}
+mouseLiverData = qread(system.file('data', 'GSE34018_data.qs', package = 'limorhyde2')) 
+mouseLiverMetadata = qread(system.file('data', 'GSE34018_metadata.qs', package = 'limorhyde2'))
+
+#first 8 samples of expression data
+head(mouseLiverData[, 1:6])
+mouseLiverMetadata
+```
+
+## Fit linear models and quantify rhythmicity
+
+Next, we fit linear models to the data and obtain a posterior fit. We use these to get a table of non-differential rhythmic statistics. See the [quantifying rhythmicity vignette](quantifying-rhythmicity.html) for more details. For our example, we use the rhythm stats for the three clock genes Per1, Cry2, and Clock.
+
+```{r, results = 'hide'}
+#fitting initial models
+fit = getModelFit(y = mouseLiverData, metadata = mouseLiverMetadata, timeColname = 'time', condColname = 'cond')
+
+#getting posterior fit
+fit = getPosteriorFit(fit)
+```
+
+```{r}
+#getting rhythm stats
+clockGeneDt = data.table(id = as.character(c(18626, 12953, 12753)), gene_sym = c('Per1', 'Cry2', 'Clock'))
+
+rhyStats = getRhythmStats(fit, features = clockGeneDt$id)
+rhyStats
+```
+
+## Get differential rhythm stats
+
+The last step is to pass the fit, rhythmic statistics, and the two conditions that you would like to compare (in our case, 'wild-type' and 'knockout') to `getDiffRhythmStats`. Since our table of rhythmic statistics is based on the posterior mean, the data.table output by `getDiffRhythmStats` will have one row per feature.
+
+```{r}
+diffRhyStats = getDiffRhythmStats(fit = fit, rhyStats = rhyStats, condLevels = c('wild-type', 'knockout'))
+diffRhyStats
