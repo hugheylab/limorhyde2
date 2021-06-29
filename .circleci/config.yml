@@ -31,7 +31,6 @@ jobs:
               -e 'devtools::install_github("https://github.com/stephens999/ashr")' \
               -e 'devtools::install_dev_deps(dependencies = TRUE, repos = repos, upgrade = TRUE)' \
               -e 'install.packages("covr")' \
-              -e 'devtools::test()'
 
       - run:
           name: Build package
