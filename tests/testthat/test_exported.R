@@ -78,7 +78,7 @@ test_that('getPosteriorFit', {
   # qs::qsave(fitObs, sprintf('posterior_fit_canon_%d.qs', id))
   fitExp = qs::qread(sprintf('posterior_fit_canon_%d.qs', id))
 
-  expect_equal(fitObs, fitExp)
+  expect_equal(fitObs, fitExp, tolerance = 1e-6)
 })
 
 
