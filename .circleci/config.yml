@@ -38,7 +38,7 @@ jobs:
 
       - run:
           name: Check package
-          command: R CMD check ${PKG_TARBALL} --no-manual
+          command: R CMD check ${PKG_TARBALL} --no-manual --no-tests
 
       - run:
           name: Check coverage percentage
