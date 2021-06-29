@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-We demonstrate a basic capability of LimoRhyde2, quantifying rhythmicity, on gene expression data from mouse liver tissue samples.
+Here we show how to use LimoRhyde2 to quantify rhythmicity. The data are microarray samples of mouse liver tissues.
 
 ## Setup
 
@@ -28,6 +28,9 @@ library(limorhyde2)
 library(data.table)
 library(ggplot2)
 library(qs)
+foreach::registerDoSEQ()
+
+theme_set(theme_bw())
 ```
 
 ## Load the data
@@ -35,11 +38,11 @@ library(qs)
 Next, we load the sample data. The data consist of a gene-by-sample expression matrix and a data.table of sample metadata.
 
 ```{r}
-mouseLiverData = qread(system.file('data', 'mouse_liver_d.qs', package = 'limorhyde2')) 
-mouseLiverMetadata = qread(system.file('data', 'mouse_liver_md.qs', package = 'limorhyde2'))
+mouseLiverData = qread(system.file('data', 'GSE54650_liver_data.qs', package = 'limorhyde2')) 
+mouseLiverMetadata = qread(system.file('data', 'GSE54650_liver_metadata.qs', package = 'limorhyde2'))
 
 #first 8 samples of expression data
-head(mouseLiverData[, 1:8])
+head(mouseLiverData[, 1:6])
 mouseLiverMetadata
 ```
 
@@ -47,15 +50,15 @@ mouseLiverMetadata
 
 The first step of the LimoRhyde2 workflow is to fit a series of linear models for each genomic feature.  For the example data, the name of the column containing the time at which a sample was taken is 'time'.
 
-```{r, results='hide'}
+```{r, results = 'hide'}
 fit = getModelFit(y = mouseLiverData, metadata = mouseLiverMetadata, timeColname = 'time')
 ```
 
 ## Get a posterior fit
 
-Next, we obtain a model with moderated coefficient estimates using `getPosteriorFit`. By default, the posterior fit is obtained by moderating the raw fit based on the covariance patterns between features, conditions, and other covariates.
+Next, we obtain a model with moderated coefficient estimates using `getPosteriorFit`. We get the moderated coefficients by adjusting the raw fits based on shared patterns between features, conditions, and other covariates, as well as the amount of noise in the data.
 
-```{r, results='hide'}
+```{r, results = 'hide'}
 fit = getPosteriorFit(fit)
 ```
 
@@ -64,39 +67,38 @@ fit = getPosteriorFit(fit)
 From the moderated model, we can get obtain estimates of the rhythmic statistics for a select set of genes using `getRhythmStats` (in our example, we use three clock genes: Per1, Cry2, and Clock). By default, `getRhythmStats` estimates from posterior means of coefficients, but it can also be used with the raw coefficients.
 
 ```{r}
-clockGeneIds = as.character(c(18626, 12953, 12753))
-clockGeneSyms = c('18626' = 'Per1', '12953' = 'Cry2', '12753' = 'Clock')
-clockGeneDt = data.table(gene_id = clockGeneIds, gene_sym = clockGeneSyms)
+clockGeneDt = data.table(id = as.character(c(18626, 12953, 12753)), gene_sym = c('Per1', 'Cry2', 'Clock'))
 
-rhyStats = getRhythmStats(fit, features = clockGeneIds)
+rhyStats = getRhythmStats(fit, features = clockGeneDt$id)
 rhyStats
 ```
 
 ## Estimate fitted values 
 
-We can also obtain fitted values based on the moderated estimates using `getFittedValues`. These fitted values represent the expected expression level at each time point for each feature.
+We can also obtain fitted values based on the moderated estimates using `getExpectMeas`. These fitted values represent the expected expression level at each time point for each feature.
 
-```{r, results='hide'}
-fittedVals = getFittedValues(fit, times = seq(18, 64, by = 0.5), features = clockGeneIds)
-fittedVals = merge(fittedVals, clockGeneDt, by.x = 'feature', by.y = 'gene_id')
+```{r, results = 'hide'}
+fittedVals = getExpectedMeas(fit, times = seq(0, 24, by = 0.5), features = clockGeneDt$id)
+fittedVals = merge(fittedVals, clockGeneDt, by.x = 'feature', by.y = 'id')
 ```
 
 Below, we plot the fitted values from the moderated model. The points show the actual values of the data, while the lines show the fitted values at a given time.
 
 ```{r, fig.align='center', fig.width=8, fig.asp=0.5625}
 #setting up data table with actual values for given time
-actualVals = mouseLiverData[clockGeneIds,]
+actualVals = mouseLiverData[clockGeneDt$id, ]
 actualVals = as.data.table(t(actualVals), keep.rownames = 'sample')
 actualVals = merge(actualVals, mouseLiverMetadata, by = 'sample')
-actualVals = melt(actualVals, measure.vars = c('18626', '12953', '12753'),
+actualVals = melt(actualVals, measure.vars = clockGeneDt$id, 
                   variable.name = 'feature', value.name = 'value')
-actualVals = merge(actualVals, clockGeneDt, by.x = 'feature', by.y = 'gene_id')
+actualVals = merge(actualVals, clockGeneDt, by.x = 'feature', by.y = 'id')
 
 ggplot() +
-  geom_line(data = fittedVals, aes(x = time %% 24, y = value)) +
-  geom_point(data = actualVals, aes(x = time %% 24, y = value), color = 'blue') +
+  geom_line(data = fittedVals, aes(x = time, y = value)) +
+  geom_point(data = actualVals, aes(x = time %% 24, y = value), color = 'blue', shape = 1) +
   facet_wrap(vars(gene_sym), scales = 'free_y') +
-  ylab('Expression') +
-  xlab('Sampling time (h)')
+  ylab('Expression (norm. RA)') +
+  xlab('Circadian time (h)') +
+  scale_x_continuous(breaks = seq(0, 24, by = 4))
 
 ```

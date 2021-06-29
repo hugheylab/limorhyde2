@@ -29,7 +29,10 @@ Imports:
   pbs (>= 1.1),
   zeallot (>= 0.1.0)
 Suggests:
-  doParallel (>= 1.0.15),
-  qs (>= 0.24.1),
-  testthat (>= 3.0.0)
+    knitr,
+    doParallel (>= 1.0.15),
+    qs (>= 0.24.1),
+    testthat (>= 3.0.0),
+    rmarkdown
 Config/testthat/edition: 3
+VignetteBuilder: knitr

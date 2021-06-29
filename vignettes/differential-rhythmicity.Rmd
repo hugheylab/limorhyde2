@@ -26,7 +26,6 @@ We begin by preparing the R environment.
 ```{r setup}
 library(limorhyde2)
 library(data.table)
-library(ggplot2)
 library(qs)
 foreach::registerDoSEQ()
 
@@ -48,7 +47,7 @@ mouseLiverMetadata
 
 ## Fit linear models and quantify rhythmicity
 
-Next, we fit linear models to the data and obtain a posterior fit. We use these to get a table of non-differential rhythmic statistics. See the [quantifying rhythmicity vignette](quantifying-rhythmicity.html) for more details. For our example, we use the rhythm stats for the three clock genes Per1, Cry2, and Clock.
+Next, we fit linear models to the data and obtain a posterior fit. We use these to get a table of non-differential rhythmic statistics. See the [quantifying rhythmicity vignette](quantifying-rhythmicity.html) for more details. For our example, we limit our selection of rhythmic statistics to the three clock genes Per1, Cry2, and Clock.
 
 ```{r, results = 'hide'}
 #fitting initial models
