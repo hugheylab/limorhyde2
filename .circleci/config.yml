@@ -43,7 +43,7 @@ jobs:
       - run:
           name: Calculate code coverage
           command: |
-            Rscript  -e "tryCatch(covr::codecov(), error = function(e) warning(e))"
+            Rscript  -e "covr::codecov()"
 
       - run:
           name: Deploy to drat
