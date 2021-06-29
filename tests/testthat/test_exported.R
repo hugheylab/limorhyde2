@@ -64,14 +64,14 @@ test_that('getModelFit', {
 
 
 test_that('getPosteriorFit', {
-  # id = 2
-  # fit = qs::qread(sprintf('model_fit_%d.qs', id))
-  # fitObs = getPosteriorFit(fit)
-  # # qs::qsave(fitObs, sprintf('posterior_fit_%d.qs', id))
-  # fitExp = qs::qread(sprintf('posterior_fit_%d.qs', id))
-  #
-  # expect_equal(fitObs, fitExp)
-  # expect_error(getPosteriorFit(fitObs))
+  id = 1
+  fit = qs::qread(sprintf('model_fit_%d.qs', id))
+  fitObs = getPosteriorFit(fit)
+  # qs::qsave(fitObs, sprintf('posterior_fit_%d.qs', id))
+  fitExp = qs::qread(sprintf('posterior_fit_%d.qs', id))
+
+  expect_equal(fitObs, fitExp)
+  expect_error(getPosteriorFit(fitObs))
   # expect_equal(getPosteriorFit(fitObs, overwrite = TRUE), fitExp)
 
   # id = 1
@@ -178,7 +178,8 @@ test_that('getPosteriorSamples', {
 
   expect_equal(fitObs, fitExp)
   expect_error(getPosteriorSamples(fitObs))
-  expect_equal(getPosteriorFit(fitObs, overwrite = TRUE), fitExp)
+  # expect_equal(getPosteriorSamples(
+  #   fitObs, nPosteriorSamples = 10, overwrite = TRUE), fitExp)
 })
 
 
