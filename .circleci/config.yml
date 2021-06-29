@@ -40,16 +40,15 @@ jobs:
           name: Check package
           command: R CMD check ${PKG_TARBALL} --no-manual --no-tests
 
-      - run:
-          name: Check coverage percentage
-          command: |
-            Rscript \
-              -e "covr::package_coverage()"
-
-      # Uncomment the following lines once the codecov project is set up to send coverage reports to codecov
       #- run:
-      #    name: Calculate code coverage
-      #    command: r -e 'tryCatch(covr::codecov(), error = function(e) warning(e))'
+      #    name: Check coverage percentage
+      #    command: |
+      #      Rscript \
+      #        -e "covr::package_coverage()"
+
+      - run:
+          name: Calculate code coverage
+          command: r -e 'tryCatch(covr::codecov(), error = function(e) warning(e))'
 
       - run:
           name: Deploy to drat
