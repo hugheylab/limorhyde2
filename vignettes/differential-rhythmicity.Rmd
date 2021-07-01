@@ -26,6 +26,7 @@ We begin by preparing the R environment.
 ```{r setup}
 library(limorhyde2)
 library(data.table)
+library(ggplot2)
 library(qs)
 foreach::registerDoSEQ()
 
@@ -47,11 +48,11 @@ mouseLiverMetadata
 
 ## Fit linear models and quantify rhythmicity
 
-Next, we fit linear models to the data and obtain a posterior fit. We use these to get a table of non-differential rhythmic statistics. See the [quantifying rhythmicity vignette](quantifying-rhythmicity.html) for more details. For our example, we limit our selection of rhythmic statistics to the three clock genes Per1, Cry2, and Clock.
+Next, we fit linear models to the data and obtain a posterior fit. We use these to get a table of non-differential rhythmic statistics. See the [quantifying rhythmicity vignette](quantifying-rhythmicity.html) for more details. To save time in this vignette, we load the rhythmic statistics for the example dataset from the package data.
 
 ```{r, results = 'hide'}
 #fitting initial models
-fit = getModelFit(y = mouseLiverData, metadata = mouseLiverMetadata, timeColname = 'time', condColname = 'cond')
+fit = getModelFit(y = mouseLiverData, metadata = mouseLiverMetadata, condColname = 'cond')
 
 #getting posterior fit
 fit = getPosteriorFit(fit)
@@ -61,7 +62,8 @@ fit = getPosteriorFit(fit)
 #getting rhythm stats
 clockGeneDt = data.table(id = as.character(c(18626, 12953, 12753)), gene_sym = c('Per1', 'Cry2', 'Clock'))
 
-rhyStats = getRhythmStats(fit, features = clockGeneDt$id)
+# rhyStats = getRhythmStats(fit)
+rhyStats = qread(system.file('data', 'GSE34018_rhystats.qs', package = 'limorhyde2'))
 rhyStats
 ```
 
@@ -72,3 +74,56 @@ The last step is to pass the fit, rhythmic statistics, and the two conditions th
 ```{r}
 diffRhyStats = getDiffRhythmStats(fit = fit, rhyStats = rhyStats, condLevels = c('wild-type', 'knockout'))
 diffRhyStats
+```
+
+We can see how the differential rhythmic statistics vary across the entire dataset.
+
+```{r, fig.align='center', fig.width=8, fig.asp=0.5625}
+diffRhyStatsMelt = melt(diffRhyStats, id.vars = c('feature'), variable.name = 'statistic')
+
+ggplot(data = diffRhyStatsMelt) +
+  geom_density(aes(x = value)) +
+  facet_wrap(vars(statistic), scales = 'free')
+
+```
+
+We can also plot differential rhythmic statistics to identify potentially differentially-rhythmic genes.
+
+```{r, fig.align='center', fig.width=8, fig.asp=0.5625}
+ggplot(data = diffRhyStats) +
+  geom_point(aes(x = diff_peak_phase, y = diff_peak_trough_amp), alpha = 0.3) +
+  xlab('Differential phase (h)') +
+  ylab('Differential expression (norm.)')
+```
+
+## Estimate fitted values
+
+We can also investigate how fitted values vary between conditions using `getExpectMeas`. With a condition specified in the `fit`, the fitted values represent the expected expression level at each time point for each feature-condition pair.
+
+```{r, results = 'hide'}
+clockGeneDt = data.table(id = as.character(c(18626, 12953, 12753)), gene_sym = c('Per1', 'Cry2', 'Clock'))
+
+fittedVals = getExpectedMeas(fit, times = seq(0, 24, by = 0.5), features = clockGeneDt$id)
+fittedVals = merge(fittedVals, clockGeneDt, by.x = 'feature', by.y = 'id')
+```
+
+Below, we plot the fitted values from the moderated model for the clock genes Per1, Cry2, and Clock. The points show the actual values of the data, while the lines show the fitted values at a given time.
+
+```{r, fig.align='center', fig.width=8, fig.asp=0.5625}
+#setting up data table with actual values for given time
+actualVals = mouseLiverData[clockGeneDt$id, ]
+actualVals = as.data.table(t(actualVals), keep.rownames = 'sample')
+actualVals = merge(actualVals, mouseLiverMetadata, by = 'sample')
+actualVals = melt(actualVals, measure.vars = clockGeneDt$id, 
+                  variable.name = 'feature', value.name = 'value')
+actualVals = merge(actualVals, clockGeneDt, by.x = 'feature', by.y = 'id')
+
+ggplot() +
+  geom_line(data = fittedVals, aes(x = time, y = value, color = cond)) +
+  geom_point(data = actualVals, aes(x = time %% 24, y = value, color = cond), shape = 1) +
+  facet_wrap(vars(gene_sym), scales = 'free_y') +
+  ylab('Expression (norm.)') +
+  xlab('Circadian time (h)') +
+  scale_x_continuous(breaks = seq(0, 24, by = 4))
+
+```

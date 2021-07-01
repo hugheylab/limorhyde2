@@ -16,16 +16,9 @@ fit = getModelFit(y = d, metadata = md, timeColname = 'time',
 fit = getPosteriorFit(fit)
 
 rhyStats = getRhythmStats(fit)
-fittedVals = getExpectedMeas(fit, times = seq(0, 24, by = 0.5))
+qsave(rhyStats, file = 'data/GSE34018_rhystats.qs')
 
 #### posterior sampling
 
-fitPs = getPosteriorSamples(fit, nPosteriorSamples = 100)
-
-rhyStatsPs = getRhythmStats(fitPs, fitType = 'posterior_samples')
-fittedValsPs = getExpectedMeas(fitPs, times = seq(0, 24, by = 0.5))
-
-qsave(rhyStats, file = 'data/GSE34018_rhystats.qs')
-qsave(fittedVals, file = 'data/GSE34018_fittedVals.qs')
-qsave(rhyStatsPs, file = 'data/GSE34018_rhystatsPs.qs')
-qsave(fittedValsPs, file = 'data/GSE34018_fittedValsPs.qs')
+fitPs = getPosteriorSamples(fit, nPosteriorSamples = 200)
+qsave(fitPs, file = 'data/GSE34018_fitPs.qs')
