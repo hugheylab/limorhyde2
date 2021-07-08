@@ -27,7 +27,6 @@ We begin by preparing the R environment.
 library(limorhyde2)
 library(data.table)
 library(ggplot2)
-library(ggridges)
 library(qs)
 foreach::registerDoSEQ()
 
@@ -39,25 +38,25 @@ theme_set(theme_bw())
 Next, we load the sample data. The data consist of a gene-by-sample expression matrix and a data.table of sample metadata.
 
 ```{r}
-mouseLiverData = qread(system.file('data', 'GSE54650_liver_data.qs', package = 'limorhyde2')) 
-mouseLiverMetadata = qread(system.file('data', 'GSE54650_liver_metadata.qs', package = 'limorhyde2'))
+exprData = qread(system.file('data', 'GSE54650_liver_data.qs', package = 'limorhyde2')) 
+metadata = qread(system.file('data', 'GSE54650_liver_metadata.qs', package = 'limorhyde2'))
 
 #first 8 samples of expression data
-head(mouseLiverData[, 1:6])
-mouseLiverMetadata
+head(exprData[, 1:6])
+metadata
 ```
 
 ## Fit linear models
 
-The first step is to fit a series of linear models for each genomic feature using `limma`.  `getModelFits` takes the name of the column containing the time at which samples were taken, the column containing different experimental conditions, and any other covariates that you would like to include as arguments.
+The first step is to fit a series of linear models for each genomic feature using `limma`.  In addition to the response variable `y` and the `metadata`, `getModelFits` can take the name of the column containing the time at which samples were taken, the column containing different experimental conditions, and any other covariates that you would like to include as arguments.
 
 ```{r, results = 'hide'}
-fit = getModelFit(y = mouseLiverData, metadata = mouseLiverMetadata)
+fit = getModelFit(y = exprData, metadata = metadata)
 ```
 
 ## Get a posterior fit
 
-Next, we moderate the coefficients using `getPosteriorFit`. We get the moderated coefficients by applying `mashr`, which adjusts the raw fits based on shared patterns between features, conditions, and other covariates, as well as the amount of noise in the data.
+Next, we moderate the coefficients using `getPosteriorFit`. We get the moderated coefficients by applying `mashr`, which by default adjusts the raw fits based on shared patterns between features, conditions, and other covariates, as well as the amount of noise in the data.
 
 ```{r, results = 'hide'}
 fit = getPosteriorFit(fit)
@@ -65,33 +64,40 @@ fit = getPosteriorFit(fit)
 
 ## Get rhythmic statistics
 
-From the moderated model, we can get estimates of the rhythmic statistics for a select set of genes using `getRhythmStats`. In a typical analysis, we use `getRhythmStats` to compute estimates from the posterior means of coefficients. To save time in this vignette, we load the rhythmic statistics for the example dataset from the package data.
+From the moderated model, we can get estimates of the rhythmic statistics for a select set of features using `getRhythmStats`. In a typical analysis, we use `getRhythmStats` to compute estimates from the posterior means of coefficients. To save time in this vignette, we load the rhythmic statistics for the example dataset from the package data.
 
 ```{r}
 # rhyStats = getRhythmStats(fit)
-rhyStats = qread(system.file('data', 'GSE54650_rhystats.qs', package = 'limorhyde2'))
+rhyStats = qread(system.file('data', 'GSE54650_rhy_stats.qs', package = 'limorhyde2'))
 rhyStats
 ```
 
-We can plot the distributions of the different rhythmic statistics to see how they vary across the entire dataset.
+We can plot the distributions of some of the different rhythmic statistics to see how they vary across the entire dataset.
 
 ```{r, fig.align='center', fig.width=8, fig.asp=0.5625}
 #melting rhyStats for plot
 rhyStatsMelt = melt(rhyStats, id.vars = 'feature', variable.name = 'statistic')
 
-ggplot(data = rhyStatsMelt) +
+ggplot(data = rhyStatsMelt[!(statistic %in% c('peak_phase', 'trough_phase'))]) +
   geom_density(aes(x = value)) +
   facet_wrap(vars(statistic), scales = 'free')
 ```
 
-We might also be interested in looking at patterns in peak-trough expression and peak phase across all genes.
+We might also be interested in looking at patterns in peak-trough expression and peak phase, or between peak-trough expression and mean expression across all features.
 
 ```{r, fig.align='center', fig.width=8, fig.asp=0.5625}
-
 ggplot(data = rhyStats) +
   geom_point(aes(x = peak_phase, y = peak_trough_amp), alpha = 0.3) +
-  xlab('Circadian time (h)') +
-  ylab('Expression (norm.)')
+  xlab('Peak phase (h)') +
+  ylab('Peak-to-trough amplitude (norm.)') +
+  scale_x_continuous(breaks = seq(0, 24, by = 4))
+
+ggplot(data = rhyStats) +
+  geom_point(aes(x = mean_value, y = peak_trough_amp), alpha = 0.3) +
+  xlab('Mean expression (norm.)') +
+  ylab('Peak-to-trough amplitude (norm.)') +
+  scale_x_continuous(breaks = seq(0, 24, by = 4))
+
 ```
 
 ## Estimate fitted values 
@@ -99,7 +105,7 @@ ggplot(data = rhyStats) +
 We can also obtain fitted values based on the moderated estimates using `getExpectMeas`. These fitted values represent the expected expression level at each time point for each feature.
 
 ```{r, results = 'hide'}
-clockGeneDt = data.table(id = as.character(c(18626, 12953, 12753)), gene_sym = c('Per1', 'Cry2', 'Clock'))
+clockGeneDt = data.table(id = as.character(c(18626, 12953, 12753)), sym = c('Per1', 'Cry2', 'Clock'))
 
 fittedVals = getExpectedMeas(fit, times = seq(0, 24, by = 0.5), features = clockGeneDt$id)
 fittedVals = merge(fittedVals, clockGeneDt, by.x = 'feature', by.y = 'id')
@@ -107,19 +113,19 @@ fittedVals = merge(fittedVals, clockGeneDt, by.x = 'feature', by.y = 'id')
 
 Below, we plot the fitted values from the moderated model for the clock genes Per1, Cry2, and Clock. The points show the actual values of the data, while the lines show the fitted values at a given time.
 
-```{r, fig.align='center', fig.width=8, fig.asp=0.5625}
+```{r, fig.align='center', fig.width=8, fig.asp=0.35}
 #setting up data table with actual values for given time
-actualVals = mouseLiverData[clockGeneDt$id, ]
+actualVals = exprData[clockGeneDt$id, ]
 actualVals = as.data.table(t(actualVals), keep.rownames = 'sample')
-actualVals = merge(actualVals, mouseLiverMetadata, by = 'sample')
+actualVals = merge(actualVals, metadata, by = 'sample')
 actualVals = melt(actualVals, measure.vars = clockGeneDt$id, 
                   variable.name = 'feature', value.name = 'value')
 actualVals = merge(actualVals, clockGeneDt, by.x = 'feature', by.y = 'id')
 
 ggplot() +
+  facet_wrap(vars(sym), scales = 'free_y') +
   geom_line(data = fittedVals, aes(x = time, y = value)) +
   geom_point(data = actualVals, aes(x = time %% 24, y = value), color = 'blue', shape = 1) +
-  facet_wrap(vars(gene_sym), scales = 'free_y') +
   ylab('Expression (norm.)') +
   xlab('Circadian time (h)') +
   scale_x_continuous(breaks = seq(0, 24, by = 4))

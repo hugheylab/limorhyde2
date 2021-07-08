@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-In this vignette, we show how to use LimoRhyde2 to obtain posterior estimates for measurements and rhythmic properties. This is a requirement if you would like to construct credible intervals. The data are microarray samples of mouse liver tissues.
+In this vignette, we demonstrate how to use LimoRhyde2 to obtain posterior estimates for measurements and rhythmic properties. This is a requirement if you would like to construct credible intervals. The data are microarray samples of mouse liver tissues.
 
 ## Setup
 
@@ -27,7 +27,6 @@ We begin by preparing the R environment.
 library(limorhyde2)
 library(data.table)
 library(ggplot2)
-library(ggridges)
 library(qs)
 foreach::registerDoSEQ()
 
@@ -39,12 +38,12 @@ theme_set(theme_bw())
 Next, we load the sample data. The data consist of a gene-by-sample expression matrix and a data.table of sample metadata.
 
 ```{r}
-mouseLiverData = qread(system.file('data', 'GSE34018_data.qs', package = 'limorhyde2')) 
-mouseLiverMetadata = qread(system.file('data', 'GSE34018_metadata.qs', package = 'limorhyde2'))
+exprData = qread(system.file('data', 'GSE34018_data.qs', package = 'limorhyde2')) 
+metadata = qread(system.file('data', 'GSE34018_metadata.qs', package = 'limorhyde2'))
 
 #first 8 samples of expression data
-head(mouseLiverData[, 1:6])
-mouseLiverMetadata
+head(exprData[, 1:6])
+metadata
 ```
 
 ## Fit linear models and get a posterior fit
@@ -53,7 +52,7 @@ Next, we fit linear models to the data and obtain a posterior fit. See the [quan
 
 ```{r, results = 'hide' }
 #fitting initial models
-fit = getModelFit(y = mouseLiverData, metadata = mouseLiverMetadata, condColname = 'cond')
+fit = getModelFit(y = exprData, metadata = metadata, condColname = 'cond')
 
 #getting posterior fit
 fit = getPosteriorFit(fit)
@@ -65,16 +64,67 @@ We use the posterior fit from `getPosteriorFit` to get posterior samples for the
 
 ```{r, results = 'hide'}
 # fit = getPosteriorSamples(fit)
-fit = qread(system.file('data', 'GSE34018_fitPs.qs', package = 'limorhyde2'))
+fit = qread(system.file('data', 'GSE34018_fit_ps.qs', package = 'limorhyde2'))
 ```
+
+## Estimate fitted values
+
+We can also use the posterior samples of coefficients to get posterior samples of expected measurements. Since we set `fitType = 'posterior_samples'`, the resultant data.table will consist of expected measurements for each combination of feature, time-point, and sample. We again limit the features to 3 of the clock genes.
+
+```{r}
+clockGeneDt = data.table(id = as.character(c(18626, 12953, 12753)), sym = c('Per1', 'Cry2', 'Clock'))
+
+fittedVals = getExpectedMeas(fit, times = seq(0, 24, by = 0.5), features = clockGeneDt$id,
+                             fitType = 'posterior_samples')
+head(fittedVals)
+```
+
+To get a better understanding of how rhythmicity varies with each posterior sample, we can plot their expected measurements together.
+
+```{r, message=FALSE, fig.align='center', fig.width=8, fig.asp=0.5625}
+fittedVals[clockGeneDt, sym := i.sym, on = .(feature = id)]
+
+ggplot(data = fittedVals) +
+  geom_line(aes(x = time, y = value, color = cond, group = interaction(cond, posterior_sample)), 
+            alpha = 0.2) +
+  facet_grid(rows = vars(sym), scales = 'free_y') +
+  scale_x_continuous(breaks = seq(0, 24, by = 4)) +
+  labs(color = 'Condition', x = 'Circadian time (h)', y = 'Expression (norm.)') +
+  scale_color_brewer(palette = 'Dark2')
+```
+
+## Get credible intervals for fitted values
+
+Once we've gotten the posterior estimates for the expected measurements, we can use `getExpectedMeasIntervals` to get upper and lower bounds for each combination of feature and timepoint.
+
+```{r}
+fittedValsInterval = getExpectedMeasIntervals(fittedVals, method = 'eti')
+head(fittedValsInterval)
+```
+
+```{r, fig.width=8, fig.asp=0.5625}
+#setting up data table with mean fitted values for given time
+meanFittedVals = getExpectedMeas(fit, times = seq(0, 24, by = 0.5), features = clockGeneDt$id)
+meanFittedVals = merge(meanFittedVals, clockGeneDt, by.x = 'feature', by.y = 'id')
+
+ggplot() +
+  geom_ribbon(data = fittedValsInterval, aes(x = time, ymin = lower, ymax = upper,
+                                             fill = cond), alpha = 0.3) +
+  geom_line(data = meanFittedVals, aes(x = time, y = value, color = cond)) +
+  facet_grid(rows = vars(sym), scales = 'free_y') +
+  ylab('Expression (norm.)') +
+  xlab('Circadian time (h)') +
+  scale_x_continuous(breaks = seq(0, 24, by = 4)) +
+  scale_fill_brewer(palette = 'Dark2') +
+  scale_color_brewer(palette = 'Dark2')
+```
+
 
 ## Get rhythmic statistics
 
 We can use the posterior samples of coefficients to get posterior samples of rhythmic statistics. Since we set `fitType = 'posterior samples'`, this step will result in a data.table with rhythmic statistics for each feature in each sample. In this example, we limit the features to the 3 clock genes Per1, Cry2, and Clock.
 
 ```{r}
-clockGeneDt = data.table(id = as.character(c(18626, 12953, 12753)), gene_sym = c('Per1', 'Cry2', 'Clock'))
-
 rhyStats = getRhythmStats(fit, features = clockGeneDt$id, fitType = 'posterior_samples')
 rhyStats
 ```
@@ -86,10 +136,11 @@ rhyStatsMelt = melt(rhyStats, id.vars = c('feature', 'cond', 'posterior_sample')
                     variable.name = 'statistic')
 rhyStatsMelt = merge(rhyStatsMelt, clockGeneDt, by.x = 'feature', by.y = 'id')
 
-ggplot(data = rhyStatsMelt) +
-  geom_density_ridges(aes(x = value, y = statistic, fill = cond), alpha = 0.7) +
-  facet_grid(rows = vars(gene_sym)) +
-  scale_x_continuous(breaks = seq(0, 24, by = 4))
+ggplot(data = rhyStatsMelt[!(statistic %in% c('peak_phase', 'trough_phase'))]) +
+  geom_density(aes(x = value, fill = cond), alpha = 0.3) +
+  facet_grid(rows = vars(sym), cols = vars(statistic), scales = 'free') +
+  scale_x_continuous(breaks = seq(0, 24, by = 4)) +
+  scale_fill_brewer(palette = 'Dark2')
 ```
 
 ## Get credible intervals for rhythmic statistics
@@ -101,64 +152,36 @@ rhyStatsInterval = getStatsIntervals(rhyStats, method = 'eti')
 rhyStatsInterval
 ```
 
-## Estimate fitted values
+## Get differential rhythmic statistics
 
-We can also use the posterior samples of coefficients to get posterior samples of expected measurements. Since we set `fitType = 'posterior_samples'`, the resultant data.table will consist of expected measurements for each combination of feature, time-point, and sample. We again limit the features to 3 of the clock genes.
-
-```{r}
-fittedVals = getExpectedMeas(fit, times = seq(0, 24, by = 0.5), features = clockGeneDt$id,
-                             fitType = 'posterior_samples')
-head(fittedVals)
-```
-
-To get a better understanding of how rhythmicity varies with each posterior sample, we can plot their expected measurements together.
-
-```{r, echo=FALSE, message=FALSE, fig.align='center', fig.width=8, fig.asp=0.5625}
-fittedVals = merge(fittedVals, clockGeneDt, by.x = 'feature', by.y = 'id')
-
-ggplot(data = fittedVals) +
-  geom_line(aes(x = time, y = value, color = as.factor(posterior_sample)), alpha = 0.2) +
-  facet_grid(rows = vars(gene_sym), cols = vars(cond), scales = 'free_y') +
-  theme(legend.position = 'none') +
-  scale_x_continuous(breaks = seq(0, 24, by = 4)) +
-  xlab('Circadian time (h)') +
-  ylab('Expression (norm.)')
-```
-
-## Get credible intervals for fitted values
-
-Once we've gotten the posterior estimates for the expected measurements, we can use `getExpectedMeasIntervals` to get upper and lower bounds for each combination of feature and timepoint.
+We can use posterior sampling to examine differential rhythmicity as well. Here, we produce a table of the upper and lower bounds of the posterior samples of the clock genes.
 
 ```{r}
-fittedVals = getExpectedMeas(fit, times = seq(0, 24, by = 0.5), features = clockGeneDt$id,
-                             fitType = 'posterior_samples')
+diffRhyStats = getDiffRhythmStats(fit, rhyStats, levels(metadata$cond))
+diffRhyStats[clockGeneDt, sym := i.sym, on = .(feature = id)]
 
-fittedValsInterval = getExpectedMeasIntervals(fittedVals, method = 'eti')
-head(fittedValsInterval)
+diffRhyStatsInterval = getStatsIntervals(diffRhyStats, method = 'eti')
 ```
 
-```{r, fig.width=8, fig.asp=0.5625}
-#setting up data table with mean fitted values for given time
-meanFittedVals = getExpectedMeas(fit, times = seq(0, 24, by = 0.5), features = clockGeneDt$id)
-meanFittedVals = merge(meanFittedVals, clockGeneDt, by.x = 'feature', by.y = 'id')
+We can also see how differentially rhythmic statistics vary within a particular feature by plotting the posterior samples.
 
-#adding gene names to interval table
-fittedValsInterval = merge(fittedValsInterval, clockGeneDt, by.x = 'feature', by.y = 'id')
+```{r, fig.align='center', fig.width=8, fig.asp=0.5625}
+ggplot(data = diffRhyStats) +
+  geom_point(aes(x = diff_peak_phase, y = diff_peak_trough_amp, color = sym),
+             alpha = 0.5) +
+  labs(color = 'Feature',
+       x = 'Difference in phase (h)',
+       y = 'Difference in peak-to-trough amplitude (norm.)') +
+  scale_x_continuous(breaks = seq(-12, 12, by = 4)) +
+  scale_color_brewer(type = 'qual')
 
-#setting up data table with actual values for given time
-actualVals = mouseLiverData[clockGeneDt$id, ]
-actualVals = as.data.table(t(actualVals), keep.rownames = 'sample')
-actualVals = merge(actualVals, mouseLiverMetadata, by = 'sample')
-actualVals = melt(actualVals, measure.vars = clockGeneDt$id, 
-                  variable.name = 'feature', value.name = 'value')
-actualVals = merge(actualVals, clockGeneDt, by.x = 'feature', by.y = 'id')
+ggplot(data = diffRhyStats) +
+  geom_point(aes(x = diff_mean_value, y = diff_peak_trough_amp, color = sym),
+             alpha = 0.5) +
+  labs(color = 'Feature',
+       x = 'Difference in mean expression (norm.)',
+       y = 'Difference in peak-to-trough amplitude (norm.)') +
+  scale_color_brewer(type = 'qual')
 
-ggplot() +
-  geom_ribbon(data = fittedValsInterval, aes(x = time, ymin = lower, ymax = upper), fill = 'red', alpha = 0.3) +
-  geom_line(data = meanFittedVals, aes(x = time, y = value)) +
-  geom_point(data = actualVals, aes(x = time %% 24, y = value), color = 'blue', shape = 1) +
-  facet_grid(rows = vars(gene_sym), cols = vars(cond), scales = 'free_y') +
-  ylab('Expression (norm.)') +
-  xlab('Circadian time (h)') +
-  scale_x_continuous(breaks = seq(0, 24, by = 4))
+
 ```

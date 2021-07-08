@@ -14,14 +14,8 @@ GSE54650_liver_data = d[, GSE54650_liver_metadata$sample]
 qsave(GSE54650_liver_metadata, file.path(dataPath, 'GSE54650_liver_metadata.qs'))
 qsave(GSE54650_liver_data, file.path(dataPath, 'GSE54650_liver_data.qs'))
 
-fit = getModelFit(y = GSE54650_liver_data, metadata = GSE54650_liver_metadata,
-                  timeColname = 'time')
+fit = getModelFit(y = GSE54650_liver_data, metadata = GSE54650_liver_metadata)
 fit = getPosteriorFit(fit)
 
-rhyStats = getRhythmStats(fit) #rhythmicity vignette
-qsave(rhyStats, file = 'data/GSE54650_rhystats.qs')
-
-#### posterior sampling
-
-fitPs = getPosteriorSamples(fit, nPosteriorSamples = 200) #diff rhythmicity vignette
-qsave(fitPs, file = 'data/GSE54650_fitPs.qs')
+rhyStats = getRhythmStats(fit)
+qsave(rhyStats, file = 'data/GSE54650_rhy_stats.qs')
