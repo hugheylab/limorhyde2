@@ -139,7 +139,6 @@ rhyStatsMelt = merge(rhyStatsMelt, clockGeneDt, by.x = 'feature', by.y = 'id')
 ggplot(data = rhyStatsMelt[!(statistic %in% c('peak_phase', 'trough_phase'))]) +
   geom_density(aes(x = value, fill = cond), alpha = 0.3) +
   facet_grid(rows = vars(sym), cols = vars(statistic), scales = 'free') +
-  scale_x_continuous(breaks = seq(0, 24, by = 4)) +
   scale_fill_brewer(palette = 'Dark2')
 ```
 
