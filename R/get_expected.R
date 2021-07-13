@@ -111,3 +111,38 @@ getExpectedMeasIntervals = function(
   setattr(expectedInts, 'mass', mass)
   setattr(expectedInts, 'method', method)
   return(expectedInts)}
+
+
+#' Merge measurements and metadata
+#'
+#' This function is useful for plotting time-courses for individual features.
+#'
+#' @param y Matrix-like object of measurements, with rows corresponding to
+#'   features and columns to samples.
+#' @param metadata data.frame containing experimental design information for
+#'   each sample. Rows of `metadata` must correspond to columns of `y`. Row
+#'   names are ignored.
+#' @param features Vector of names, row numbers, or logical values for
+#'   subsetting the features. `NULL` indicates all features.
+#' @param sampleColname String indicating the column in `metadata` containing
+#'   the name of each sample, which must correspond to the column names in `y`.
+#'
+#' @return A `data.table` with one row for each sample-feature pair.
+#'
+#' @seealso getExpectedMeas()
+#'
+#' @export
+mergeMeasMeta = function(y, metadata, features = NULL, sampleColname = 'sample') {
+  assertDataFrame(metadata)
+  assertTRUE(ncol(y) == nrow(metadata))
+  assertDisjunct(sampleColname, c('feature', 'meas'))
+  assertChoice(sampleColname, colnames(metadata))
+
+  if (is.null(features)) features = 1:nrow(y)
+
+  d = data.table(y[features, , drop = FALSE], keep.rownames = 'feature')
+  d = data.table::melt(
+    d, id.vars = 'feature', variable.name = sampleColname, value.name = 'meas',
+    variable.factor = FALSE)
+  d = merge(metadata, d, by = sampleColname)
+  return(d)}

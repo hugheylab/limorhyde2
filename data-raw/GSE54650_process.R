@@ -1,21 +1,22 @@
-library(data.table)
-library(qs)
-library(limorhyde2)
+library('data.table')
+library('limorhyde2')
+library('qs')
 
-rawDataPath = file.path('.', 'data-raw')
-dataPath = file.path('.', 'data')
+doParallel::registerDoParallel()
+rawDataDir = 'data-raw'
+dataDir = file.path('inst', 'extdata')
 
-d = readRDS(file.path(rawDataPath, 'GSE54650_matrix.rds'))
-md = fread(file.path(rawDataPath, 'GSE54650_sample_metadata.csv'))
+metadata = fread(file.path(rawDataDir, 'GSE54650_sample_metadata.csv'))
+y = qread(file.path(rawDataDir, 'GSE54650_expression_data.qs'))
 
-GSE54650_liver_metadata = md[organ == 'liver']
-GSE54650_liver_data = d[, GSE54650_liver_metadata$sample]
+metadata = metadata[tissue == 'liver']
+y = y[, metadata$sample]
 
-qsave(GSE54650_liver_metadata, file.path(dataPath, 'GSE54650_liver_metadata.qs'))
-qsave(GSE54650_liver_data, file.path(dataPath, 'GSE54650_liver_data.qs'))
+qsave(metadata, file.path(dataDir, 'GSE54650_liver_metadata.qs'))
+qsave(y, file.path(dataDir, 'GSE54650_liver_data.qs'))
 
-fit = getModelFit(y = GSE54650_liver_data, metadata = GSE54650_liver_metadata)
+fit = getModelFit(y, metadata)
 fit = getPosteriorFit(fit)
 
 rhyStats = getRhythmStats(fit)
-qsave(rhyStats, file = 'data/GSE54650_rhy_stats.qs')
+qsave(rhyStats, file.path(dataDir, 'GSE54650_liver_rhy_stats.qs'))

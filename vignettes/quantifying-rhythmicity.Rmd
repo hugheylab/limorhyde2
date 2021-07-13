@@ -1,5 +1,5 @@
 ---
-title: "Quantifying rhythmicity with LimoRhyde2"
+title: "Quantifying rhythmicity with limorhyde2"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{quantifying-rhythmicity}
@@ -11,123 +11,96 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  rmarkdown.html_vignette.check_title = FALSE
+  rmarkdown.html_vignette.check_title = FALSE,
+  message = FALSE,
+  fig.align = 'center',
+  fig.retina = 2
 )
 ```
 
 ## Introduction
 
-Here we show how to use LimoRhyde2 to quantify rhythmicity. The data are microarray samples of mouse liver tissues.
+Here we show how to use limorhyde2 to quantify rhythmicity in data from one condition. The data are based on mouse liver samples from the [circadian gene expression atlas in mammals](https://doi.org/10.1073/pnas.1408886111) ([GSE54650](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE54650)).
 
-## Setup
+## Load packages
 
-We begin by preparing the R environment.
+```{r load_packages}
+library('data.table')
+library('ggplot2')
+library('limorhyde2')
+library('qs')
 
-```{r setup}
-library(limorhyde2)
-library(data.table)
-library(ggplot2)
-library(qs)
-foreach::registerDoSEQ()
-
+doParallel::registerDoParallel()
 theme_set(theme_bw())
 ```
 
 ## Load the data
 
-Next, we load the sample data. The data consist of a gene-by-sample expression matrix and a data.table of sample metadata.
+The expression data are in a matrix with one row per gene and one column per sample. The metadata are in a table with one row per sample.
 
-```{r}
-exprData = qread(system.file('data', 'GSE54650_liver_data.qs', package = 'limorhyde2')) 
-metadata = qread(system.file('data', 'GSE54650_liver_metadata.qs', package = 'limorhyde2'))
+```{r load_data}
+y = qread(system.file('extdata', 'GSE54650_liver_data.qs', package = 'limorhyde2'))
+y[1:10, 1:6]
 
-#first 8 samples of expression data
-head(exprData[, 1:6])
-metadata
+metadata = qread(system.file('extdata', 'GSE54650_liver_metadata.qs', package = 'limorhyde2'))
+metadata[, .(sample, time)]
 ```
 
 ## Fit linear models
 
-The first step is to fit a series of linear models for each genomic feature using `limma`.  In addition to the response variable `y` and the `metadata`, `getModelFits` can take the name of the column containing the time at which samples were taken, the column containing different experimental conditions, and any other covariates that you would like to include as arguments.
+The first step is to fit a series of linear models for each genomic feature, in this case each gene, using [limma](https://doi.org/doi:10.18129/B9.bioc.limma). `getModelFit()` takes several arguments besides the expression data and metadata, but here we just use the defaults. For example, the data are from one condition, so we leave `condColname` as `NULL`. Also, the expression data are from microarrays and already log-transformed, so we leave `method` as `'trend'`.
 
-```{r, results = 'hide'}
-fit = getModelFit(y = exprData, metadata = metadata)
+```{r model_fit}
+fit = getModelFit(y, metadata)
 ```
 
-## Get a posterior fit
+## Get posterior fit
 
-Next, we moderate the coefficients using `getPosteriorFit`. We get the moderated coefficients by applying `mashr`, which by default adjusts the raw fits based on shared patterns between features, conditions, and other covariates, as well as the amount of noise in the data.
+The next step is obtain posterior estimates of the model coefficients using [multivariate adaptive shrinkage](https://doi.org/10.1038/s41588-018-0268-8) ([mashr](https://stephenslab.github.io/mashr/index.html)), which learns patterns in the data and accounts for noise in the original fits. The defaults for `getPosteriorFit()` should work well in most cases.
 
-```{r, results = 'hide'}
+```{r posterior_fit}
 fit = getPosteriorFit(fit)
 ```
 
 ## Get rhythmic statistics
 
-From the moderated model, we can get estimates of the rhythmic statistics for a select set of features using `getRhythmStats`. In a typical analysis, we use `getRhythmStats` to compute estimates from the posterior means of coefficients. To save time in this vignette, we load the rhythmic statistics for the example dataset from the package data.
+We can now use the posterior fits to compute rhythmic statistics, i.e. properties of the curve, for each gene. To save time in this vignette, the rhythmic statistics have been pre-calculated and stored as part of the package.
 
-```{r}
+```{r rhythm_stats}
 # rhyStats = getRhythmStats(fit)
-rhyStats = qread(system.file('data', 'GSE54650_rhy_stats.qs', package = 'limorhyde2'))
+rhyStats = qread(system.file('extdata', 'GSE54650_liver_rhy_stats.qs', package = 'limorhyde2'))
 rhyStats
 ```
 
-We can plot the distributions of some of the different rhythmic statistics to see how they vary across the entire dataset.
+We can plot the distributions of the statistics in various ways, such as peak-to-trough amplitude vs. peak phase.
 
-```{r, fig.align='center', fig.width=8, fig.asp=0.5625}
-#melting rhyStats for plot
-rhyStatsMelt = melt(rhyStats, id.vars = 'feature', variable.name = 'statistic')
-
-ggplot(data = rhyStatsMelt[!(statistic %in% c('peak_phase', 'trough_phase'))]) +
-  geom_density(aes(x = value)) +
-  facet_wrap(vars(statistic), scales = 'free')
-```
-
-We might also be interested in looking at patterns in peak-trough expression and peak phase, or between peak-trough expression and mean expression across all features.
-
-```{r, fig.align='center', fig.width=8, fig.asp=0.5625}
-ggplot(data = rhyStats) +
-  geom_point(aes(x = peak_phase, y = peak_trough_amp), alpha = 0.3) +
+```{r plot_stat_point, fig.width = 6, fig.height = 4}
+ggplot(rhyStats) +
+  geom_point(aes(x = peak_phase, y = peak_trough_amp), alpha = 0.1, size = 0.5) +
   xlab('Peak phase (h)') +
   ylab('Peak-to-trough amplitude (norm.)') +
   scale_x_continuous(breaks = seq(0, 24, by = 4))
-
-ggplot(data = rhyStats) +
-  geom_point(aes(x = mean_value, y = peak_trough_amp), alpha = 0.3) +
-  xlab('Mean expression (norm.)') +
-  ylab('Peak-to-trough amplitude (norm.)') +
-  scale_x_continuous(breaks = seq(0, 24, by = 4))
-
 ```
 
-## Estimate fitted values 
+## Get observed and expected time-courses
 
-We can also obtain fitted values based on the moderated estimates using `getExpectMeas`. These fitted values represent the expected expression level at each time point for each feature.
+We can use `getExpectedMeas()` to compute the expected measurements for one or more genes at one or more time-points, which correspond to the fitted curves. Here we plot the posterior fits and observed expression for three circadian clock genes. We use `mergeMeasMeta()` to combine expression data and metadata, and then convert from gene id to gene symbol.
 
-```{r, results = 'hide'}
-clockGeneDt = data.table(id = as.character(c(18626, 12953, 12753)), sym = c('Per1', 'Cry2', 'Clock'))
+```{r timecourse, fig.width = 3.5, fig.height = 6}
+genes = data.table(id = c('18626', '12953', '12753'),
+                   symbol = c('Per1', 'Cry2', 'Clock'))
 
-fittedVals = getExpectedMeas(fit, times = seq(0, 24, by = 0.5), features = clockGeneDt$id)
-fittedVals = merge(fittedVals, clockGeneDt, by.x = 'feature', by.y = 'id')
-```
+measExp = getExpectedMeas(fit, times = seq(0, 24, by = 0.5), features = genes$id)
+measExp = merge(measExp, genes, by.x = 'feature', by.y = 'id')
 
-Below, we plot the fitted values from the moderated model for the clock genes Per1, Cry2, and Clock. The points show the actual values of the data, while the lines show the fitted values at a given time.
-
-```{r, fig.align='center', fig.width=8, fig.asp=0.35}
-#setting up data table with actual values for given time
-actualVals = exprData[clockGeneDt$id, ]
-actualVals = as.data.table(t(actualVals), keep.rownames = 'sample')
-actualVals = merge(actualVals, metadata, by = 'sample')
-actualVals = melt(actualVals, measure.vars = clockGeneDt$id, 
-                  variable.name = 'feature', value.name = 'value')
-actualVals = merge(actualVals, clockGeneDt, by.x = 'feature', by.y = 'id')
+measObs = mergeMeasMeta(y, metadata[, .(sample, time)], features = genes$id)
+measObs = merge(measObs, genes, by.x = 'feature', by.y = 'id')
 
 ggplot() +
-  facet_wrap(vars(sym), scales = 'free_y') +
-  geom_line(data = fittedVals, aes(x = time, y = value)) +
-  geom_point(data = actualVals, aes(x = time %% 24, y = value), color = 'blue', shape = 1) +
-  ylab('Expression (norm.)') +
-  xlab('Circadian time (h)') +
+  facet_wrap(vars(symbol), scales = 'free_y', ncol = 1) +
+  geom_line(data = measExp, aes(x = time, y = value)) +
+  geom_point(data = measObs, aes(x = time %% 24, y = meas),
+             color = 'blue', shape = 21) +
+  labs(x = 'Circadian time (h)', y = 'Expression (norm.)') +
   scale_x_continuous(breaks = seq(0, 24, by = 4))
-
 ```
