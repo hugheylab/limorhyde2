@@ -1,3 +1,15 @@
+# x = readRDS('tests/testthat/GSE34018_expression_data.rds')
+# metadata = data.table::fread('tests/testthat/GSE34018_sample_metadata.csv')
+#
+# m = rbind(metadata, metadata[seq(1, .N, 2)])
+# m[(.N / 3 * 2 + 1):.N, cond := 'synthetic']
+# y = x[seq(1, nrow(x), 200), m$sample]
+#
+# qs::qsave(y, 'tests/testthat/GSE34018_test_data.qs')
+# data.table::fwrite(m, 'tests/testthat/GSE34018_test_metadata.csv')
+
+########################################
+
 foreach::registerDoSEQ()
 m = data.table::fread('GSE34018_test_metadata.csv')
 
@@ -5,7 +17,8 @@ timeColname = 'time_test'
 data.table::setnames(m, 'time', timeColname)
 
 condColname = 'cond'
-conds = data.table(lab = c('wild-type', 'knockout'), lev = c('wt', 'ko'))
+conds = data.table(lab = c('wild-type', 'knockout', 'synthetic'),
+                   lev = c('wt', 'ko', 'syn'))
 set(m, j = condColname, value = factor(m[[condColname]], conds$lab, conds$lev))
 
 m[, batch := rep(c('a', 'b'), length.out = .N)]
@@ -51,15 +64,23 @@ test_that('getModelFit', {
 
 
 test_that('getPosteriorFit', {
-  id = 2
-  fitObs = qs::qread(sprintf('model_fit_%d.qs', id))
-  fitObs = getPosteriorFit(fitObs)
+  id = 1
+  fit = qs::qread(sprintf('model_fit_%d.qs', id))
+  fitObs = getPosteriorFit(fit)
   # qs::qsave(fitObs, sprintf('posterior_fit_%d.qs', id))
   fitExp = qs::qread(sprintf('posterior_fit_%d.qs', id))
 
   expect_equal(fitObs, fitExp)
   expect_error(getPosteriorFit(fitObs))
-  expect_equal(getPosteriorFit(fitObs, overwrite = TRUE), fitExp)
+  # expect_equal(getPosteriorFit(fitObs, overwrite = TRUE), fitExp)
+
+  # id = 1
+  # fit = qs::qread(sprintf('model_fit_%d.qs', id))
+  # fitObs = getPosteriorFit(fit, covMethod = 'canonical')
+  # # qs::qsave(fitObs, sprintf('posterior_fit_canon_%d.qs', id))
+  # fitExp = qs::qread(sprintf('posterior_fit_canon_%d.qs', id))
+  #
+  # expect_equal(fitObs, fitExp)
 })
 
 
@@ -94,11 +115,25 @@ test_that('getRhythmStats', {
 
 test_that('getDiffRhythmStats', {
   id = 2
+  fit = qs::qread(sprintf('posterior_fit_%d.qs', id))
+  rhyStats = qs::qread(sprintf('rhy_stats_post_%d.qs', id))
+  statsObs = getDiffRhythmStats(fit, rhyStats, conds$lev[1:2])
+  # qs::qsave(statsObs, sprintf('diff_rhy_stats_post_%d.qs', id))
+  statsExp = qs::qread(sprintf('diff_rhy_stats_post_%d.qs', id))
+
+  expect_equal(statsObs, statsExp)
+
   fit = qs::qread(sprintf('posterior_samples_%d.qs', id))
   rhyStats = qs::qread(sprintf('rhy_stats_samps_%d.qs', id))
-  statsObs = getDiffRhythmStats(fit, rhyStats, conds$lev)
-  # qs::qsave(statsObs, sprintf('diff_rhy_stats_samps_%d.qs', id))
-  statsExp = qs::qread(sprintf('diff_rhy_stats_samps_%d.qs', id))
+  statsObs = getDiffRhythmStats(fit, rhyStats, conds$lev[1:2])
+  # qs::qsave(statsObs, sprintf('diff_rhy_stats_samps12_%d.qs', id))
+  statsExp = qs::qread(sprintf('diff_rhy_stats_samps12_%d.qs', id))
+
+  expect_equal(statsObs, statsExp)
+
+  statsObs = getDiffRhythmStats(fit, rhyStats, conds$lev[3:2])
+  # qs::qsave(statsObs, sprintf('diff_rhy_stats_samps32_%d.qs', id))
+  statsExp = qs::qread(sprintf('diff_rhy_stats_samps32_%d.qs', id))
 
   expect_equal(statsObs, statsExp)
 
@@ -106,7 +141,7 @@ test_that('getDiffRhythmStats', {
   fit = qs::qread(sprintf('model_fit_%d.qs', id))
   rhyStats = qs::qread(sprintf('rhy_stats_raw_%d.qs', id))
 
-  expect_error(getDiffRhythmStats(fit, rhyStats, conds$lev))
+  expect_error(getDiffRhythmStats(fit, rhyStats, conds$lev[1:2]))
 })
 
 
@@ -143,7 +178,8 @@ test_that('getPosteriorSamples', {
 
   expect_equal(fitObs, fitExp)
   expect_error(getPosteriorSamples(fitObs))
-  expect_equal(getPosteriorFit(fitObs, overwrite = TRUE), fitExp)
+  # expect_equal(getPosteriorSamples(
+  #   fitObs, nPosteriorSamples = 10, overwrite = TRUE), fitExp)
 })
 
 
@@ -171,7 +207,7 @@ test_that('getStatsIntervals', {
 
   expect_equal(intsObs, intsExp)
 
-  diffRhyStats = qs::qread(sprintf('diff_rhy_stats_samps_%d.qs', id))
+  diffRhyStats = qs::qread(sprintf('diff_rhy_stats_samps12_%d.qs', id))
   intsObs = getStatsIntervals(diffRhyStats)
   # qs::qsave(intsObs, sprintf('stats_ints_diff_%d.qs', id))
   intsExp = qs::qread(sprintf('stats_ints_diff_%d.qs', id))

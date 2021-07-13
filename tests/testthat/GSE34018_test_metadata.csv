@@ -23,3 +23,15 @@ Reverb alpha/beta DKO liver_ZT16_rep 1,GSM840512,knockout,16
 Reverb alpha/beta DKO liver_ZT16_rep 2,GSM840513,knockout,16
 Reverb alpha/beta DKO liver_ZT20_rep 1,GSM840514,knockout,20
 Reverb alpha/beta DKO liver_ZT20_rep 2,GSM840515,knockout,20
+wild-type liver_ZT0_rep 1,GSM840516,synthetic,0
+wild-type liver_ZT4_rep 1,GSM840518,synthetic,4
+wild-type liver_ZT8_rep 1,GSM840520,synthetic,8
+wild-type liver_ZT12_rep 1,GSM840522,synthetic,12
+wild-type liver_ZT16_rep 1,GSM840524,synthetic,16
+wild-type liver_ZT20_rep 1,GSM840526,synthetic,20
+Reverb alpha/beta DKO liver_ZT0_rep 1,GSM840504,synthetic,0
+Reverb alpha/beta DKO liver_ZT4_rep 1,GSM840506,synthetic,4
+Reverb alpha/beta DKO liver_ZT8_rep 1,GSM840508,synthetic,8
+Reverb alpha/beta DKO liver_ZT12_rep 1,GSM840510,synthetic,12
+Reverb alpha/beta DKO liver_ZT16_rep 1,GSM840512,synthetic,16
+Reverb alpha/beta DKO liver_ZT20_rep 1,GSM840514,synthetic,20
