@@ -215,3 +215,25 @@ test_that('getStatsIntervals', {
   expect_equal(intsObs, intsExp)
   expect_error(getStatsIntervals(diffRhyStats, mass = 90))
 })
+
+
+test_that('mergeMeasMeta', {
+  nSamps = 2L
+  sampleColname = 'sample_z'
+
+  metadata = data.table(sample = paste0('sample_', 1:nSamps),
+                        time = seq(0, 20, length.out = nSamps))
+  data.table::setnames(metadata, 'sample', sampleColname)
+
+  y = matrix(1:8, ncol = nSamps)
+  colnames(y) = metadata[[sampleColname]]
+  rownames(y) = paste0('feature_', 1:nrow(y))
+
+  dObs = mergeMeasMeta(
+    y, metadata, features = rownames(y)[1L], sampleColname = sampleColname)
+
+  dExp = data.table(
+    metadata, feature = rownames(y)[1L], meas = y[1L, ], key = sampleColname)
+
+  expect_equal(dObs, dExp)
+})

@@ -138,9 +138,9 @@ mergeMeasMeta = function(y, metadata, features = NULL, sampleColname = 'sample')
   assertDisjunct(sampleColname, c('feature', 'meas'))
   assertChoice(sampleColname, colnames(metadata))
 
-  if (is.null(features)) features = 1:nrow(y)
+  if (!is.null(features)) y = y[features, , drop = FALSE]
 
-  d = data.table(y[features, , drop = FALSE], keep.rownames = 'feature')
+  d = data.table(y, keep.rownames = 'feature')
   d = data.table::melt(
     d, id.vars = 'feature', variable.name = sampleColname, value.name = 'meas',
     variable.factor = FALSE)
