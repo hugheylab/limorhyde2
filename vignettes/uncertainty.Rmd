@@ -39,7 +39,7 @@ theme_set(theme_bw())
 
 ## Load the data
 
-The expression data are in a matrix with one row per gene and one column per sample. The metadata are in a table with one row per sample. To save time and space, the expression data include only 1000 genes.
+The expression data are in a matrix with one row per gene and one column per sample. The metadata are in a table with one row per sample. To save time and space, the expression data include only 500 genes.
 
 ```{r load_data}
 y = qread(system.file('extdata', 'GSE34018_data.qs', package = 'limorhyde2'))
