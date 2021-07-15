@@ -129,7 +129,7 @@ getExpectedMeasIntervals = function(
 #'
 #' @return A `data.table` with one row for each sample-feature pair.
 #'
-#' @seealso getExpectedMeas()
+#' @seealso [getExpectedMeas()]
 #'
 #' @export
 mergeMeasMeta = function(y, metadata, features = NULL, sampleColname = 'sample') {

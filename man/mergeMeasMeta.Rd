@@ -27,5 +27,5 @@ A \code{data.table} with one row for each sample-feature pair.
 This function is useful for plotting time-courses for individual features.
 }
 \seealso{
-getExpectedMeas()
+\code{\link[=getExpectedMeas]{getExpectedMeas()}}
 }

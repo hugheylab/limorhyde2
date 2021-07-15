@@ -1,7 +1,7 @@
 Package: limorhyde2
 Type: Package
 Title: Quantify rhythmicity and differential rhythmicity in genome-scale data
-Version: 0.0.0.9017
+Version: 0.0.0.9018
 Authors@R: as.person(c(
   "Jake Hughey <jakejhughey@gmail.com> [aut, cre]",
   "Dora Obodo <dora.obodo@vanderbilt.edu> [aut]",
@@ -29,10 +29,12 @@ Imports:
   pbs (>= 1.1),
   zeallot (>= 0.1.0)
 Suggests:
-    knitr,
-    doParallel (>= 1.0.15),
-    qs (>= 0.24.1),
-    testthat (>= 3.0.0),
-    rmarkdown
+  cowplot (>= 1.1.1),
+  knitr,
+  doParallel (>= 1.0.15),
+  ggplot2 (>= 3.3.5),
+  qs (>= 0.24.1),
+  rmarkdown,
+  testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: knitr

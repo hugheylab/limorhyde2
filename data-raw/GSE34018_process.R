@@ -1,27 +1,34 @@
-library(data.table)
-library(qs)
-library(limorhyde2)
+library('data.table')
+library('limorhyde2')
+library('qs')
 
-rawDataPath = file.path('.', 'data-raw')
-dataPath = file.path('.', 'data')
+doParallel::registerDoParallel()
+rawDataDir = 'data-raw'
+dataDir = file.path('inst', 'extdata')
+nGenes = 1000L
 
-d = readRDS(file.path(rawDataPath, 'GSE34018_expression_data.rds'))
-md = fread(file.path(rawDataPath, 'GSE34018_sample_metadata.csv'))
-md[, cond := factor(cond, levels = c('wild-type', 'knockout'))]
+metadata = fread(file.path(rawDataDir, 'GSE34018_sample_metadata.csv'))
+y = qread(file.path(rawDataDir, 'GSE34018_expression_data.qs'))
 
-qsave(md, file.path(dataPath, 'GSE34018_metadata.qs'))
-qsave(d, file.path(dataPath, 'GSE34018_data.qs'))
+metadata[, cond := factor(cond, c('wild-type', 'knockout'))]
+metadata = metadata[, .(sample, cond, time)]
 
-fit = getModelFit(y = d, metadata = md, condColname = 'cond')
-fit = getPosteriorFit(fit)
+idx = c(which(rownames(y) %in% c('13170', '12686', '26897')),
+        round(seq(1, nrow(y), length.out = nGenes - 3)))
+y = y[idx, metadata$sample]
 
-rhyStats = getRhythmStats(fit)
-qsave(rhyStats, file = 'data/GSE34018_rhystats.qs')
+qsave(metadata, file.path(dataDir, 'GSE34018_metadata.qs'))
+qsave(y, file.path(dataDir, 'GSE34018_data.qs'))
 
-diffRhyStats = getDiffRhythmStats(fit, rhyStats, levels(md$cond))
-qsave(diffRhyStats, file = 'data/GSE34018_diff_rhy_stats.qs')
-
-#### posterior sampling
-
-fitPs = getPosteriorSamples(fit, nPosteriorSamples = 200)
-qsave(fitPs, file = 'data/GSE34018_fit_ps.qs')
+# fit = getModelFit(y, metadata, nKnots = 3L, condColname = 'cond')
+# fit = getPosteriorFit(fit)
+# qsave(fit, file.path(dataDir, 'GSE34018_fit.qs'))
+#
+# rhyStats = getRhythmStats(fit)
+# qsave(rhyStats, file.path(dataDir, 'GSE34018_rhy_stats.qs'))
+#
+# diffRhyStats = getDiffRhythmStats(fit, rhyStats, levels(metadata$cond))
+# qsave(diffRhyStats, file.path(dataDir, 'GSE34018_diff_rhy_stats.qs'))
+#
+# fit = getPosteriorSamples(fit, nPosteriorSamples = 50)
+# qsave(fit, file.path(dataDir, 'GSE34018_fit_ps.qs'))
