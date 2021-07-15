@@ -36,7 +36,7 @@ theme_set(theme_bw())
 
 ## Load the data
 
-The expression data are in a matrix with one row per gene and one column per sample. The metadata are in a table with one row per sample. To save time and space, the expression data include only 500 genes.
+The expression data are in a matrix with one row per gene and one column per sample. The metadata are in a table with one row per sample. To save time and space, the expression data include only a subset of genes.
 
 ```{r load_data}
 y = qread(system.file('extdata', 'GSE34018_data.qs', package = 'limorhyde2'))
@@ -61,7 +61,7 @@ Next, we use the posterior fits to compute rhythmic statistics for each gene in 
 
 ```{r rhythm_stats}
 rhyStats = getRhythmStats(fit)
-rhyStats
+print(rhyStats, nrows = 10L)
 ```
 
 ## Get differentially rhythmic statistics
@@ -70,13 +70,13 @@ We can now calculate the rhythmic differences for each gene between any two cond
 
 ```{r diff_rhythm_stats}
 diffRhyStats = getDiffRhythmStats(fit, rhyStats, condLevels = levels(metadata$cond))
-diffRhyStats
+print(diffRhyStats, nrows = 10L)
 ```
 
 We can examine the distributions of the statistics in various ways, such as ranking genes by difference in peak-to-trough amplitude (no p-values necessary) or plotting difference in peak-to-trough amplitude vs. difference in mean expression.
 
 ```{r plot_stats, fig.width = 6, fig.height = 4}
-diffRhyStats[order(diff_peak_trough_amp)]
+print(diffRhyStats[order(diff_peak_trough_amp)], nrows = 10L)
 
 ggplot(diffRhyStats) +
   geom_point(aes(x = diff_mean_value, y = diff_peak_trough_amp), alpha = 0.2) +

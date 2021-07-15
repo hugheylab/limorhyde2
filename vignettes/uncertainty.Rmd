@@ -39,7 +39,7 @@ theme_set(theme_bw())
 
 ## Load the data
 
-The expression data are in a matrix with one row per gene and one column per sample. The metadata are in a table with one row per sample. To save time and space, the expression data include only 500 genes.
+The expression data are in a matrix with one row per gene and one column per sample. The metadata are in a table with one row per sample. To save time and space, the expression data include only a subset of genes.
 
 ```{r load_data}
 y = qread(system.file('extdata', 'GSE34018_data.qs', package = 'limorhyde2'))
@@ -85,7 +85,7 @@ Given the expected measurements from the posterior samples, we can compute the l
 
 ```{r meas_ints}
 measFitInts = getExpectedMeasIntervals(measFitSamps)
-measFitInts
+print(measFitInts, nrows = 10L)
 ```
 
 It's always a good idea to also calculate the posterior mean fitted curves.
@@ -133,7 +133,7 @@ We can also use the posterior samples to quantify uncertainty in the statistics,
 rhyStatsSamps = getRhythmStats(fit, features = genes$id, fitType = 'posterior_samples')
 diffRhyStatsSamps = getDiffRhythmStats(fit, rhyStatsSamps, levels(metadata$cond))
 diffRhyStatsSamps[genes, symbol := i.symbol, on = .(feature = id)]
-diffRhyStatsSamps
+print(diffRhyStatsSamps, nrows = 10L)
 ```
 
 In the plots below, each point represents a posterior sample.
@@ -158,8 +158,8 @@ Finally, we can compute credible intervals for the rhythmic and differentially r
 
 ```{r stats_intervals}
 rhyStatsInts = getStatsIntervals(rhyStatsSamps)
-rhyStatsInts
+print(rhyStatsInts, nrows = 10L)
 
 diffRhyStatsInts = getStatsIntervals(diffRhyStatsSamps)
-diffRhyStatsInts
+print(diffRhyStatsInts, nrows = 10L)
 ```

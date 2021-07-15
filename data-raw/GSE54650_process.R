@@ -5,7 +5,7 @@ library('qs')
 doParallel::registerDoParallel()
 rawDataDir = 'data-raw'
 dataDir = file.path('inst', 'extdata')
-nGenes = 500L
+nGenes = 100L
 
 metadata = fread(file.path(rawDataDir, 'GSE54650_sample_metadata.csv'))
 y = qread(file.path(rawDataDir, 'GSE54650_expression_data.qs'))

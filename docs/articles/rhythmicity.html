@@ -118,7 +118,7 @@
 <div id="load-the-data" class="section level2">
 <h2 class="hasAnchor">
 <a href="#load-the-data" class="anchor"></a>Load the data</h2>
-<p>The expression data are in a matrix with one row per gene and one column per sample. The metadata are in a table with one row per sample. To save time and space, the expression data include only 500 genes.</p>
+<p>The expression data are in a matrix with one row per gene and one column per sample. The metadata are in a table with one row per sample. To save time and space, the expression data include only a subset of genes.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">y</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/qs/man/qread.html">qread</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span><span class="st">'extdata'</span>, <span class="st">'GSE54650_liver_data.qs'</span>, package <span class="op">=</span> <span class="st">'limorhyde2'</span><span class="op">)</span><span class="op">)</span>
 <span class="va">y</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>
@@ -127,7 +127,7 @@
 <span class="co">#&gt; 13170       7.871989   7.281691   6.946495   6.266409   7.150140</span>
 <span class="co">#&gt; 13869       6.851685   7.406234   7.781294   7.924764   8.089538</span>
 <span class="co">#&gt; 100009600   5.055931   5.199767   5.121511   5.155912   5.219873</span>
-<span class="co">#&gt; 100038494   5.878479   5.748674   5.701566   5.761668   5.919767</span>
+<span class="co">#&gt; 100042372   7.497568   7.537684   7.486390   7.502488   7.771348</span>
 
 <span class="va">metadata</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/qs/man/qread.html">qread</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span><span class="st">'extdata'</span>, <span class="st">'GSE54650_liver_metadata.qs'</span>, package <span class="op">=</span> <span class="st">'limorhyde2'</span><span class="op">)</span><span class="op">)</span>
 <span class="va">metadata</span>
@@ -171,12 +171,12 @@
 <p>The next step is obtain posterior estimates of the model coefficients using <a href="https://doi.org/10.1038/s41588-018-0268-8">multivariate adaptive shrinkage</a> (<a href="https://stephenslab.github.io/mashr/index.html">mashr</a>), which learns patterns in the data and accounts for noise in the original fits.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/getPosteriorFit.html">getPosteriorFit</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>
-<span class="co">#&gt;  - Computing 500 x 116 likelihood matrix.</span>
-<span class="co">#&gt;  - Likelihood calculations took 0.13 seconds.</span>
-<span class="co">#&gt;  - Fitting model with 116 mixture components.</span>
-<span class="co">#&gt;  - Model fitting took 0.09 seconds.</span>
+<span class="co">#&gt;  - Computing 100 x 121 likelihood matrix.</span>
+<span class="co">#&gt;  - Likelihood calculations took 0.04 seconds.</span>
+<span class="co">#&gt;  - Fitting model with 121 mixture components.</span>
+<span class="co">#&gt;  - Model fitting took 0.03 seconds.</span>
 <span class="co">#&gt;  - Computing posterior matrices.</span>
-<span class="co">#&gt;  - Computation allocated took 0.04 seconds.</span></code></pre></div>
+<span class="co">#&gt;  - Computation allocated took 0.01 seconds.</span></code></pre></div>
 </div>
 <div id="get-rhythmic-statistics" class="section level2">
 <h2 class="hasAnchor">
@@ -186,31 +186,31 @@
 <code class="sourceCode R"><span class="va">rhyStats</span> <span class="op">=</span> <span class="fu"><a href="../reference/getRhythmStats.html">getRhythmStats</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></code></pre></div>
 <p>We can examine the distributions of the statistics in various ways, such as ranking genes by peak-to-trough amplitude (no p-values necessary) or plotting peak-to-trough amplitude vs. peak phase.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">rhyStats</span><span class="op">[</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/setorder.html">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">peak_trough_amp</span><span class="op">)</span><span class="op">]</span>
-<span class="co">#&gt;        feature peak_phase peak_value trough_phase trough_value peak_trough_amp</span>
-<span class="co">#&gt;   1:     13170   8.158712  10.395449    23.096337     6.695556    3.6998935736</span>
-<span class="co">#&gt;   2:     13088  17.447509  10.462058     9.471564     8.627569    1.8344888276</span>
-<span class="co">#&gt;   3:     13869   8.660258   8.565830    18.074882     7.238139    1.3276905565</span>
-<span class="co">#&gt;   4:     12368   6.860766   9.802556    16.230141     8.746876    1.0556797991</span>
-<span class="co">#&gt;   5:     71751  17.740993   8.637957     8.464237     7.703732    0.9342246926</span>
-<span class="co">#&gt;  ---                                                                          </span>
-<span class="co">#&gt; 496:    239759  14.278452   4.778351     6.075967     4.775965    0.0023859461</span>
-<span class="co">#&gt; 497:     71263  15.797454   5.744102     7.594961     5.741746    0.0023561034</span>
-<span class="co">#&gt; 498:    545047  15.493667   4.293713    22.481025     4.292694    0.0010193118</span>
-<span class="co">#&gt; 499:     13034  12.151906   5.340491    19.139249     5.339489    0.0010020809</span>
-<span class="co">#&gt; 500: 115489204  17.316453   3.836508     8.506326     3.835747    0.0007613854</span>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">rhyStats</span><span class="op">[</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/setorder.html">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">peak_trough_amp</span><span class="op">)</span><span class="op">]</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
+<span class="co">#&gt;      feature peak_phase peak_value trough_phase trough_value peak_trough_amp</span>
+<span class="co">#&gt;   1:   13170   8.170707  10.403455    23.098021     6.650460     3.752995586</span>
+<span class="co">#&gt;   2:   13088  17.371840  10.412731     9.486070     8.643263     1.769468014</span>
+<span class="co">#&gt;   3:   13869   8.533100   8.576158    17.957528     7.189246     1.386911808</span>
+<span class="co">#&gt;   4:   17988   2.372999   8.821592    10.767925     7.992012     0.829580649</span>
+<span class="co">#&gt;   5:  228775   5.350470   7.055462    21.812359     6.241955     0.813506845</span>
+<span class="co">#&gt;  ---                                                                        </span>
+<span class="co">#&gt;  96:   11936  10.936695   5.920143     4.556854     5.913565     0.006578039</span>
+<span class="co">#&gt;  97:  384185  14.886061   4.783283    21.873340     4.777192     0.006091303</span>
+<span class="co">#&gt;  98:  258976  10.936628   5.030834    17.620287     5.025746     0.005088350</span>
+<span class="co">#&gt;  99:  269593   6.379766   7.980898    21.265848     7.976391     0.004507119</span>
+<span class="co">#&gt; 100:  723939   7.898734   3.908435    23.696203     3.908292     0.000143048</span>
 <span class="co">#&gt;           rms_amp mean_value</span>
-<span class="co">#&gt;   1: 1.2270615256   8.478881</span>
-<span class="co">#&gt;   2: 0.5989713278   9.761782</span>
-<span class="co">#&gt;   3: 0.4494250346   7.853253</span>
-<span class="co">#&gt;   4: 0.3554283652   9.218667</span>
-<span class="co">#&gt;   5: 0.3406602900   8.312151</span>
+<span class="co">#&gt;   1: 1.245311e+00   8.478881</span>
+<span class="co">#&gt;   2: 5.832602e-01   9.761782</span>
+<span class="co">#&gt;   3: 4.670219e-01   7.853253</span>
+<span class="co">#&gt;   4: 2.718335e-01   8.343387</span>
+<span class="co">#&gt;   5: 2.510419e-01   6.575353</span>
 <span class="co">#&gt;  ---                        </span>
-<span class="co">#&gt; 496: 0.0008073371   4.776804</span>
-<span class="co">#&gt; 497: 0.0007843012   5.743227</span>
-<span class="co">#&gt; 498: 0.0003125350   4.293317</span>
-<span class="co">#&gt; 499: 0.0002839809   5.339985</span>
-<span class="co">#&gt; 500: 0.0002477913   3.836145</span>
+<span class="co">#&gt;  96: 1.908803e-03   5.917020</span>
+<span class="co">#&gt;  97: 1.933979e-03   4.781062</span>
+<span class="co">#&gt;  98: 1.554801e-03   5.027786</span>
+<span class="co">#&gt;  99: 1.514756e-03   7.978485</span>
+<span class="co">#&gt; 100: 4.541182e-05   3.908352</span>
 
 <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">rhyStats</span><span class="op">)</span> <span class="op">+</span>
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">peak_phase</span>, y <span class="op">=</span> <span class="va">peak_trough_amp</span><span class="op">)</span>, alpha <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span> <span class="op">+</span>
@@ -231,17 +231,17 @@
 <span class="va">measFit</span><span class="op">[</span><span class="va">genes</span>, <span class="va">symbol</span> <span class="op">:=</span> <span class="va">i.symbol</span>, on <span class="op">=</span> <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html">.</a></span><span class="op">(</span>feature <span class="op">=</span> <span class="va">id</span><span class="op">)</span><span class="op">]</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">measFit</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
 <span class="co">#&gt;      time feature     value  symbol</span>
-<span class="co">#&gt;   1:  0.0   13088 10.133366 Cyp2b10</span>
-<span class="co">#&gt;   2:  0.0   13170  6.771163     Dbp</span>
-<span class="co">#&gt;   3:  0.0   13869  7.633157   Erbb4</span>
-<span class="co">#&gt;   4:  0.5   13088 10.158300 Cyp2b10</span>
-<span class="co">#&gt;   5:  0.5   13170  6.883170     Dbp</span>
+<span class="co">#&gt;   1:  0.0   13088 10.142704 Cyp2b10</span>
+<span class="co">#&gt;   2:  0.0   13170  6.727867     Dbp</span>
+<span class="co">#&gt;   3:  0.0   13869  7.670906   Erbb4</span>
+<span class="co">#&gt;   4:  0.5   13088 10.175814 Cyp2b10</span>
+<span class="co">#&gt;   5:  0.5   13170  6.842549     Dbp</span>
 <span class="co">#&gt;  ---                               </span>
-<span class="co">#&gt; 143: 23.5   13170  6.710107     Dbp</span>
-<span class="co">#&gt; 144: 23.5   13869  7.594123   Erbb4</span>
-<span class="co">#&gt; 145: 24.0   13088 10.133366 Cyp2b10</span>
-<span class="co">#&gt; 146: 24.0   13170  6.771163     Dbp</span>
-<span class="co">#&gt; 147: 24.0   13869  7.633157   Erbb4</span></code></pre></div>
+<span class="co">#&gt; 143: 23.5   13170  6.665309     Dbp</span>
+<span class="co">#&gt; 144: 23.5   13869  7.625849   Erbb4</span>
+<span class="co">#&gt; 145: 24.0   13088 10.142704 Cyp2b10</span>
+<span class="co">#&gt; 146: 24.0   13170  6.727867     Dbp</span>
+<span class="co">#&gt; 147: 24.0   13869  7.670906   Erbb4</span></code></pre></div>
 <p>Next we combine the observed expression data and metadata. The curves show how <code>limorhyde2</code> is able to fit non-sinusoidal rhythms.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">measObs</span> <span class="op">=</span> <span class="fu"><a href="../reference/mergeMeasMeta.html">mergeMeasMeta</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">metadata</span>, features <span class="op">=</span> <span class="va">genes</span><span class="op">$</span><span class="va">id</span><span class="op">)</span>
