@@ -56,8 +56,8 @@
 #'
 #' @export
 getModelFit = function(
-  y, metadata, period = 24, nKnots = 4, timeColname = 'time',
-  condColname = NULL, covarColnames = NULL, nShifts = 3,
+  y, metadata, period = 24, nKnots = 4L, timeColname = 'time',
+  condColname = NULL, covarColnames = NULL, nShifts = 3L,
   method = c('trend', 'voom'), lmFitArgs = list(),
   eBayesArgs = if (method == 'trend') list(trend = TRUE) else list(),
   keepLmFits = FALSE) {

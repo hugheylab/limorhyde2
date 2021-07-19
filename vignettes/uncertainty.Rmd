@@ -1,0 +1,165 @@
+---
+title: "Quantifying uncertainty in (differential) rhythmicity"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Quantifying uncertainty in (differential) rhythmicity}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE,
+  fig.align = 'center',
+  fig.retina = 2)
+
+options(cores = 2L)
+```
+
+## Introduction
+
+Here we show how to use `limorhyde2` to quantify uncertainty in rhythmicity and differential rhythmicity. This step is not essential and can be computationally expensive, but can provide additional information. Since `limorhyde2` is a Bayesian approach and focuses on effect sizes rather than statistical significance, a key concept is the [credible interval](https://en.wikipedia.org/wiki/Credible_interval).
+
+The data are based on liver samples from wild-type and Rev-erb$\alpha/\beta$ double-knockout mice ([Cho et al. 2012](https://doi.org/10.1038/nature11048) and [GSE34018](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE34018)).
+
+## Load packages
+
+```{r load_packages}
+library('cowplot')
+library('data.table')
+library('ggplot2')
+library('limorhyde2')
+library('qs')
+
+doParallel::registerDoParallel()
+theme_set(theme_bw())
+```
+
+## Load the data
+
+The expression data are in a matrix with one row per gene and one column per sample. The metadata are in a table with one row per sample. To save time and space, the expression data include only a subset of genes.
+
+```{r load_data}
+y = qread(system.file('extdata', 'GSE34018_data.qs', package = 'limorhyde2'))
+y[1:5, 1:5]
+
+metadata = qread(system.file('extdata', 'GSE34018_metadata.qs', package = 'limorhyde2'))
+metadata
+```
+
+## Fit linear models and compute posterior fits
+
+Because the samples were only acquired every four hours, we somewhat arbitrarily use three knots instead of the default four. We specify `condColname` so `getModelFit()` knows to fit a differential rhythmicity model.
+
+```{r fit}
+fit = getModelFit(y, metadata, nKnots = 3L, condColname = 'cond')
+fit = getPosteriorFit(fit)
+```
+
+## Draw samples from the posterior fits
+
+The posterior fits consist of not just a single set of model coefficients (the posterior means), but distributions of model coefficients. Sampling from these posterior distributions is the first step to quantifying uncertainty in the fits. Here we generate 50 posterior samples, although an actual analysis would require more.
+
+```{r post_samps}
+fit = getPosteriorSamples(fit, nPosteriorSamples = 50L)
+```
+
+## Get fitted time-courses
+
+We can use the posterior samples to quantify uncertainty in the expected measurements, i.e., the fitted curves, by specifying the `fitType` argument. Here we focus on three genes.
+
+```{r meas_samps}
+genes = data.table(id = c('13170', '12686', '26897'),
+                   symbol = c('Dbp', 'Elovl3', 'Acot1'))
+times = seq(0, 24, 0.5)
+
+measFitSamps = getExpectedMeas(
+  fit, times = times, fitType = 'posterior_samples', features = genes$id)
+measFitSamps[genes, symbol := i.symbol, on = .(feature = id)]
+print(measFitSamps, nrows = 10L)
+```
+
+Given the expected measurements from the posterior samples, we can compute the lower and upper bounds of the credible interval for each combination of feature, condition, and time-point. By default, `getExpectedMeasIntervals()` calculates the 90% equal-tailed interval.
+
+```{r meas_ints}
+measFitInts = getExpectedMeasIntervals(measFitSamps)
+print(measFitInts, nrows = 10L)
+```
+
+It's always a good idea to also calculate the posterior mean fitted curves.
+
+```{r meas_mean}
+measFitMean = getExpectedMeas(fit, times = times, features = genes$id)
+measFitMean[genes, symbol := i.symbol, on = .(feature = id)]
+```
+
+Now we can plot the results. In the first row, each curve corresponds to a posterior sample. In the second row, the ribbons indicate the credible intervals.
+
+```{r plot_timecourse_samps, fig.width = 7, fig.height = 5}
+timeBreaks = seq(0, 24, 4)
+pal = 'Dark2'
+
+p1 = ggplot(measFitSamps) +
+  facet_wrap(vars(symbol), scales = 'fixed', nrow = 1) +
+  geom_line(aes(x = time, y = value, color = cond,
+                group = interaction(cond, posterior_sample)), alpha = 0.2) +
+  labs(x = 'Circadian time (h)', y = 'Expression (norm.)', color = 'Condition') +
+  scale_x_continuous(breaks = timeBreaks) +
+  scale_color_brewer(palette = pal) +
+  theme(legend.position = 'none')
+
+p2 = ggplot() +
+  facet_wrap(vars(symbol), scales = 'fixed', nrow = 1) +
+  geom_ribbon(aes(x = time, ymin = lower, ymax = upper, fill = cond),
+              alpha = 0.3, data = measFitInts) +
+  geom_line(aes(x = time, y = value, color = cond), data = measFitMean) +
+  labs(x = 'Circadian time (h)', y = 'Expression (norm.)', color = 'Condition',
+       fill = 'Condition') +
+  scale_x_continuous(breaks = timeBreaks) +
+  scale_fill_brewer(palette = pal) +
+  scale_color_brewer(palette = pal) +
+  theme(legend.position = 'bottom')
+
+plot_grid(p1, p2, ncol = 1, rel_heights = c(1, 1.25))
+```
+
+## Get rhythmic and differentially rhythmic statistics
+
+We can also use the posterior samples to quantify uncertainty in the statistics, again by specifying the `fitType` argument.
+
+```{r stats_samps}
+rhyStatsSamps = getRhythmStats(fit, features = genes$id, fitType = 'posterior_samples')
+diffRhyStatsSamps = getDiffRhythmStats(fit, rhyStatsSamps, levels(metadata$cond))
+diffRhyStatsSamps[genes, symbol := i.symbol, on = .(feature = id)]
+print(diffRhyStatsSamps, nrows = 10L)
+```
+
+In the plots below, each point represents a posterior sample.
+
+```{r plot_stats_samps, fig.width = 7, fig.height = 5}
+p1 = ggplot(diffRhyStatsSamps) +
+  facet_wrap(vars(symbol), nrow = 1) +
+  geom_point(aes(x = diff_peak_trough_amp, y = diff_mean_value), alpha = 0.2) +
+  labs(x = 'Difference in peak-to-trough amplitude (norm.)',
+       y = 'Difference in mean value (norm.)')
+
+p2 = ggplot(diffRhyStatsSamps) +
+  facet_wrap(vars(symbol), nrow = 1) +
+  geom_point(aes(x = diff_peak_trough_amp, y = diff_peak_phase), alpha = 0.2) +
+  labs(x = 'Difference in peak-to-trough amplitude (norm.)',
+       y = 'Difference in peak phase (h)')
+
+plot_grid(p1, p2, ncol = 1)
+```
+
+Finally, we can compute credible intervals for the rhythmic and differentially rhythmic statistics. Again, by default these are 90% equal-tailed intervals. Currently `getStatsIntervals()` does not calculate intervals for phase-based statistics, since phase and phase difference are circular quantities.
+
+```{r stats_intervals}
+rhyStatsInts = getStatsIntervals(rhyStatsSamps)
+print(rhyStatsInts, nrows = 10L)
+
+diffRhyStatsInts = getStatsIntervals(diffRhyStatsSamps)
+print(diffRhyStatsInts, nrows = 10L)
+```

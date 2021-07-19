@@ -4,7 +4,7 @@
 \alias{getPosteriorSamples}
 \title{Draw samples from posterior distributions of fitted models}
 \usage{
-getPosteriorSamples(fit, nPosteriorSamples = 200, overwrite = FALSE)
+getPosteriorSamples(fit, nPosteriorSamples = 200L, overwrite = FALSE)
 }
 \arguments{
 \item{fit}{A `limorhyde2' object containing posterior fits.}

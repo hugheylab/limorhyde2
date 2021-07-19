@@ -102,7 +102,7 @@ getPosteriorFit = function(
 #' @seealso [getPosteriorFit()], [getRhythmStats()], [getExpectedMeas()]
 #'
 #' @export
-getPosteriorSamples = function(fit, nPosteriorSamples = 200, overwrite = FALSE) {
+getPosteriorSamples = function(fit, nPosteriorSamples = 200L, overwrite = FALSE) {
 
   assertClass(fit, 'limorhyde2')
   assertNumber(nPosteriorSamples, lower = 10)

@@ -3,3 +3,8 @@
 .RData
 .Ruserdata
 *.DS_Store
+inst/doc
+data/*
+data-raw/*.rds
+data-raw/*.csv
+html/*

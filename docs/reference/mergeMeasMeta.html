@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Compute posterior fit for linear models for rhythmicity — getPosteriorFit • limorhyde2</title>
+<title>Merge measurements and metadata — mergeMeasMeta • limorhyde2</title>
 
 
 <!-- jquery -->
@@ -39,13 +39,8 @@
 
 
 
-<meta property="og:title" content="Compute posterior fit for linear models for rhythmicity — getPosteriorFit" />
-<meta property="og:description" content="This is the second step in an analysis using limorhyde2, the first is to
-fit linear models using getModelFit(). This function obtains posterior
-estimates of coefficients using multivariate adaptive shrinkage (mash), which
-learns patterns in the data and accounts for noise in the original fits. The
-defaults for arguments should work well in most cases, so only change them if
-you know what you're doing." />
+<meta property="og:title" content="Merge measurements and metadata — mergeMeasMeta" />
+<meta property="og:description" content="This function is useful for plotting time-courses for individual features." />
 
 
 
@@ -134,84 +129,49 @@ you know what you're doing." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Compute posterior fit for linear models for rhythmicity</h1>
-    <small class="dont-index">Source: <a href='https://github.com/hugheylab/limorhyde2/blob/master/R/get_posterior.R'><code>R/get_posterior.R</code></a></small>
-    <div class="hidden name"><code>getPosteriorFit.Rd</code></div>
+    <h1>Merge measurements and metadata</h1>
+    <small class="dont-index">Source: <a href='https://github.com/hugheylab/limorhyde2/blob/master/R/get_expected.R'><code>R/get_expected.R</code></a></small>
+    <div class="hidden name"><code>mergeMeasMeta.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This is the second step in an analysis using <code>limorhyde2</code>, the first is to
-fit linear models using <code><a href='getModelFit.html'>getModelFit()</a></code>. This function obtains posterior
-estimates of coefficients using multivariate adaptive shrinkage (mash), which
-learns patterns in the data and accounts for noise in the original fits. The
-defaults for arguments should work well in most cases, so only change them if
-you know what you're doing.</p>
+    <p>This function is useful for plotting time-courses for individual features.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getPosteriorFit</span><span class='op'>(</span>
-  <span class='va'>fit</span>,
-  covMethod <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"data-driven"</span>, <span class='st'>"canonical"</span>, <span class='st'>"both"</span><span class='op'>)</span>,
-  getSigResArgs <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
-  npc <span class='op'>=</span> <span class='va'>fit</span><span class='op'>$</span><span class='va'>nKnots</span>,
-  covEdArgs <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
-  overwrite <span class='op'>=</span> <span class='cn'>FALSE</span>,
-  <span class='va'>...</span>
-<span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>mergeMeasMeta</span><span class='op'>(</span><span class='va'>y</span>, <span class='va'>metadata</span>, features <span class='op'>=</span> <span class='cn'>NULL</span>, sampleColname <span class='op'>=</span> <span class='st'>"sample"</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>fit</th>
-      <td><p>A <code>limorhyde2</code> object.</p></td>
+      <th>y</th>
+      <td><p>Matrix-like object of measurements, with rows corresponding to
+features and columns to samples.</p></td>
     </tr>
     <tr>
-      <th>covMethod</th>
-      <td><p>String indicating the type(s) of covariance matrices to use
-for the mash fit.</p></td>
+      <th>metadata</th>
+      <td><p>data.frame containing experimental design information for
+each sample. Rows of <code>metadata</code> must correspond to columns of <code>y</code>. Row
+names are ignored.</p></td>
     </tr>
     <tr>
-      <th>getSigResArgs</th>
-      <td><p>List of arguments passed to
-<code><a href='https://rdrr.io/pkg/mashr/man/get_significant_results.html'>mashr::get_significant_results()</a></code>. Only used if <code>covMethod</code> is
-'data-driven' or 'both'.</p></td>
+      <th>features</th>
+      <td><p>Vector of names, row numbers, or logical values for
+subsetting the features. <code>NULL</code> indicates all features.</p></td>
     </tr>
     <tr>
-      <th>npc</th>
-      <td><p>Number of principal components passed to <code><a href='https://rdrr.io/pkg/mashr/man/cov_pca.html'>mashr::cov_pca()</a></code>. Only
-used if <code>covMethod</code> is 'data-driven' or 'both'.</p></td>
-    </tr>
-    <tr>
-      <th>covEdArgs</th>
-      <td><p>List of arguments passed to <code><a href='https://rdrr.io/pkg/mashr/man/cov_ed.html'>mashr::cov_ed()</a></code>. Only used if
-<code>covMethod</code> is 'data-driven' or 'both'.</p></td>
-    </tr>
-    <tr>
-      <th>overwrite</th>
-      <td><p>Logical for whether to recompute the mash fit if it already
-exists.</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Additional arguments passed to <code><a href='https://rdrr.io/pkg/mashr/man/mash.html'>mashr::mash()</a></code>.</p></td>
+      <th>sampleColname</th>
+      <td><p>String indicating the column in <code>metadata</code> containing
+the name of each sample, which must correspond to the column names in <code>y</code>.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A <code>limorhyde2</code> object containing everything in <code>fit</code> with added or
-updated elements:</p><ul>
-<li><p><code>mashData</code>: <code>mash</code> data object</p></li>
-<li><p><code>mashFit</code>: <code>mash</code> fit object</p></li>
-<li><p><code>mashCoefficients</code>: Matrix of posterior mean coefficients, with rows
-corresponding to features and columns to model terms.</p></li>
-<li><p><code>mashIdx</code>: Vector indicating which model terms were included in the mash
-fit.</p></li>
-</ul>
-
+    <p>A <code>data.table</code> with one row for each sample-feature pair.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='getModelFit.html'>getModelFit()</a></code>, <code><a href='getRhythmStats.html'>getRhythmStats()</a></code>, <code><a href='getExpectedMeas.html'>getExpectedMeas()</a></code></p></div>
+    <div class='dont-index'><p><code><a href='getExpectedMeas.html'>getExpectedMeas()</a></code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
