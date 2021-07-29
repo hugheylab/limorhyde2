@@ -48,7 +48,7 @@ metadata
 
 ## Fit linear models and compute posterior fits
 
-Because the samples were only acquired every four hours, we somewhat arbitrarily use three knots instead of the default four. We specify `condColname` so `getModelFit()` knows to fit a differential rhythmicity model.
+Because the samples were acquired at relatively low temporal resolution (every 4 h), we use three knots instead of the default four, which reduces the flexibility of the spline curves. We specify `condColname` so `getModelFit()` knows to fit a differential rhythmicity model.
 
 ```{r fit}
 fit = getModelFit(y, metadata, nKnots = 3L, condColname = 'cond')

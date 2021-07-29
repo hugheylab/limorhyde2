@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">limorhyde2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9018</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9019</span>
       </span>
     </div>
 
@@ -101,7 +101,7 @@
 <div id="introduction" class="section level2">
 <h2 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h2>
-<p>Here we show how to use <code>limorhyde2</code> to quantify uncertainty in rhythmicity and differential rhythmicity. This step is not essential and can be computationally expensive, but can provide additional information. Since <code>limorhyde2</code> is a Bayesian approach and focuses on effect sizes rather than statistical significance, a key concept is the <a href="https://en.wikipedia.org/wiki/Credible_interval">credible interval</a>.</p>
+<p>Here we show how to use <code>limorhyde2</code> to quantify uncertainty in rhythmicity and differential rhythmicity. This step is not essential and can be computationally expensive, but can provide additional information. As <code>limorhyde2</code> is a <a href="https://en.wikipedia.org/wiki/Bayesian_statistics">Bayesian approach</a> focused on effect sizes rather than statistical significance, quantifying uncertainty relies on the concepts of <a href="https://en.wikipedia.org/wiki/Posterior_probability">posterior probability</a> and <a href="https://en.wikipedia.org/wiki/Credible_interval">credible intervals</a>.</p>
 <p>The data are based on liver samples from wild-type and Rev-erb<span class="math inline">\(\alpha/\beta\)</span> double-knockout mice (<a href="https://doi.org/10.1038/nature11048">Cho et al. 2012</a> and <a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE34018">GSE34018</a>).</p>
 </div>
 <div id="load-packages" class="section level2">
@@ -163,12 +163,12 @@
 <div id="fit-linear-models-and-compute-posterior-fits" class="section level2">
 <h2 class="hasAnchor">
 <a href="#fit-linear-models-and-compute-posterior-fits" class="anchor"></a>Fit linear models and compute posterior fits</h2>
-<p>Because the samples were only acquired every four hours, we somewhat arbitrarily use three knots instead of the default four. We specify <code>condColname</code> so <code><a href="../reference/getModelFit.html">getModelFit()</a></code> knows to fit a differential rhythmicity model.</p>
+<p>Because the samples were acquired at relatively low temporal resolution (every 4 h), we use three knots instead of the default four, which reduces the flexibility of the spline curves. We specify <code>condColname</code> so <code><a href="../reference/getModelFit.html">getModelFit()</a></code> knows to fit a differential rhythmicity model.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/getModelFit.html">getModelFit</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">metadata</span>, nKnots <span class="op">=</span> <span class="fl">3L</span>, condColname <span class="op">=</span> <span class="st">'cond'</span><span class="op">)</span>
 <span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/getPosteriorFit.html">getPosteriorFit</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>
 <span class="co">#&gt;  - Computing 100 x 109 likelihood matrix.</span>
-<span class="co">#&gt;  - Likelihood calculations took 0.08 seconds.</span>
+<span class="co">#&gt;  - Likelihood calculations took 0.07 seconds.</span>
 <span class="co">#&gt;  - Fitting model with 109 mixture components.</span>
 <span class="co">#&gt;  - Model fitting took 0.02 seconds.</span>
 <span class="co">#&gt;  - Computing posterior matrices.</span>
@@ -177,7 +177,7 @@
 <div id="draw-samples-from-the-posterior-fits" class="section level2">
 <h2 class="hasAnchor">
 <a href="#draw-samples-from-the-posterior-fits" class="anchor"></a>Draw samples from the posterior fits</h2>
-<p>The posterior fits consist of not just a single set of model coefficients (the posterior means), but distributions of model coefficients. Sampling from these posterior distributions is the first step to quantifying uncertainty in the fits. Here we generate 50 posterior samples, although an actual analysis would require more.</p>
+<p>The posterior fits consist of not just a single set of model coefficients (the posterior means), but distributions of model coefficients. Sampling from these distributions is the first step to quantifying uncertainty in the fits. Here we generate 50 posterior samples, although an actual analysis would require more to accurately estimate the credible intervals.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/getPosteriorSamples.html">getPosteriorSamples</a></span><span class="op">(</span><span class="va">fit</span>, nPosteriorSamples <span class="op">=</span> <span class="fl">50L</span><span class="op">)</span></code></pre></div>
 </div>

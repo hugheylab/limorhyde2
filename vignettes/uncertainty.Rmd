@@ -20,7 +20,7 @@ options(cores = 2L)
 
 ## Introduction
 
-Here we show how to use `limorhyde2` to quantify uncertainty in rhythmicity and differential rhythmicity. This step is not essential and can be computationally expensive, but can provide additional information. Since `limorhyde2` is a Bayesian approach and focuses on effect sizes rather than statistical significance, a key concept is the [credible interval](https://en.wikipedia.org/wiki/Credible_interval).
+Here we show how to use `limorhyde2` to quantify uncertainty in rhythmicity and differential rhythmicity. This step is not essential and can be computationally expensive, but can provide additional information. As `limorhyde2` is a [Bayesian approach](https://en.wikipedia.org/wiki/Bayesian_statistics) focused on effect sizes rather than statistical significance, quantifying uncertainty relies on the concepts of [posterior probability](https://en.wikipedia.org/wiki/Posterior_probability) and [credible intervals](https://en.wikipedia.org/wiki/Credible_interval).
 
 The data are based on liver samples from wild-type and Rev-erb$\alpha/\beta$ double-knockout mice ([Cho et al. 2012](https://doi.org/10.1038/nature11048) and [GSE34018](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE34018)).
 
@@ -51,7 +51,7 @@ metadata
 
 ## Fit linear models and compute posterior fits
 
-Because the samples were only acquired every four hours, we somewhat arbitrarily use three knots instead of the default four. We specify `condColname` so `getModelFit()` knows to fit a differential rhythmicity model.
+Because the samples were acquired at relatively low temporal resolution (every 4 h), we use three knots instead of the default four, which reduces the flexibility of the spline curves. We specify `condColname` so `getModelFit()` knows to fit a differential rhythmicity model.
 
 ```{r fit}
 fit = getModelFit(y, metadata, nKnots = 3L, condColname = 'cond')
@@ -60,7 +60,7 @@ fit = getPosteriorFit(fit)
 
 ## Draw samples from the posterior fits
 
-The posterior fits consist of not just a single set of model coefficients (the posterior means), but distributions of model coefficients. Sampling from these posterior distributions is the first step to quantifying uncertainty in the fits. Here we generate 50 posterior samples, although an actual analysis would require more.
+The posterior fits consist of not just a single set of model coefficients (the posterior means), but distributions of model coefficients. Sampling from these distributions is the first step to quantifying uncertainty in the fits. Here we generate 50 posterior samples, although an actual analysis would require more to accurately estimate the credible intervals.
 
 ```{r post_samps}
 fit = getPosteriorSamples(fit, nPosteriorSamples = 50L)
