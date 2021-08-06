@@ -5,13 +5,6 @@
 NULL
 
 
-globalVariables(c(
-  'condIdx', '.SD', 'peak_phase', 'trough_phase', 'rms_diff_rhy', 'nConds',
-  'lower', 'upper', 'co', 'peak_trough_amp', '.', 'cond', 'feature', 'nKnots',
-  'peak_value', 'trough_value', 'period', 'shift', 'shifts', 'postSampIdx',
-  'posterior_sample', 'value'))
-
-
 getShifts = function(nShifts, nKnots, period) {
   if (nKnots == 2L) {
     shifts = 0 # cosinor is invariant to shifts
@@ -33,7 +26,7 @@ getMetadata = function(metadata, timeColname, condColname, covarColnames) {
     for (covarName in covarColnames) {
       set(m, j = paste0('covar_', covarName), value = metadata[[covarName]])}}
 
-  return(m[])}
+  return(m)}
 
 
 addIntercept = function(b, intercept) {
@@ -61,6 +54,7 @@ getBasis = function(time, period, nKnots, intercept) {
 
 
 getDesign = function(metadata, period, nKnots) {
+  condIdx = NULL
   b = getBasis(metadata$time, period, nKnots, FALSE)
   m = cbind(metadata, b)
 

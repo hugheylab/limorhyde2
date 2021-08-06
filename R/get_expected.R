@@ -24,6 +24,8 @@ getExpectedMeas = function(
   fit, times, fitType = c('posterior_mean', 'posterior_samples', 'raw'),
   features = NULL) {
 
+  shift = postSampIdx = posterior_sample = NULL
+
   assertClass(fit, 'limorhyde2')
   assertNumeric(times, finite = TRUE, any.missing = FALSE)
   fitType = match.arg(fitType)
@@ -73,7 +75,7 @@ getExpectedMeas = function(
 
   if (nPostSamps == 1L) expectedMeas[, posterior_sample := NULL]
   setattr(expectedMeas, 'fitType', fitType)
-  return(expectedMeas[])}
+  return(expectedMeas)}
 
 
 #' Compute credible intervals for expected measurements
@@ -99,6 +101,7 @@ getExpectedMeas = function(
 getExpectedMeasIntervals = function(
   expectedMeas, mass = 0.9, method = c('eti', 'hdi')) {
 
+  value = NULL
   assertDataTable(expectedMeas)
   assertTRUE(attr(expectedMeas, 'fitType') == 'posterior_samples')
   assertNumber(mass, lower = 0.5, upper = 1 - .Machine$double.eps)

@@ -1,3 +1,6 @@
+# limorhyde2 0.0.0.9020
+* Replaced `globalVariables()` with assigning variables to `NULL` in each function
+
 # limorhyde2 0.0.0.9019
 * Clarified wording in vignettes
 
