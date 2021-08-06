@@ -38,6 +38,8 @@ getPosteriorFit = function(
   fit, covMethod = c('data-driven', 'canonical', 'both'), getSigResArgs = list(),
   npc = fit$nKnots, covEdArgs = list(), overwrite = FALSE, ...) {
 
+  shifts = nKnots = nConds = NULL
+
   assertClass(fit, 'limorhyde2')
   covMethod = match.arg(covMethod)
   assertList(getSigResArgs)

@@ -21,11 +21,11 @@ getCoefArray = function(fit, fitType) {
 
 getOptima = function(f, tt) {
   xr = f(tt)
-  c(lower, upper) %<-% range(tt)
+  r = range(tt)
   optMin = stats::optim(
-    tt[which.min(xr)], f, method = 'L-BFGS-B', lower = lower, upper = upper)
+    tt[which.min(xr)], f, method = 'L-BFGS-B', lower = r[1L], upper = r[2L])
   optMax = stats::optim(
-    tt[which.max(xr)], f, method = 'L-BFGS-B', lower = lower, upper = upper,
+    tt[which.max(xr)], f, method = 'L-BFGS-B', lower = r[1L], upper = r[2L],
     control = list(fnscale = -1))
   d = data.table(peak_phase = optMax$par, peak_value = optMax$value,
                  trough_phase = optMin$par, trough_value = optMin$value)
@@ -75,6 +75,7 @@ getCoefMatDiffCond = function(coefMat, condIdx, nConds, nKnots, nShifts) {
 
 
 getRmsDiffRhy = function(fit, condLevels, fitType, featureIdx) {
+  shifts = period = nKnots = nConds = period = postSampIdx = co = NULL
   c(shifts, period, nKnots, nConds) %<-%
     fit[c('shifts', 'period', 'nKnots', 'nConds')]
 

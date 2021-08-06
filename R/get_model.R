@@ -62,6 +62,7 @@ getModelFit = function(
   eBayesArgs = if (method == 'trend') list(trend = TRUE) else list(),
   keepLmFits = FALSE) {
 
+  shift = NULL
   assertDataFrame(metadata)
   assertTRUE(ncol(y) == nrow(metadata))
 

@@ -45,6 +45,9 @@ getRhythmStats = function(
   fit, fitType = c('posterior_mean', 'posterior_samples', 'raw'),
   features = NULL) {
 
+  shifts = period = nKnots = nConds = postSampIdx = condIdx = cond = NULL
+  peak_value = trough_value = peak_trough_amp = co = posterior_sample = NULL
+
   assertClass(fit, 'limorhyde2')
   fitType = match.arg(fitType)
   checkFitType(fit, fitType)
@@ -94,7 +97,7 @@ getRhythmStats = function(
 
   setattr(rhyStats, 'statType', 'rhy')
   setattr(rhyStats, 'fitType', fitType)
-  return(rhyStats[])}
+  return(rhyStats)}
 
 
 #' Compute differentially rhythmic statistics from fitted models
@@ -131,6 +134,8 @@ getRhythmStats = function(
 #'
 #' @export
 getDiffRhythmStats = function(fit, rhyStats, condLevels) {
+  cond = .SD = peak_phase = trough_phase = NULL
+
   assertClass(fit, 'limorhyde2')
   assertTRUE(fit$nConds >= 2)
   assertDataTable(rhyStats)
@@ -161,7 +166,7 @@ getDiffRhythmStats = function(fit, rhyStats, condLevels) {
   setattr(diffRhyStats, 'statType', 'diff_rhy')
   setattr(diffRhyStats, 'fitType', fitType)
   setattr(diffRhyStats, 'condLevels', condLevels)
-  return(diffRhyStats[])}
+  return(diffRhyStats)}
 
 
 #' Compute credible intervals for rhythmic or differentially rhythmic statistics
@@ -188,6 +193,7 @@ getStatsIntervals = function(
   posteriorStats, mass = 0.9, method = c('eti', 'hdi')) {
   # TODO: extend for phase-based stats, possibly in 2D
 
+  value = NULL
   assertDataTable(posteriorStats)
   assertTRUE(attr(posteriorStats, 'fitType') == 'posterior_samples')
   assertChoice(attr(posteriorStats, 'statType'), c('rhy', 'diff_rhy'))
