@@ -141,19 +141,33 @@ getDiffRhythmStats = function(fit, rhyStats, condLevels) {
   assertDataTable(rhyStats)
   assertTRUE(attr(rhyStats, 'statType') == 'rhy')
   assertTRUE('cond' %in% colnames(rhyStats))
-  assertAtomicVector(condLevels, len = 2L)
   assertSubset(condLevels, fit$condLevels)
   assertSubset(condLevels, levels(rhyStats$cond))
 
   d0 = rhyStats[cond %in% condLevels]
   set(d0, j = 'cond', value = factor(d0$cond, condLevels))
   data.table::setorderv(d0, 'cond')
+  d0[, cond2Int := as.integer(cond)]
 
   fitType = attr(rhyStats, 'fitType')
   byCols = c('feature', if (fitType == 'posterior_samples') 'posterior_sample')
   cols = c('mean_value', 'peak_trough_amp', 'rms_amp', 'peak_phase', 'trough_phase')
 
-  diffRhyStats = d0[, lapply(.SD, diff), by = byCols, .SDcols = cols]
+  diffRhyStats = d0[,
+        .SD[.SD, on = .(cond2Int < cond2Int),
+          .(cond_pair = paste0(cond, '_', i.cond),
+            mean_value, peak_trough_amp, rms_amp, peak_phase, trough_phase,
+            i.mean_value, i.peak_trough_amp, i.rms_amp, i.peak_phase, i.trough_phase)],
+    by = feature]
+  diffRhyStats = diffRhyStats[,
+        .(feature, cond_pair,
+        mean_value = mean_value - i.mean_value,
+        peak_trough_amp = peak_trough_amp - i.peak_trough_amp,
+        rms_amp = rms_amp - i.rms_amp,
+        peak_phase = peak_phase - i.peak_phase,
+        trough_phase = trough_phase - i.trough_phase)]
+  diffRhyStats = diffRhyStats[!is.na(mean_value)]
+
   diffRhyStats[, peak_phase := centerCircDiff(peak_phase, fit$period)]
   diffRhyStats[, trough_phase := centerCircDiff(trough_phase, fit$period)]
   data.table::setnames(diffRhyStats, cols, paste0('diff_', cols))
