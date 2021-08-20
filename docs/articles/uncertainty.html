@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">limorhyde2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9020</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9021</span>
       </span>
     </div>
 
@@ -85,7 +85,7 @@
 
       
 
-      </header><script src="uncertainty_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
+      </header><script src="uncertainty_files/header-attrs-2.10/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Quantifying uncertainty in (differential) rhythmicity</h1>
@@ -168,9 +168,9 @@
 <code class="sourceCode R"><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/getModelFit.html">getModelFit</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">metadata</span>, nKnots <span class="op">=</span> <span class="fl">3L</span>, condColname <span class="op">=</span> <span class="st">'cond'</span><span class="op">)</span>
 <span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/getPosteriorFit.html">getPosteriorFit</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>
 <span class="co">#&gt;  - Computing 100 x 109 likelihood matrix.</span>
-<span class="co">#&gt;  - Likelihood calculations took 0.09 seconds.</span>
+<span class="co">#&gt;  - Likelihood calculations took 0.07 seconds.</span>
 <span class="co">#&gt;  - Fitting model with 109 mixture components.</span>
-<span class="co">#&gt;  - Model fitting took 0.02 seconds.</span>
+<span class="co">#&gt;  - Model fitting took 0.03 seconds.</span>
 <span class="co">#&gt;  - Computing posterior matrices.</span>
 <span class="co">#&gt;  - Computation allocated took 0.02 seconds.</span></code></pre></div>
 </div>
@@ -277,17 +277,17 @@
 <span class="co">#&gt; 149:   12686               50      -0.3533242           -2.0847962   -0.7330213</span>
 <span class="co">#&gt; 150:   26897               50      -2.4027325           -0.9094560   -0.3389905</span>
 <span class="co">#&gt;      diff_peak_phase diff_trough_phase rms_diff_rhy symbol</span>
-<span class="co">#&gt;   1:      -0.3951722        -0.3249089    3.0120583    Dbp</span>
-<span class="co">#&gt;   2:      -1.8136085        -0.8240157    2.9171445 Elovl3</span>
-<span class="co">#&gt;   3:       2.4227880         7.6804644    1.7716140  Acot1</span>
-<span class="co">#&gt;   4:      -0.8279032        -0.6553304    3.1222228    Dbp</span>
-<span class="co">#&gt;   5:      -5.3312776        -0.9626241    2.9589698 Elovl3</span>
+<span class="co">#&gt;   1:      -0.3951722        -0.3249089    3.6248910    Dbp</span>
+<span class="co">#&gt;   2:      -1.8136085        -0.8240157    2.7237402 Elovl3</span>
+<span class="co">#&gt;   3:       2.4227880         7.6804644    1.9078987  Acot1</span>
+<span class="co">#&gt;   4:      -0.8279032        -0.6553304    3.6162958    Dbp</span>
+<span class="co">#&gt;   5:      -5.3312776        -0.9626241    2.9991839 Elovl3</span>
 <span class="co">#&gt;  ---                                                      </span>
-<span class="co">#&gt; 146:      -5.3694042        -1.4926285    2.7184486 Elovl3</span>
-<span class="co">#&gt; 147:      -0.9409261         4.1293078    0.9590076  Acot1</span>
-<span class="co">#&gt; 148:       0.5831223         0.0540993    3.5982780    Dbp</span>
-<span class="co">#&gt; 149:      -5.0876901        -1.4325180    2.8308634 Elovl3</span>
-<span class="co">#&gt; 150:       0.9645104        -1.9435250    1.2260647  Acot1</span></code></pre></div>
+<span class="co">#&gt; 146:      -5.3694042        -1.4926285    2.8108991 Elovl3</span>
+<span class="co">#&gt; 147:      -0.9409261         4.1293078    0.9794548  Acot1</span>
+<span class="co">#&gt; 148:       0.5831223         0.0540993    3.7204140    Dbp</span>
+<span class="co">#&gt; 149:      -5.0876901        -1.4325180    2.8806839 Elovl3</span>
+<span class="co">#&gt; 150:       0.9645104        -1.9435250    1.2876377  Acot1</span></code></pre></div>
 <p>In the plots below, each point represents a posterior sample.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">p1</span> <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">diffRhyStatsSamps</span><span class="op">)</span> <span class="op">+</span>
@@ -332,9 +332,9 @@
 <span class="co">#&gt; ---                                                   </span>
 <span class="co">#&gt;  8:   12686         diff_rms_amp -0.9157380 -0.7132926</span>
 <span class="co">#&gt;  9:   26897         diff_rms_amp -0.4515353 -0.2527135</span>
-<span class="co">#&gt; 10:   13170         rms_diff_rhy  2.9709990  3.7122262</span>
-<span class="co">#&gt; 11:   12686         rms_diff_rhy  2.5099833  3.0244154</span>
-<span class="co">#&gt; 12:   26897         rms_diff_rhy  1.0219593  1.7844688</span></code></pre></div>
+<span class="co">#&gt; 10:   13170         rms_diff_rhy  3.5986650  4.0251194</span>
+<span class="co">#&gt; 11:   12686         rms_diff_rhy  2.6023486  3.1263108</span>
+<span class="co">#&gt; 12:   26897         rms_diff_rhy  1.1039042  1.8415935</span></code></pre></div>
 </div>
   </div>
 

@@ -1,3 +1,6 @@
+# limorhyde2 0.0.0.9021
+* Fixed bug so getDiffRhythmStats uses all shifted models
+
 # limorhyde2 0.0.0.9020
 * Replaced `globalVariables()` with assigning variables to `NULL` in each function
 

@@ -65,11 +65,11 @@ getCoefMatDiffCond = function(coefMat, condIdx, nConds, nKnots, nShifts) {
     if (1L %in% condIdx) {
       condIdxNow = setdiff(condIdx, 1L)
       i = nConds + (condIdxNow - 1) * nKnots + 1
-      coefNow = coefMat[, i:(i + nKnots - 1), drop = FALSE]
+      coefNow = coefTmp[, i:(i + nKnots - 1), drop = FALSE]
     } else {
       i = nConds + (condIdx - 1) * nKnots + 1
       j = i + nKnots - 1
-      coefNow = coefMat[, i[2]:j[2]] - coefMat[, i[1]:j[1], drop = FALSE]}
+      coefNow = coefTmp[, i[2]:j[2]] - coefTmp[, i[1]:j[1], drop = FALSE]}
     coefNow}
   return(coefKeep)}
 
