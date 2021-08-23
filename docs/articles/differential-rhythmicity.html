@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">limorhyde2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9020</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9021</span>
       </span>
     </div>
 
@@ -85,7 +85,7 @@
 
       
 
-      </header><script src="differential-rhythmicity_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
+      </header><script src="differential-rhythmicity_files/header-attrs-2.10/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Quantifying differential rhythmicity between conditions</h1>
@@ -166,9 +166,9 @@
 <code class="sourceCode R"><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/getModelFit.html">getModelFit</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">metadata</span>, nKnots <span class="op">=</span> <span class="fl">3L</span>, condColname <span class="op">=</span> <span class="st">'cond'</span><span class="op">)</span>
 <span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/getPosteriorFit.html">getPosteriorFit</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>
 <span class="co">#&gt;  - Computing 100 x 109 likelihood matrix.</span>
-<span class="co">#&gt;  - Likelihood calculations took 0.08 seconds.</span>
+<span class="co">#&gt;  - Likelihood calculations took 0.07 seconds.</span>
 <span class="co">#&gt;  - Fitting model with 109 mixture components.</span>
-<span class="co">#&gt;  - Model fitting took 0.02 seconds.</span>
+<span class="co">#&gt;  - Model fitting took 0.03 seconds.</span>
 <span class="co">#&gt;  - Computing posterior matrices.</span>
 <span class="co">#&gt;  - Computation allocated took 0.02 seconds.</span></code></pre></div>
 </div>
@@ -224,17 +224,17 @@
 <span class="co">#&gt;  99:    622408    -0.034738962         -0.084299398 -0.029711327</span>
 <span class="co">#&gt; 100: 110599566    -0.006050343         -0.057446071 -0.019823612</span>
 <span class="co">#&gt;      diff_peak_phase diff_trough_phase rms_diff_rhy</span>
-<span class="co">#&gt;   1:      -4.9265939        -1.1261574  2.703751688</span>
-<span class="co">#&gt;   2:      -0.9555117        -0.5424612  3.355357225</span>
-<span class="co">#&gt;   3:       0.7545927         6.2343634  1.379020892</span>
-<span class="co">#&gt;   4:      -2.4948817         3.4363234  0.122174256</span>
-<span class="co">#&gt;   5:       4.4745600         6.1016868  0.041591004</span>
+<span class="co">#&gt;   1:      -4.9265939        -1.1261574  2.828991912</span>
+<span class="co">#&gt;   2:      -0.9555117        -0.5424612  3.802135940</span>
+<span class="co">#&gt;   3:       0.7545927         6.2343634  1.479902146</span>
+<span class="co">#&gt;   4:      -2.4948817         3.4363234  0.125892828</span>
+<span class="co">#&gt;   5:       4.4745600         6.1016868  0.043880595</span>
 <span class="co">#&gt;  ---                                               </span>
-<span class="co">#&gt;  96:       8.8351432        -0.5999508  0.114055851</span>
-<span class="co">#&gt;  97:      -1.8209684         1.6269370  0.016538470</span>
-<span class="co">#&gt;  98:      -1.2203361        -3.6610762  0.007724112</span>
-<span class="co">#&gt;  99:      -4.0677286        -0.8433813  0.093469052</span>
-<span class="co">#&gt; 100:       8.0133286         7.9850954  0.074116062</span></code></pre></div>
+<span class="co">#&gt;  96:       8.8351432        -0.5999508  0.135483961</span>
+<span class="co">#&gt;  97:      -1.8209684         1.6269370  0.018924522</span>
+<span class="co">#&gt;  98:      -1.2203361        -3.6610762  0.008092693</span>
+<span class="co">#&gt;  99:      -4.0677286        -0.8433813  0.106187788</span>
+<span class="co">#&gt; 100:       8.0133286         7.9850954  0.079889026</span></code></pre></div>
 <p>We can examine the distributions of the statistics in various ways, such as ranking genes by difference in peak-to-trough amplitude (no p-values necessary) or plotting difference in peak-to-trough amplitude vs. difference in mean expression.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">diffRhyStats</span><span class="op">[</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/setorder.html">order</a></span><span class="op">(</span><span class="va">diff_peak_trough_amp</span><span class="op">)</span><span class="op">]</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
@@ -251,17 +251,17 @@
 <span class="co">#&gt;  99:   18378    -0.059531404          0.088706917  0.0237101323       9.3201219</span>
 <span class="co">#&gt; 100:   93671    -0.122202398          0.318458377  0.1024930767      -3.5169301</span>
 <span class="co">#&gt;      diff_trough_phase rms_diff_rhy</span>
-<span class="co">#&gt;   1:        -0.5424612   3.35535723</span>
-<span class="co">#&gt;   2:        -1.1261574   2.70375169</span>
-<span class="co">#&gt;   3:         6.2343634   1.37902089</span>
-<span class="co">#&gt;   4:       -10.1197405   1.15341149</span>
-<span class="co">#&gt;   5:        -4.7103687   0.46922043</span>
+<span class="co">#&gt;   1:        -0.5424612  3.802135940</span>
+<span class="co">#&gt;   2:        -1.1261574  2.828991912</span>
+<span class="co">#&gt;   3:         6.2343634  1.479902146</span>
+<span class="co">#&gt;   4:       -10.1197405  1.241164124</span>
+<span class="co">#&gt;   5:        -4.7103687  0.521668016</span>
 <span class="co">#&gt;  ---                               </span>
-<span class="co">#&gt;  96:         9.5536510   0.17589235</span>
-<span class="co">#&gt;  97:         8.3626192   0.01723567</span>
-<span class="co">#&gt;  98:        -3.2542325   0.00633639</span>
-<span class="co">#&gt;  99:         8.6090161   0.24599812</span>
-<span class="co">#&gt; 100:        11.3633377   0.99990331</span>
+<span class="co">#&gt;  96:         9.5536510  0.197597118</span>
+<span class="co">#&gt;  97:         8.3626192  0.018547619</span>
+<span class="co">#&gt;  98:        -3.2542325  0.007650559</span>
+<span class="co">#&gt;  99:         8.6090161  0.256049333</span>
+<span class="co">#&gt; 100:        11.3633377  1.044134449</span>
 
 <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">diffRhyStats</span><span class="op">)</span> <span class="op">+</span>
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">diff_mean_value</span>, y <span class="op">=</span> <span class="va">diff_peak_trough_amp</span><span class="op">)</span>, alpha <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span> <span class="op">+</span>
