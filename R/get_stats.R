@@ -134,7 +134,10 @@ getRhythmStats = function(
 #'
 #' @export
 getDiffRhythmStats = function(fit, rhyStats, condLevels = NULL) {
-  cond = .SD = peak_phase = trough_phase = NULL
+  cond = .SD = peak_phase = trough_phase = cond2Int = . = i.cond =
+    mean_value = peak_trough_amp = rms_amp = i.mean_value = i.peak_trough_amp =
+    i.rms_amp = i.peak_phase = i.trough_phase = cond_1 = cond_2 = feature =
+    NULL
 
   assertClass(fit, 'limorhyde2')
   assertTRUE(fit$nConds >= 2)
@@ -230,7 +233,8 @@ getStatsIntervals = function(
   method = match.arg(method)
 
   statType = attr(posteriorStats, 'statType')
-  idCols = intersect(c('cond', 'feature', 'posterior_sample'),
+  conds = if(statType == 'rhy') {'cond'} else {c('cond_1', 'cond_2')}
+  idCols = intersect(c(conds, 'feature', 'posterior_sample'),
                      colnames(posteriorStats))
 
   varName = 'statistic'

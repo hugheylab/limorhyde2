@@ -4,7 +4,7 @@
 \alias{getDiffRhythmStats}
 \title{Compute differentially rhythmic statistics from fitted models}
 \usage{
-getDiffRhythmStats(fit, rhyStats, condLevels)
+getDiffRhythmStats(fit, rhyStats, condLevels = NULL)
 }
 \arguments{
 \item{fit}{A \code{limorhyde2} object containing data from multiple conditions.}

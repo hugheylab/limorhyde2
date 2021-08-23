@@ -1,7 +1,7 @@
 Package: limorhyde2
 Type: Package
 Title: Quantify rhythmicity and differential rhythmicity in genome-scale data
-Version: 0.0.0.9021
+Version: 0.0.0.9022
 Authors@R: as.person(c(
   "Jake Hughey <jakejhughey@gmail.com> [aut, cre]",
   "Dora Obodo <dora.obodo@vanderbilt.edu> [aut]",
@@ -34,6 +34,7 @@ Suggests:
   doParallel (>= 1.0.15),
   ggplot2 (>= 3.3.5),
   qs (>= 0.24.1),
+  RcppAlgos,
   rmarkdown,
   testthat (>= 3.0.0)
 Config/testthat/edition: 3

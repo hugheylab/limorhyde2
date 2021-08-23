@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">limorhyde2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9021</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9022</span>
       </span>
     </div>
 
@@ -172,11 +172,11 @@
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/getPosteriorFit.html">getPosteriorFit</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>
 <span class="co">#&gt;  - Computing 100 x 121 likelihood matrix.</span>
-<span class="co">#&gt;  - Likelihood calculations took 0.04 seconds.</span>
+<span class="co">#&gt;  - Likelihood calculations took 0.03 seconds.</span>
 <span class="co">#&gt;  - Fitting model with 121 mixture components.</span>
-<span class="co">#&gt;  - Model fitting took 0.04 seconds.</span>
+<span class="co">#&gt;  - Model fitting took 0.02 seconds.</span>
 <span class="co">#&gt;  - Computing posterior matrices.</span>
-<span class="co">#&gt;  - Computation allocated took 0.01 seconds.</span></code></pre></div>
+<span class="co">#&gt;  - Computation allocated took 0.00 seconds.</span></code></pre></div>
 </div>
 <div id="get-rhythmic-statistics" class="section level2">
 <h2 class="hasAnchor">
@@ -228,7 +228,7 @@
                    symbol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'Cyp2b10'</span>, <span class="st">'Dbp'</span>, <span class="st">'Erbb4'</span><span class="op">)</span><span class="op">)</span>
 
 <span class="va">measFit</span> <span class="op">=</span> <span class="fu"><a href="../reference/getExpectedMeas.html">getExpectedMeas</a></span><span class="op">(</span><span class="va">fit</span>, times <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">24</span>, <span class="fl">0.5</span><span class="op">)</span>, features <span class="op">=</span> <span class="va">genes</span><span class="op">$</span><span class="va">id</span><span class="op">)</span>
-<span class="va">measFit</span><span class="op">[</span><span class="va">genes</span>, <span class="va">symbol</span> <span class="op">:=</span> <span class="va">i.symbol</span>, on <span class="op">=</span> <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html">.</a></span><span class="op">(</span>feature <span class="op">=</span> <span class="va">id</span><span class="op">)</span><span class="op">]</span>
+<span class="va">measFit</span><span class="op">[</span><span class="va">genes</span>, <span class="va">symbol</span> <span class="op">:=</span> <span class="va">i.symbol</span>, on <span class="op">=</span> <span class="fu">.</span><span class="op">(</span>feature <span class="op">=</span> <span class="va">id</span><span class="op">)</span><span class="op">]</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">measFit</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
 <span class="co">#&gt;      time feature     value  symbol</span>
 <span class="co">#&gt;   1:  0.0   13088 10.142704 Cyp2b10</span>
@@ -245,7 +245,7 @@
 <p>Next we combine the observed expression data and metadata. The curves show how <code>limorhyde2</code> is able to fit non-sinusoidal rhythms.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">measObs</span> <span class="op">=</span> <span class="fu"><a href="../reference/mergeMeasMeta.html">mergeMeasMeta</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">metadata</span>, features <span class="op">=</span> <span class="va">genes</span><span class="op">$</span><span class="va">id</span><span class="op">)</span>
-<span class="va">measObs</span><span class="op">[</span><span class="va">genes</span>, <span class="va">symbol</span> <span class="op">:=</span> <span class="va">i.symbol</span>, on <span class="op">=</span> <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html">.</a></span><span class="op">(</span>feature <span class="op">=</span> <span class="va">id</span><span class="op">)</span><span class="op">]</span>
+<span class="va">measObs</span><span class="op">[</span><span class="va">genes</span>, <span class="va">symbol</span> <span class="op">:=</span> <span class="va">i.symbol</span>, on <span class="op">=</span> <span class="fu">.</span><span class="op">(</span>feature <span class="op">=</span> <span class="va">id</span><span class="op">)</span><span class="op">]</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">measObs</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
 <span class="co">#&gt;         sample time feature      meas  symbol</span>
 <span class="co">#&gt;  1: GSM1321182   18   13088 10.209968 Cyp2b10</span>
