@@ -175,15 +175,21 @@ getDiffRhythmStats = function(fit, rhyStats, condLevels = NULL) {
   data.table::setnames(diffRhyStats, cols, paste0('diff_', cols))
 
   #create data.table of conditions
-  condDt = getCondPairs(condLevels)
-  condIter = iterators::iter(condDt, by = 'row')
+  pairDt = getCondPairs(condLevels)
+  pairIter = iterators::iter(pairDt, by = 'row')
 
   # calculate rms difference in rhythmic fit between conditions
   featureIdx = rownames(fit$coefficients) %in% unique(rhyStats$feature)
-  rmsDiffRhy = foreach(i = condIter, .combine = rbind) %do% {
-    getRmsDiffRhy(fit, as.character(i), fitType, featureIdx)}
+  rmsDiffRhy = foreach(cond_1 = pairDt[, cond_1], cond_2 = pairDt[, cond_2],
+                       .combine = rbind) %do% {
+    rmsDiffRhyTmp = getRmsDiffRhy(fit, as.character(c(cond_1, cond_2)),
+                                  fitType, featureIdx)
+    cbind(rmsDiffRhyTmp, cond_1, cond_2)}
   diffRhyStats = merge(
     diffRhyStats, rmsDiffRhy, sort = FALSE, by = c('feature', 'cond_1', 'cond_2'))
+  diffRhyStats[, cond_1 := factor(cond_1, levels = condLevels)]
+  diffRhyStats[, cond_2 := factor(cond_2, levels = condLevels)]
+  setorder(diffRhyStats, feature, cond_1, cond_2)
 
   setattr(diffRhyStats, 'statType', 'diff_rhy')
   setattr(diffRhyStats, 'fitType', fitType)
