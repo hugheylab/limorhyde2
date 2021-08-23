@@ -120,10 +120,10 @@ getHdi = function(v, mass) {
 
 
 getCondPairs = function(condLevels) {
-  if (!is.factor(condLevels)) condLevels = factor(conds, levels = conds)
-  condInt = as.integer(conds)
+  if (!is.factor(condLevels)) condLevels = factor(condLevels)
+  condInt = as.integer(condLevels)
   condMat = RcppAlgos::comboGrid(condInt, condInt, repetition = FALSE)
-  condMat = matrix(conds[condMat], ncol = 2)
+  condMat = matrix(condLevels[condMat], ncol = 2)
   colnames(condMat) = c('cond_1', 'cond_2')
   condDt = data.table(condMat)
   return(condDt)}
