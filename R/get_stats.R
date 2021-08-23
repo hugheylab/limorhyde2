@@ -160,14 +160,15 @@ getDiffRhythmStats = function(fit, rhyStats, condLevels = NULL) {
             mean_value, peak_trough_amp, rms_amp, peak_phase, trough_phase,
             i.mean_value, i.peak_trough_amp, i.rms_amp, i.peak_phase,
             i.trough_phase)],
-    by = feature]
+    by = byCols]
   diffRhyStats = diffRhyStats[,
-        .(feature, cond_1, cond_2,
+        .(cond_1, cond_2,
         mean_value = mean_value - i.mean_value,
         peak_trough_amp = peak_trough_amp - i.peak_trough_amp,
         rms_amp = rms_amp - i.rms_amp,
         peak_phase = peak_phase - i.peak_phase,
-        trough_phase = trough_phase - i.trough_phase)]
+        trough_phase = trough_phase - i.trough_phase),
+        by = byCols]
   diffRhyStats = diffRhyStats[!is.na(mean_value)]
 
   diffRhyStats[, peak_phase := centerCircDiff(peak_phase, fit$period)]
@@ -186,10 +187,10 @@ getDiffRhythmStats = function(fit, rhyStats, condLevels = NULL) {
                                   fitType, featureIdx)
     cbind(rmsDiffRhyTmp, cond_1, cond_2)}
   diffRhyStats = merge(
-    diffRhyStats, rmsDiffRhy, sort = FALSE, by = c('feature', 'cond_1', 'cond_2'))
+    diffRhyStats, rmsDiffRhy, sort = FALSE, by = c(byCols, 'cond_1', 'cond_2'))
   diffRhyStats[, cond_1 := factor(cond_1, levels = condLevels)]
   diffRhyStats[, cond_2 := factor(cond_2, levels = condLevels)]
-  setorder(diffRhyStats, feature, cond_1, cond_2)
+  data.table::setorder(diffRhyStats, feature, cond_1, cond_2)
 
   setattr(diffRhyStats, 'statType', 'diff_rhy')
   setattr(diffRhyStats, 'fitType', fitType)
