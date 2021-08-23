@@ -61,7 +61,7 @@ centerCircDiff = function(x, p) {
 getCoefMatDiffCond = function(coefMat, condIdx, nConds, nKnots, nShifts) {
   nCoefs = ncol(coefMat) / nShifts
   coefKeep = foreach(j = 1:nShifts, .combine = cbind) %do% {
-    coefTmp = coefMat[, (1:nCoefs) + nCoefs * (j - 1), drop = FALSE] #not used
+    coefTmp = coefMat[, (1:nCoefs) + nCoefs * (j - 1), drop = FALSE]
     if (1L %in% condIdx) {
       condIdxNow = setdiff(condIdx, 1L)
       i = nConds + (condIdxNow - 1) * nKnots + 1
@@ -69,7 +69,7 @@ getCoefMatDiffCond = function(coefMat, condIdx, nConds, nKnots, nShifts) {
     } else {
       i = nConds + (condIdx - 1) * nKnots + 1
       j = i + nKnots - 1
-      coefNow = coefMat[, i[2]:j[2]] - coefMat[, i[1]:j[1], drop = FALSE]} #should one of these be coefTmp?
+      coefNow = coefMat[, i[2]:j[2]] - coefMat[, i[1]:j[1], drop = FALSE]}
     coefNow}
   return(coefKeep)}
 
@@ -117,3 +117,13 @@ getHdi = function(v, mass) {
   r = HDInterval::hdi(v, credMass = mass)
   d = data.table(lower = r[1L], upper = r[2L])
   return(d)}
+
+
+getCondPairs = function(condLevels) {
+  if (!is.factor(condLevels)) condLevels = factor(conds, levels = conds)
+  condInt = as.integer(conds)
+  condMat = RcppAlgos::comboGrid(condInt, condInt, repetition = FALSE)
+  condMat = matrix(conds[condMat], ncol = 2)
+  colnames(condMat) = c('cond_1', 'cond_2')
+  condDt = data.table(condMat)
+  return(condDt)}
