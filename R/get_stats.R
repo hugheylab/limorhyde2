@@ -180,14 +180,12 @@ getDiffRhythmStats = function(fit, rhyStats, condLevels = NULL) {
 
   #create data.table of conditions
   pairDt = getCondPairs(condLevels)
-  pairIter = iterators::iter(pairDt, by = 'row')
 
   # calculate rms difference in rhythmic fit between conditions
   featureIdx = rownames(fit$coefficients) %in% unique(rhyStats$feature)
-  rmsDiffRhy = foreach(cond_1 = pairDt[, cond_1], cond_2 = pairDt[, cond_2],
-                       .combine = rbind) %do% {
-    rmsDiffRhyTmp = getRmsDiffRhy(fit, as.character(c(cond_1, cond_2)),
-                                  fitType, featureIdx)
+  rmsDiffRhy = foreach(
+    cond_1 = pairDt$cond_1, cond_2 = pairDt$cond_2, .combine = rbind) %do% {
+    rmsDiffRhyTmp = getRmsDiffRhy(fit, c(cond_1, cond_2), fitType, featureIdx)
     cbind(rmsDiffRhyTmp, cond_1, cond_2)}
   diffRhyStats = merge(
     diffRhyStats, rmsDiffRhy, sort = FALSE, by = c(byCols, 'cond_1', 'cond_2'))
@@ -233,7 +231,7 @@ getStatsIntervals = function(
   method = match.arg(method)
 
   statType = attr(posteriorStats, 'statType')
-  conds = if(statType == 'rhy') {'cond'} else {c('cond_1', 'cond_2')}
+  conds = if (statType == 'rhy') 'cond' else c('cond_1', 'cond_2')
   idCols = intersect(c(conds, 'feature', 'posterior_sample'),
                      colnames(posteriorStats))
 
