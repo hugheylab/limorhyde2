@@ -159,7 +159,7 @@ getDiffRhythmStats = function(fit, rhyStats, condLevels = NULL) {
   cols = c('mean_value', 'peak_trough_amp', 'rms_amp', 'peak_phase', 'trough_phase')
 
   diffRhyStats = merge(d0, d0, allow.cartesian = TRUE)
-  diffRhyStats = diffRhyStats[cond2Int.x < cond2Int.y]
+  diffRhyStats[cond2Int.x < cond2Int.y]
   diffRhyStats = diffRhyStats[,
         .(cond_1 = cond.x, cond_2 = cond.y,
         mean_value = mean_value.x - mean_value.y,
