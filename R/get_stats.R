@@ -134,10 +134,10 @@ getRhythmStats = function(
 #'
 #' @export
 getDiffRhythmStats = function(fit, rhyStats, condLevels = NULL) {
-  cond = .SD = peak_phase = trough_phase = cond2Int = . = i.cond =
-    mean_value = peak_trough_amp = rms_amp = i.mean_value = i.peak_trough_amp =
-    i.rms_amp = i.peak_phase = i.trough_phase = cond_1 = cond_2 = feature =
-    NULL
+  cond = .SD = mean_value = peak_phase = trough_phase = cond2Int = . = cond.x  =
+    cond2Int.x = mean_value.x = peak_trough_amp.x = rms_amp.x = peak_phase.x =
+    trough_phase.x = cond.y = cond2Int.y = mean_value.y = peak_trough_amp.y =
+    rms_amp.y = peak_phase.y = trough_phase.y = cond_1 = cond_2 = feature = NULL
 
   assertClass(fit, 'limorhyde2')
   assertTRUE(fit$nConds >= 2)
@@ -157,21 +157,16 @@ getDiffRhythmStats = function(fit, rhyStats, condLevels = NULL) {
   byCols = c('feature', if (fitType == 'posterior_samples') 'posterior_sample')
   cols = c('mean_value', 'peak_trough_amp', 'rms_amp', 'peak_phase', 'trough_phase')
 
-  diffRhyStats = d0[,
-        .SD[.SD, on = .(cond2Int < cond2Int),
-          .(cond_1 = cond, cond_2 = i.cond,
-            mean_value, peak_trough_amp, rms_amp, peak_phase, trough_phase,
-            i.mean_value, i.peak_trough_amp, i.rms_amp, i.peak_phase,
-            i.trough_phase)],
-    by = byCols]
+  diffRhyStats = merge(d0, d0, allow.cartesian = TRUE, by = byCols)
+  diffRhyStats = diffRhyStats[cond2Int.x < cond2Int.y]
   diffRhyStats = diffRhyStats[,
-        .(cond_1, cond_2,
-        mean_value = mean_value - i.mean_value,
-        peak_trough_amp = peak_trough_amp - i.peak_trough_amp,
-        rms_amp = rms_amp - i.rms_amp,
-        peak_phase = peak_phase - i.peak_phase,
-        trough_phase = trough_phase - i.trough_phase),
-        by = byCols]
+    .(cond_1 = cond.x, cond_2 = cond.y,
+      mean_value = mean_value.x - mean_value.y,
+      peak_trough_amp = peak_trough_amp.x - peak_trough_amp.y,
+      rms_amp = rms_amp.x - rms_amp.y,
+      peak_phase = peak_phase.x - peak_phase.y,
+      trough_phase = trough_phase.x - trough_phase.y),
+    by = byCols]
   diffRhyStats = diffRhyStats[!is.na(mean_value)]
 
   diffRhyStats[, peak_phase := centerCircDiff(peak_phase, fit$period)]
