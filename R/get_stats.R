@@ -134,10 +134,10 @@ getRhythmStats = function(
 #'
 #' @export
 getDiffRhythmStats = function(fit, rhyStats, condLevels = NULL) {
-  cond = .SD = mean_value = peak_phase = trough_phase = cond2Int = . = cond.x  =
-    cond2Int.x = mean_value.x = peak_trough_amp.x = rms_amp.x = peak_phase.x =
-    trough_phase.x = cond.y = cond2Int.y = mean_value.y = peak_trough_amp.y =
-    rms_amp.y = peak_phase.y = trough_phase.y = cond_1 = cond_2 = feature = NULL
+  cond = .SD = diff_peak_phase = diff_trough_phase = condInt = . = cond1  =
+    condInt1 = mean_value1 = peak_trough_amp1 = rms_amp1 = peak_phase1 =
+    trough_phase1 = cond2 = condInt2 = mean_value2 = peak_trough_amp2 =
+    rms_amp2 = peak_phase2 = trough_phase2 = feature = NULL
 
   assertClass(fit, 'limorhyde2')
   assertTRUE(fit$nConds >= 2)
@@ -147,52 +147,48 @@ getDiffRhythmStats = function(fit, rhyStats, condLevels = NULL) {
   assertSubset(condLevels, fit$condLevels)
   assertSubset(condLevels, levels(rhyStats$cond))
 
-  if (is.null(condLevels)) condLevels = unique(rhyStats$cond)
+  if (is.null(condLevels)) condLevels = fit$condLevels
   d0 = rhyStats[cond %in% condLevels]
   set(d0, j = 'cond', value = factor(d0$cond, condLevels))
   data.table::setorderv(d0, 'cond')
-  d0[, cond2Int := as.integer(cond)]
+  d0[, condInt := as.integer(cond)]
 
   fitType = attr(rhyStats, 'fitType')
   byCols = c('feature', if (fitType == 'posterior_samples') 'posterior_sample')
-  cols = c('mean_value', 'peak_trough_amp', 'rms_amp', 'peak_phase', 'trough_phase')
 
-  diffRhyStats = merge(d0, d0, allow.cartesian = TRUE, by = byCols)
-  diffRhyStats = diffRhyStats[cond2Int.x < cond2Int.y]
+  diffRhyStats = merge(
+    d0, d0, allow.cartesian = TRUE, by = byCols, suffixes = 1:2)
+  diffRhyStats = diffRhyStats[condInt1 < condInt2]
   diffRhyStats = diffRhyStats[,
-    .(cond_1 = cond.x, cond_2 = cond.y,
-      mean_value = mean_value.x - mean_value.y,
-      peak_trough_amp = peak_trough_amp.x - peak_trough_amp.y,
-      rms_amp = rms_amp.x - rms_amp.y,
-      peak_phase = peak_phase.x - peak_phase.y,
-      trough_phase = trough_phase.x - trough_phase.y),
+    .(cond1, cond2,
+      diff_mean_value = mean_value1 - mean_value2,
+      diff_peak_trough_amp = peak_trough_amp1 - peak_trough_amp2,
+      diff_rms_amp = rms_amp1 - rms_amp2,
+      diff_peak_phase = peak_phase1 - peak_phase2,
+      diff_trough_phase = trough_phase1 - trough_phase2),
     by = byCols]
-  diffRhyStats = diffRhyStats[!is.na(mean_value)]
 
-  diffRhyStats[, peak_phase := centerCircDiff(peak_phase, fit$period)]
-  diffRhyStats[, trough_phase := centerCircDiff(trough_phase, fit$period)]
-  data.table::setnames(diffRhyStats, cols, paste0('diff_', cols))
+  diffRhyStats[, diff_peak_phase := centerCircDiff(diff_peak_phase, fit$period)]
+  diffRhyStats[, diff_trough_phase := centerCircDiff(diff_trough_phase, fit$period)]
 
   #create data.table of conditions
   pairDt = getCondPairs(condLevels)
-  pairIter = iterators::iter(pairDt, by = 'row')
 
   # calculate rms difference in rhythmic fit between conditions
   featureIdx = rownames(fit$coefficients) %in% unique(rhyStats$feature)
-  rmsDiffRhy = foreach(cond_1 = pairDt[, cond_1], cond_2 = pairDt[, cond_2],
+  rmsDiffRhy = foreach(cond1 = pairDt$cond1, cond2 = pairDt$cond2,
                        .combine = rbind) %do% {
-    rmsDiffRhyTmp = getRmsDiffRhy(fit, as.character(c(cond_1, cond_2)),
-                                  fitType, featureIdx)
-    cbind(rmsDiffRhyTmp, cond_1, cond_2)}
+    rmsDiffRhyTmp = getRmsDiffRhy(fit, c(cond1, cond2), fitType, featureIdx)
+    rmsDiffRhyTmp = cbind(rmsDiffRhyTmp, cond1, cond2)
+    rmsDiffRhyTmp}
   diffRhyStats = merge(
-    diffRhyStats, rmsDiffRhy, sort = FALSE, by = c(byCols, 'cond_1', 'cond_2'))
-  diffRhyStats[, cond_1 := factor(cond_1, levels = condLevels)]
-  diffRhyStats[, cond_2 := factor(cond_2, levels = condLevels)]
-  data.table::setorder(diffRhyStats, feature, cond_1, cond_2)
+    diffRhyStats, rmsDiffRhy, sort = FALSE, by = c(byCols, 'cond1', 'cond2'))
+  diffRhyStats[, cond1 := factor(cond1, levels = condLevels)]
+  diffRhyStats[, cond2 := factor(cond2, levels = condLevels)]
+  data.table::setorder(diffRhyStats, feature, cond1, cond2)
 
   setattr(diffRhyStats, 'statType', 'diff_rhy')
   setattr(diffRhyStats, 'fitType', fitType)
-  setattr(diffRhyStats, 'condLevels', condLevels)
   return(diffRhyStats)}
 
 
@@ -228,7 +224,7 @@ getStatsIntervals = function(
   method = match.arg(method)
 
   statType = attr(posteriorStats, 'statType')
-  conds = if(statType == 'rhy') {'cond'} else {c('cond_1', 'cond_2')}
+  conds = if(statType == 'rhy') 'cond' else c('cond_1', 'cond_2')
   idCols = intersect(c(conds, 'feature', 'posterior_sample'),
                      colnames(posteriorStats))
 

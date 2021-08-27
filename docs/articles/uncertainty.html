@@ -170,7 +170,7 @@
 <span class="co">#&gt;  - Computing 100 x 109 likelihood matrix.</span>
 <span class="co">#&gt;  - Likelihood calculations took 0.06 seconds.</span>
 <span class="co">#&gt;  - Fitting model with 109 mixture components.</span>
-<span class="co">#&gt;  - Model fitting took 0.01 seconds.</span>
+<span class="co">#&gt;  - Model fitting took 0.02 seconds.</span>
 <span class="co">#&gt;  - Computing posterior matrices.</span>
 <span class="co">#&gt;  - Computation allocated took 0.01 seconds.</span></code></pre></div>
 </div>
@@ -264,7 +264,7 @@
 <span class="va">diffRhyStatsSamps</span> <span class="op">=</span> <span class="fu"><a href="../reference/getDiffRhythmStats.html">getDiffRhythmStats</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">rhyStatsSamps</span>, <span class="fu"><a href="https://rdrr.io/r/base/levels.html">levels</a></span><span class="op">(</span><span class="va">metadata</span><span class="op">$</span><span class="va">cond</span><span class="op">)</span><span class="op">)</span>
 <span class="va">diffRhyStatsSamps</span><span class="op">[</span><span class="va">genes</span>, <span class="va">symbol</span> <span class="op">:=</span> <span class="va">i.symbol</span>, on <span class="op">=</span> <span class="fu">.</span><span class="op">(</span>feature <span class="op">=</span> <span class="va">id</span><span class="op">)</span><span class="op">]</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">diffRhyStatsSamps</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
-<span class="co">#&gt;      feature posterior_sample    cond_1   cond_2 diff_mean_value</span>
+<span class="co">#&gt;      feature posterior_sample     cond1    cond2 diff_mean_value</span>
 <span class="co">#&gt;   1:   12686                1 wild-type knockout       0.4083296</span>
 <span class="co">#&gt;   2:   12686                2 wild-type knockout       0.3386511</span>
 <span class="co">#&gt;   3:   12686                3 wild-type knockout       0.4269917</span>
@@ -335,18 +335,18 @@
 
 <span class="va">diffRhyStatsInts</span> <span class="op">=</span> <span class="fu"><a href="../reference/getStatsIntervals.html">getStatsIntervals</a></span><span class="op">(</span><span class="va">diffRhyStatsSamps</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">diffRhyStatsInts</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
-<span class="co">#&gt;        cond_1   cond_2 feature            statistic      lower      upper</span>
-<span class="co">#&gt;  1: wild-type knockout   12686      diff_mean_value  0.3273693  0.4761391</span>
-<span class="co">#&gt;  2: wild-type knockout   13170      diff_mean_value -1.3077532 -1.0946908</span>
-<span class="co">#&gt;  3: wild-type knockout   26897      diff_mean_value  2.3132504  2.4744074</span>
-<span class="co">#&gt;  4: wild-type knockout   12686 diff_peak_trough_amp  2.0279483  2.6358331</span>
-<span class="co">#&gt;  5: wild-type knockout   13170 diff_peak_trough_amp  3.3477383  3.7189186</span>
-<span class="co">#&gt; ---                                                                      </span>
-<span class="co">#&gt;  8: wild-type knockout   13170         diff_rms_amp  1.1650380  1.3045149</span>
-<span class="co">#&gt;  9: wild-type knockout   26897         diff_rms_amp  0.2527135  0.4515353</span>
-<span class="co">#&gt; 10: wild-type knockout   12686         rms_diff_rhy  2.6023486  3.1263108</span>
-<span class="co">#&gt; 11: wild-type knockout   13170         rms_diff_rhy  3.5986650  4.0251194</span>
-<span class="co">#&gt; 12: wild-type knockout   26897         rms_diff_rhy  1.1039042  1.8415935</span></code></pre></div>
+<span class="co">#&gt;     feature            statistic      lower      upper</span>
+<span class="co">#&gt;  1:   12686      diff_mean_value  0.3273693  0.4761391</span>
+<span class="co">#&gt;  2:   13170      diff_mean_value -1.3077532 -1.0946908</span>
+<span class="co">#&gt;  3:   26897      diff_mean_value  2.3132504  2.4744074</span>
+<span class="co">#&gt;  4:   12686 diff_peak_trough_amp  2.0279483  2.6358331</span>
+<span class="co">#&gt;  5:   13170 diff_peak_trough_amp  3.3477383  3.7189186</span>
+<span class="co">#&gt; ---                                                   </span>
+<span class="co">#&gt;  8:   13170         diff_rms_amp  1.1650380  1.3045149</span>
+<span class="co">#&gt;  9:   26897         diff_rms_amp  0.2527135  0.4515353</span>
+<span class="co">#&gt; 10:   12686         rms_diff_rhy  2.6023486  3.1263108</span>
+<span class="co">#&gt; 11:   13170         rms_diff_rhy  3.5986650  4.0251194</span>
+<span class="co">#&gt; 12:   26897         rms_diff_rhy  1.1039042  1.8415935</span></code></pre></div>
 </div>
   </div>
 

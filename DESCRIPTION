@@ -29,13 +29,12 @@ Imports:
   pbs (>= 1.1),
   zeallot (>= 0.1.0)
 Suggests:
-    cowplot (>= 1.1.1),
-    knitr,
-    doParallel (>= 1.0.15),
-    ggplot2 (>= 3.3.5),
-    qs (>= 0.24.1),
-    RcppAlgos,
-    rmarkdown,
-    testthat (>= 3.0.0)
+  cowplot (>= 1.1.1),
+  knitr,
+  doParallel (>= 1.0.15),
+  ggplot2 (>= 3.3.5),
+  qs (>= 0.24.1),
+  rmarkdown,
+  testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: knitr

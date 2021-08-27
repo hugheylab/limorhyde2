@@ -168,7 +168,7 @@
 <span class="co">#&gt;  - Computing 100 x 109 likelihood matrix.</span>
 <span class="co">#&gt;  - Likelihood calculations took 0.06 seconds.</span>
 <span class="co">#&gt;  - Fitting model with 109 mixture components.</span>
-<span class="co">#&gt;  - Model fitting took 0.01 seconds.</span>
+<span class="co">#&gt;  - Model fitting took 0.02 seconds.</span>
 <span class="co">#&gt;  - Computing posterior matrices.</span>
 <span class="co">#&gt;  - Computation allocated took 0.01 seconds.</span></code></pre></div>
 </div>
@@ -211,7 +211,7 @@
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">diffRhyStats</span> <span class="op">=</span> <span class="fu"><a href="../reference/getDiffRhythmStats.html">getDiffRhythmStats</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">rhyStats</span>, condLevels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/levels.html">levels</a></span><span class="op">(</span><span class="va">metadata</span><span class="op">$</span><span class="va">cond</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">diffRhyStats</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
-<span class="co">#&gt;        feature    cond_1   cond_2 diff_mean_value diff_peak_trough_amp</span>
+<span class="co">#&gt;        feature     cond1    cond2 diff_mean_value diff_peak_trough_amp</span>
 <span class="co">#&gt;   1:    101476 wild-type knockout    -0.385079194          0.119024736</span>
 <span class="co">#&gt;   2:    104662 wild-type knockout     0.088926109          0.120641471</span>
 <span class="co">#&gt;   3:    107652 wild-type knockout    -0.030761445          0.343503780</span>
@@ -238,7 +238,7 @@
 <p>We can examine the distributions of the statistics in various ways, such as ranking genes by difference in peak-to-trough amplitude (no p-values necessary) or plotting difference in peak-to-trough amplitude vs. difference in mean expression.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">diffRhyStats</span><span class="op">[</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/setorder.html">order</a></span><span class="op">(</span><span class="va">diff_peak_trough_amp</span><span class="op">)</span><span class="op">]</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
-<span class="co">#&gt;      feature    cond_1   cond_2 diff_mean_value diff_peak_trough_amp</span>
+<span class="co">#&gt;      feature     cond1    cond2 diff_mean_value diff_peak_trough_amp</span>
 <span class="co">#&gt;   1:   93671 wild-type knockout     0.122202398         -0.318458377</span>
 <span class="co">#&gt;   2:   18378 wild-type knockout     0.059531404         -0.088706917</span>
 <span class="co">#&gt;   3:   58229 wild-type knockout     0.005650829         -0.004711548</span>

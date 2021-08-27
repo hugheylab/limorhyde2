@@ -104,7 +104,7 @@ getRmsDiffRhy = function(fit, condLevels, fitType, featureIdx) {
                     rms_diff_rhy = r1)})
 
   if (nPostSamps == 1L) set(r, j = 'posterior_sample', value = NULL)
-  return(r[])}
+  return(r)}
 
 
 getEti = function(v, mass) {
@@ -120,11 +120,11 @@ getHdi = function(v, mass) {
 
 
 getCondPairs = function(condLevels) {
-  condIdx1 = condIdx2 = cond_1 = cond_2 = NULL
+  condIdx1 = condIdx2 = cond1 = cond2 = NULL
 
   n = length(condLevels)
   condPairs = data.table::CJ(condIdx1 = 1:n, condIdx2 = 1:n)[condIdx1 < condIdx2]
-  condPairs[, cond_1 := condLevels[condIdx1]]
-  condPairs[, cond_2 := condLevels[condIdx2]]
+  condPairs[, cond1 := condLevels[condIdx1]]
+  condPairs[, cond2 := condLevels[condIdx2]]
   condPairs[, c('condIdx1', 'condIdx2') := NULL]
   return(condPairs)}
