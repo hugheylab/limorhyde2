@@ -133,7 +133,7 @@ getRhythmStats = function(
 #' @seealso [getRhythmStats()], [getStatsIntervals()]
 #'
 #' @export
-getDiffRhythmStats = function(fit, rhyStats, condLevels = NULL) {
+getDiffRhythmStats = function(fit, rhyStats, condLevels = fit$condLevels) {
   cond = .SD = diff_peak_phase = diff_trough_phase = condInt = . = cond1  =
     condInt1 = mean_value1 = peak_trough_amp1 = rms_amp1 = peak_phase1 =
     trough_phase1 = cond2 = condInt2 = mean_value2 = peak_trough_amp2 =
@@ -147,10 +147,8 @@ getDiffRhythmStats = function(fit, rhyStats, condLevels = NULL) {
   assertSubset(condLevels, fit$condLevels)
   assertSubset(condLevels, levels(rhyStats$cond))
 
-  if (is.null(condLevels)) condLevels = fit$condLevels
   d0 = rhyStats[cond %in% condLevels]
   set(d0, j = 'cond', value = factor(d0$cond, condLevels))
-  data.table::setorderv(d0, 'cond')
   d0[, condInt := as.integer(cond)]
 
   fitType = attr(rhyStats, 'fitType')
@@ -161,11 +159,11 @@ getDiffRhythmStats = function(fit, rhyStats, condLevels = NULL) {
   diffRhyStats = diffRhyStats[condInt1 < condInt2]
   diffRhyStats = diffRhyStats[,
     .(cond1, cond2,
-      diff_mean_value = mean_value1 - mean_value2,
-      diff_peak_trough_amp = peak_trough_amp1 - peak_trough_amp2,
-      diff_rms_amp = rms_amp1 - rms_amp2,
-      diff_peak_phase = peak_phase1 - peak_phase2,
-      diff_trough_phase = trough_phase1 - trough_phase2),
+      diff_mean_value = mean_value2 - mean_value1,
+      diff_peak_trough_amp = peak_trough_amp2 - peak_trough_amp1,
+      diff_rms_amp = rms_amp2 - rms_amp1,
+      diff_peak_phase = peak_phase2 - peak_phase1,
+      diff_trough_phase = trough_phase2 - trough_phase1),
     by = byCols]
 
   diffRhyStats[, diff_peak_phase := centerCircDiff(diff_peak_phase, fit$period)]
@@ -185,7 +183,7 @@ getDiffRhythmStats = function(fit, rhyStats, condLevels = NULL) {
     diffRhyStats, rmsDiffRhy, sort = FALSE, by = c(byCols, 'cond1', 'cond2'))
   diffRhyStats[, cond1 := factor(cond1, levels = condLevels)]
   diffRhyStats[, cond2 := factor(cond2, levels = condLevels)]
-  data.table::setorder(diffRhyStats, feature, cond1, cond2)
+  data.table::setorderv(diffRhyStats, c('feature', 'cond1', 'cond2'))
 
   setattr(diffRhyStats, 'statType', 'diff_rhy')
   setattr(diffRhyStats, 'fitType', fitType)

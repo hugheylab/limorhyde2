@@ -117,11 +117,13 @@ test_that('getDiffRhythmStats', {
   id = 2
   fit = qs::qread(sprintf('posterior_fit_%d.qs', id))
   rhyStats = qs::qread(sprintf('rhy_stats_post_%d.qs', id))
-  statsObs = getDiffRhythmStats(fit, rhyStats, conds$lev[1:2])
+  statsObs = getDiffRhythmStats(fit, rhyStats)
   # qs::qsave(statsObs, sprintf('diff_rhy_stats_post_%d.qs', id))
   statsExp = qs::qread(sprintf('diff_rhy_stats_post_%d.qs', id))
 
   expect_equal(statsObs, statsExp)
+  expect_equal(levels(statsObs$cond1), fit$condLevels)
+  expect_equal(levels(statsObs$cond2), fit$condLevels)
 
   fit = qs::qread(sprintf('posterior_samples_%d.qs', id))
   rhyStats = qs::qread(sprintf('rhy_stats_samps_%d.qs', id))
@@ -136,11 +138,6 @@ test_that('getDiffRhythmStats', {
   statsExp = qs::qread(sprintf('diff_rhy_stats_samps32_%d.qs', id))
 
   expect_equal(statsObs, statsExp)
-
-  statsObs = getDiffRhythmStats(fit, rhyStats)
-
-  expect_equal(levels(statsObs$cond1), fit$condLevels)
-  expect_equal(levels(statsObs$cond2), fit$condLevels)
 
   id = 1
   fit = qs::qread(sprintf('model_fit_%d.qs', id))
