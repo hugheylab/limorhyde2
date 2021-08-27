@@ -170,7 +170,7 @@ getDiffRhythmStats = function(fit, rhyStats, condLevels = fit$condLevels) {
   diffRhyStats[, diff_trough_phase := centerCircDiff(diff_trough_phase, fit$period)]
 
   #create data.table of conditions
-  pairDt = getCondPairs(condLevels)
+  pairDt = unique(diffRhyStats[, .(cond1, cond2)])
 
   # calculate rms difference in rhythmic fit between conditions
   featureIdx = rownames(fit$coefficients) %in% unique(rhyStats$feature)
@@ -181,9 +181,7 @@ getDiffRhythmStats = function(fit, rhyStats, condLevels = fit$condLevels) {
     rmsDiffRhyTmp}
   diffRhyStats = merge(
     diffRhyStats, rmsDiffRhy, sort = FALSE, by = c(byCols, 'cond1', 'cond2'))
-  diffRhyStats[, cond1 := factor(cond1, levels = condLevels)]
-  diffRhyStats[, cond2 := factor(cond2, levels = condLevels)]
-  data.table::setorderv(diffRhyStats, c('feature', 'cond1', 'cond2'))
+  data.table::setorderv(diffRhyStats, c(byCols, 'cond1', 'cond2'))
 
   setattr(diffRhyStats, 'statType', 'diff_rhy')
   setattr(diffRhyStats, 'fitType', fitType)

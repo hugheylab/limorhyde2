@@ -117,14 +117,3 @@ getHdi = function(v, mass) {
   r = HDInterval::hdi(v, credMass = mass)
   d = data.table(lower = r[1L], upper = r[2L])
   return(d)}
-
-
-getCondPairs = function(condLevels) {
-  condIdx1 = condIdx2 = cond1 = cond2 = NULL
-
-  n = length(condLevels)
-  condPairs = data.table::CJ(condIdx1 = 1:n, condIdx2 = 1:n)[condIdx1 < condIdx2]
-  condPairs[, cond1 := condLevels[condIdx1]]
-  condPairs[, cond2 := condLevels[condIdx2]]
-  condPairs[, c('condIdx1', 'condIdx2') := NULL]
-  return(condPairs)}

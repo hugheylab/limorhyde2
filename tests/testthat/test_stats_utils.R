@@ -116,12 +116,3 @@ test_that('getHdi', {
   dExp = data.table(lower = 2, upper = 5)
   expect_equal(dObs, dExp)
 })
-
-test_that('getCondPairs', {
-  condLevels = c('group_1', 'group_2', 'group_3')
-  dObs = getCondPairs(condLevels)
-  dExp = data.table(
-    cond1 = c(rep('group_1', 2), 'group_2'),
-    cond2 = c('group_2', rep('group_3', 2)))
-  expect_equal(dObs, dExp)
-})
