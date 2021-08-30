@@ -109,9 +109,8 @@ getRhythmStats = function(
 #' @param fit A `limorhyde2` object containing data from multiple conditions.
 #' @param rhyStats A `data.table` of rhythmic statistics, as returned by
 #'   [getRhythmStats()], for fitted models in `fit`.
-#' @param condLevels A character vector indicating the two conditions to
-#'   compare. Differences will be returned as the value for `condLevels[2]`
-#'   minus the value for `condLevels[1]`.
+#' @param condLevels A character vector indicating the conditions to
+#'   compare.
 #'
 #' @return A `data.table` containing the following differentially rhythmic
 #'   statistics:
@@ -125,19 +124,23 @@ getRhythmStats = function(
 #'   `fit$period/2`
 #' * `rms_diff_rhy`: root mean square difference in mean-centered fitted curves
 #'
+#' The stats will be based on the value for `cond2` minus the value for `cond1`.
 #' The rows of the `data.table` depend on the 'fitType' attribute of `rhyStats`:
 #'
-#' * 'fitType' is 'posterior_mean' or 'raw': one row per feature.
-#' * 'fitType' is 'posterior_samples': one row per feature per posterior sample.
+#' * 'fitType' is 'posterior_mean' or 'raw': one row per feature per pair of
+#'   conditions.
+#' * 'fitType' is 'posterior_samples': one row per feature per posterior sample
+#'   per pair of conditions.
 #'
 #' @seealso [getRhythmStats()], [getStatsIntervals()]
 #'
 #' @export
 getDiffRhythmStats = function(fit, rhyStats, condLevels = fit$condLevels) {
+
   cond = .SD = diff_peak_phase = diff_trough_phase = condInt = . = cond1  =
     condInt1 = mean_value1 = peak_trough_amp1 = rms_amp1 = peak_phase1 =
     trough_phase1 = cond2 = condInt2 = mean_value2 = peak_trough_amp2 =
-    rms_amp2 = peak_phase2 = trough_phase2 = feature = NULL
+    rms_amp2 = peak_phase2 = trough_phase2 = NULL
 
   assertClass(fit, 'limorhyde2')
   assertTRUE(fit$nConds >= 2)
@@ -169,19 +172,17 @@ getDiffRhythmStats = function(fit, rhyStats, condLevels = fit$condLevels) {
   diffRhyStats[, diff_peak_phase := centerCircDiff(diff_peak_phase, fit$period)]
   diffRhyStats[, diff_trough_phase := centerCircDiff(diff_trough_phase, fit$period)]
 
-  #create data.table of conditions
-  pairDt = unique(diffRhyStats[, .(cond1, cond2)])
-
   # calculate rms difference in rhythmic fit between conditions
+  pairs = unique(diffRhyStats[, .(cond1, cond2)])
   featureIdx = rownames(fit$coefficients) %in% unique(rhyStats$feature)
-  rmsDiffRhy = foreach(cond1 = pairDt$cond1, cond2 = pairDt$cond2,
-                       .combine = rbind) %do% {
+
+  feo = foreach(cond1 = pairs$cond1, cond2 = pairs$cond2, .combine = rbind)
+  rmsDiffRhy = feo %do% {
     rmsDiffRhyTmp = getRmsDiffRhy(fit, c(cond1, cond2), fitType, featureIdx)
-    rmsDiffRhyTmp = cbind(rmsDiffRhyTmp, cond1, cond2)
-    rmsDiffRhyTmp}
+    rmsDiffRhyTmp = data.table(rmsDiffRhyTmp, cond1, cond2)}
+
   diffRhyStats = merge(
     diffRhyStats, rmsDiffRhy, sort = FALSE, by = c(byCols, 'cond1', 'cond2'))
-  data.table::setorderv(diffRhyStats, c(byCols, 'cond1', 'cond2'))
 
   setattr(diffRhyStats, 'statType', 'diff_rhy')
   setattr(diffRhyStats, 'fitType', fitType)
@@ -220,7 +221,7 @@ getStatsIntervals = function(
   method = match.arg(method)
 
   statType = attr(posteriorStats, 'statType')
-  conds = if(statType == 'rhy') 'cond' else c('cond_1', 'cond_2')
+  conds = if (statType == 'rhy') 'cond' else c('cond1', 'cond2')
   idCols = intersect(c(conds, 'feature', 'posterior_sample'),
                      colnames(posteriorStats))
 

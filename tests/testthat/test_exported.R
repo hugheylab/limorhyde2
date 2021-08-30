@@ -122,8 +122,6 @@ test_that('getDiffRhythmStats', {
   statsExp = qs::qread(sprintf('diff_rhy_stats_post_%d.qs', id))
 
   expect_equal(statsObs, statsExp)
-  expect_equal(levels(statsObs$cond1), fit$condLevels)
-  expect_equal(levels(statsObs$cond2), fit$condLevels)
 
   fit = qs::qread(sprintf('posterior_samples_%d.qs', id))
   rhyStats = qs::qread(sprintf('rhy_stats_samps_%d.qs', id))
