@@ -170,7 +170,7 @@
 <span class="co">#&gt;  - Computing 100 x 109 likelihood matrix.</span>
 <span class="co">#&gt;  - Likelihood calculations took 0.06 seconds.</span>
 <span class="co">#&gt;  - Fitting model with 109 mixture components.</span>
-<span class="co">#&gt;  - Model fitting took 0.01 seconds.</span>
+<span class="co">#&gt;  - Model fitting took 0.02 seconds.</span>
 <span class="co">#&gt;  - Computing posterior matrices.</span>
 <span class="co">#&gt;  - Computation allocated took 0.01 seconds.</span></code></pre></div>
 </div>
@@ -335,18 +335,18 @@
 
 <span class="va">diffRhyStatsInts</span> <span class="op">=</span> <span class="fu"><a href="../reference/getStatsIntervals.html">getStatsIntervals</a></span><span class="op">(</span><span class="va">diffRhyStatsSamps</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">diffRhyStatsInts</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
-<span class="co">#&gt;     feature            statistic      lower      upper</span>
-<span class="co">#&gt;  1:   12686      diff_mean_value -0.4761391 -0.3273693</span>
-<span class="co">#&gt;  2:   13170      diff_mean_value  1.0946908  1.3077532</span>
-<span class="co">#&gt;  3:   26897      diff_mean_value -2.4744074 -2.3132504</span>
-<span class="co">#&gt;  4:   12686 diff_peak_trough_amp -2.6358331 -2.0279483</span>
-<span class="co">#&gt;  5:   13170 diff_peak_trough_amp -3.7189186 -3.3477383</span>
-<span class="co">#&gt; ---                                                   </span>
-<span class="co">#&gt;  8:   13170         diff_rms_amp -1.3045149 -1.1650380</span>
-<span class="co">#&gt;  9:   26897         diff_rms_amp -0.4515353 -0.2527135</span>
-<span class="co">#&gt; 10:   12686         rms_diff_rhy  2.6023486  3.1263108</span>
-<span class="co">#&gt; 11:   13170         rms_diff_rhy  3.5986650  4.0251194</span>
-<span class="co">#&gt; 12:   26897         rms_diff_rhy  1.1039042  1.8415935</span></code></pre></div>
+<span class="co">#&gt;         cond1    cond2 feature            statistic      lower      upper</span>
+<span class="co">#&gt;  1: wild-type knockout   12686      diff_mean_value -0.4761391 -0.3273693</span>
+<span class="co">#&gt;  2: wild-type knockout   13170      diff_mean_value  1.0946908  1.3077532</span>
+<span class="co">#&gt;  3: wild-type knockout   26897      diff_mean_value -2.4744074 -2.3132504</span>
+<span class="co">#&gt;  4: wild-type knockout   12686 diff_peak_trough_amp -2.6358331 -2.0279483</span>
+<span class="co">#&gt;  5: wild-type knockout   13170 diff_peak_trough_amp -3.7189186 -3.3477383</span>
+<span class="co">#&gt; ---                                                                      </span>
+<span class="co">#&gt;  8: wild-type knockout   13170         diff_rms_amp -1.3045149 -1.1650380</span>
+<span class="co">#&gt;  9: wild-type knockout   26897         diff_rms_amp -0.4515353 -0.2527135</span>
+<span class="co">#&gt; 10: wild-type knockout   12686         rms_diff_rhy  2.6023486  3.1263108</span>
+<span class="co">#&gt; 11: wild-type knockout   13170         rms_diff_rhy  3.5986650  4.0251194</span>
+<span class="co">#&gt; 12: wild-type knockout   26897         rms_diff_rhy  1.1039042  1.8415935</span></code></pre></div>
 </div>
   </div>
 

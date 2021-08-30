@@ -220,7 +220,7 @@ getStatsIntervals = function(
   method = match.arg(method)
 
   statType = attr(posteriorStats, 'statType')
-  conds = if(statType == 'rhy') 'cond' else c('cond_1', 'cond_2')
+  conds = if(statType == 'rhy') 'cond' else c('cond1', 'cond2')
   idCols = intersect(c(conds, 'feature', 'posterior_sample'),
                      colnames(posteriorStats))
 
