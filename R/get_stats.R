@@ -52,15 +52,15 @@ getRhythmStats = function(
   fitType = match.arg(fitType)
   checkFitType(fit, fitType)
 
-  c(shifts, period, condLevels, nKnots, nConds) %<-%
-    fit[c('shifts', 'period', 'condLevels', 'nKnots', 'nConds')]
+  c(shifts, period, conds, nKnots, nConds) %<-%
+    fit[c('shifts', 'period', 'conds', 'nKnots', 'nConds')]
 
   g = function(time) {
     do.call(cbind, lapply(shifts, function(shift) {
       getBasis(time + shift, period, nKnots, TRUE)}))}
 
   tr = seq(0, period, length.out = nKnots * 20)
-  if (nConds == 1L) condLevels = 'lava'
+  if (nConds == 1L) conds = 'lava'
 
   coefArray = getCoefArray(fit, fitType)
   nPostSamps = dim(coefArray)[3L]
@@ -85,13 +85,13 @@ getRhythmStats = function(
 
       idx = seq(1, ncol(coefNow), ncol(coefNow) / length(shifts))
       set(r2, j = 'mean_value', value = rowMeans(coefNow[, idx, drop = FALSE]))
-      set(r2, j = 'cond', value = condLevels[condIdx])
+      set(r2, j = 'cond', value = conds[condIdx])
       set(r2, j = 'feature', value = rownames(coefMat))}
 
     set(r1, j = 'posterior_sample', value = postSampIdx)})
 
   data.table::setcolorder(rhyStats, c('cond', 'feature', 'posterior_sample'))
-  rhyStats[, cond := factor(cond, condLevels)]
+  rhyStats[, cond := factor(cond, conds)]
   if (nConds == 1L) rhyStats[, cond := NULL]
   if (nPostSamps == 1L) rhyStats[, posterior_sample := NULL]
 
@@ -109,8 +109,7 @@ getRhythmStats = function(
 #' @param fit A `limorhyde2` object containing data from multiple conditions.
 #' @param rhyStats A `data.table` of rhythmic statistics, as returned by
 #'   [getRhythmStats()], for fitted models in `fit`.
-#' @param condLevels A character vector indicating the conditions to
-#'   compare.
+#' @param conds A character vector indicating the conditions to compare.
 #'
 #' @return A `data.table` containing the following differentially rhythmic
 #'   statistics:
@@ -135,7 +134,7 @@ getRhythmStats = function(
 #' @seealso [getRhythmStats()], [getStatsIntervals()]
 #'
 #' @export
-getDiffRhythmStats = function(fit, rhyStats, condLevels = fit$condLevels) {
+getDiffRhythmStats = function(fit, rhyStats, conds = fit$conds) {
 
   cond = .SD = diff_peak_phase = diff_trough_phase = condInt = . = cond1  =
     condInt1 = mean_value1 = peak_trough_amp1 = rms_amp1 = peak_phase1 =
@@ -147,11 +146,11 @@ getDiffRhythmStats = function(fit, rhyStats, condLevels = fit$condLevels) {
   assertDataTable(rhyStats)
   assertTRUE(attr(rhyStats, 'statType') == 'rhy')
   assertTRUE('cond' %in% colnames(rhyStats))
-  assertSubset(condLevels, fit$condLevels)
-  assertSubset(condLevels, levels(rhyStats$cond))
+  assertSubset(conds, fit$conds)
+  assertSubset(conds, levels(rhyStats$cond))
 
-  d0 = rhyStats[cond %in% condLevels]
-  set(d0, j = 'cond', value = factor(d0$cond, condLevels))
+  d0 = rhyStats[cond %in% conds]
+  set(d0, j = 'cond', value = factor(d0$cond, conds))
   d0[, condInt := as.integer(cond)]
 
   fitType = attr(rhyStats, 'fitType')

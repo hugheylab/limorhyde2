@@ -4,7 +4,7 @@
 \alias{getDiffRhythmStats}
 \title{Compute differentially rhythmic statistics from fitted models}
 \usage{
-getDiffRhythmStats(fit, rhyStats, condLevels = fit$condLevels)
+getDiffRhythmStats(fit, rhyStats, conds = fit$conds)
 }
 \arguments{
 \item{fit}{A \code{limorhyde2} object containing data from multiple conditions.}
@@ -12,8 +12,7 @@ getDiffRhythmStats(fit, rhyStats, condLevels = fit$condLevels)
 \item{rhyStats}{A \code{data.table} of rhythmic statistics, as returned by
 \code{\link[=getRhythmStats]{getRhythmStats()}}, for fitted models in \code{fit}.}
 
-\item{condLevels}{A character vector indicating the conditions to
-compare.}
+\item{conds}{A character vector indicating the conditions to compare.}
 }
 \value{
 A \code{data.table} containing the following differentially rhythmic

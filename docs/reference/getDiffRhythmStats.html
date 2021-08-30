@@ -142,7 +142,7 @@ given pair of conditions. Register a parallel backend to minimize runtime,
 e.g., using <code><a href='https://rdrr.io/pkg/doParallel/man/registerDoParallel.html'>doParallel::registerDoParallel()</a></code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getDiffRhythmStats</span><span class='op'>(</span><span class='va'>fit</span>, <span class='va'>rhyStats</span>, condLevels <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>getDiffRhythmStats</span><span class='op'>(</span><span class='va'>fit</span>, <span class='va'>rhyStats</span>, conds <span class='op'>=</span> <span class='va'>fit</span><span class='op'>$</span><span class='va'>conds</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -157,10 +157,8 @@ e.g., using <code><a href='https://rdrr.io/pkg/doParallel/man/registerDoParallel
 <code><a href='getRhythmStats.html'>getRhythmStats()</a></code>, for fitted models in <code>fit</code>.</p></td>
     </tr>
     <tr>
-      <th>condLevels</th>
-      <td><p>A character vector indicating the two conditions to
-compare. Differences will be returned as the value for <code>condLevels[2]</code>
-minus the value for <code>condLevels[1]</code>.</p></td>
+      <th>conds</th>
+      <td><p>A character vector indicating the conditions to compare.</p></td>
     </tr>
     </table>
 
@@ -178,9 +176,12 @@ statistics:</p><ul>
 <li><p><code>rms_diff_rhy</code>: root mean square difference in mean-centered fitted curves</p></li>
 </ul>
 
-<p>The rows of the <code>data.table</code> depend on the 'fitType' attribute of <code>rhyStats</code>:</p><ul>
-<li><p>'fitType' is 'posterior_mean' or 'raw': one row per feature.</p></li>
-<li><p>'fitType' is 'posterior_samples': one row per feature per posterior sample.</p></li>
+<p>The stats will be based on the value for <code>cond2</code> minus the value for <code>cond1</code>.
+The rows of the <code>data.table</code> depend on the 'fitType' attribute of <code>rhyStats</code>:</p><ul>
+<li><p>'fitType' is 'posterior_mean' or 'raw': one row per feature per pair of
+conditions.</p></li>
+<li><p>'fitType' is 'posterior_samples': one row per feature per posterior sample
+per pair of conditions.</p></li>
 </ul>
 
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
