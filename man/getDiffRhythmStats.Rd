@@ -12,9 +12,10 @@ getDiffRhythmStats(fit, rhyStats, condLevels = fit$condLevels)
 \item{rhyStats}{A \code{data.table} of rhythmic statistics, as returned by
 \code{\link[=getRhythmStats]{getRhythmStats()}}, for fitted models in \code{fit}.}
 
-\item{condLevels}{A character vector indicating the two conditions to
-compare. Differences will be returned as the value for \code{condLevels[2]}
-minus the value for \code{condLevels[1]}.}
+\item{condLevels}{An optional character vector indicating the conditions to
+compare. By default, \code{getDiffRhythmStats} compares all possible condition pairs.
+Differences will be returned as the value for \code{condLevels[2]} minus the
+value for \code{condLevels[1]}.}
 }
 \value{
 A \code{data.table} containing the following differentially rhythmic
@@ -32,8 +33,8 @@ statistics:
 
 The rows of the \code{data.table} depend on the 'fitType' attribute of \code{rhyStats}:
 \itemize{
-\item 'fitType' is 'posterior_mean' or 'raw': one row per feature.
-\item 'fitType' is 'posterior_samples': one row per feature per posterior sample.
+\item 'fitType' is 'posterior_mean' or 'raw': one row per feature per condition pair.
+\item 'fitType' is 'posterior_samples': one row per feature per condition pair per posterior sample.
 }
 }
 \description{

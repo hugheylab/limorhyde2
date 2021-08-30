@@ -109,9 +109,10 @@ getRhythmStats = function(
 #' @param fit A `limorhyde2` object containing data from multiple conditions.
 #' @param rhyStats A `data.table` of rhythmic statistics, as returned by
 #'   [getRhythmStats()], for fitted models in `fit`.
-#' @param condLevels A character vector indicating the two conditions to
-#'   compare. Differences will be returned as the value for `condLevels[2]`
-#'   minus the value for `condLevels[1]`.
+#' @param condLevels An optional character vector indicating the conditions to
+#'   compare. By default, `getDiffRhythmStats` compares all possible condition pairs.
+#'   Differences will be returned as the value for `condLevels[2]` minus the
+#'   value for `condLevels[1]`.
 #'
 #' @return A `data.table` containing the following differentially rhythmic
 #'   statistics:
@@ -127,8 +128,8 @@ getRhythmStats = function(
 #'
 #' The rows of the `data.table` depend on the 'fitType' attribute of `rhyStats`:
 #'
-#' * 'fitType' is 'posterior_mean' or 'raw': one row per feature.
-#' * 'fitType' is 'posterior_samples': one row per feature per posterior sample.
+#' * 'fitType' is 'posterior_mean' or 'raw': one row per feature per condition pair.
+#' * 'fitType' is 'posterior_samples': one row per feature per condition pair per posterior sample.
 #'
 #' @seealso [getRhythmStats()], [getStatsIntervals()]
 #'
@@ -181,7 +182,6 @@ getDiffRhythmStats = function(fit, rhyStats, condLevels = fit$condLevels) {
     rmsDiffRhyTmp}
   diffRhyStats = merge(
     diffRhyStats, rmsDiffRhy, sort = FALSE, by = c(byCols, 'cond1', 'cond2'))
-  data.table::setorderv(diffRhyStats, c(byCols, 'cond1', 'cond2'))
 
   setattr(diffRhyStats, 'statType', 'diff_rhy')
   setattr(diffRhyStats, 'fitType', fitType)
