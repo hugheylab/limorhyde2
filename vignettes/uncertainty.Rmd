@@ -131,7 +131,7 @@ We can also use the posterior samples to quantify uncertainty in the statistics,
 
 ```{r stats_samps}
 rhyStatsSamps = getRhythmStats(fit, features = genes$id, fitType = 'posterior_samples')
-diffRhyStatsSamps = getDiffRhythmStats(fit, rhyStatsSamps, levels(metadata$cond))
+diffRhyStatsSamps = getDiffRhythmStats(fit, rhyStatsSamps)
 diffRhyStatsSamps[genes, symbol := i.symbol, on = .(feature = id)]
 print(diffRhyStatsSamps, nrows = 10L)
 ```

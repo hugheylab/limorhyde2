@@ -69,7 +69,7 @@ print(rhyStats, nrows = 10L)
 We can now calculate the rhythmic differences for each gene between any two conditions, here between wild-type and knockout.
 
 ```{r diff_rhythm_stats}
-diffRhyStats = getDiffRhythmStats(fit, rhyStats, condLevels = levels(metadata$cond))
+diffRhyStats = getDiffRhythmStats(fit, rhyStats)
 print(diffRhyStats, nrows = 10L)
 ```
 
