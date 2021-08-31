@@ -10,6 +10,15 @@
 
 ########################################
 
+setExpected = FALSE
+# if using setExpected = TRUE:
+# wd = setwd(file.path('tests', 'testthat'))
+# library('data.table')
+# library('testthat')
+# clean and rebuild the package
+# source('test_exported.R')
+# setwd(wd)
+
 foreach::registerDoSEQ()
 m = data.table::fread('GSE34018_test_metadata.csv')
 
@@ -33,26 +42,26 @@ test_that('getModelFit', {
 
   id = 1
   fitObs = getModelFit(y, m, period, nKnots, timeColname, keepLmFits = TRUE)
-  # qs::qsave(fitObs, sprintf('model_fit_%d.qs', id))
+  if (setExpected) qs::qsave(fitObs, sprintf('model_fit_%d.qs', id))
   fitExp = qs::qread(sprintf('model_fit_%d.qs', id))
   expect_equal(fitObs, fitExp)
 
   id = 2
   fitObs = getModelFit(y, m, period, nKnots, timeColname, condColname)
-  # qs::qsave(fitObs, sprintf('model_fit_%d.qs', id))
+  if (setExpected)  qs::qsave(fitObs, sprintf('model_fit_%d.qs', id))
   fitExp = qs::qread(sprintf('model_fit_%d.qs', id))
   expect_equal(fitObs, fitExp)
 
   id = 3
   fitObs = getModelFit(y, m, period, nKnots, timeColname, condColname,
                        covarColnames = 'batch')
-  # qs::qsave(fitObs, sprintf('model_fit_%d.qs', id))
+  if (setExpected) qs::qsave(fitObs, sprintf('model_fit_%d.qs', id))
   fitExp = qs::qread(sprintf('model_fit_%d.qs', id))
   expect_equal(fitObs, fitExp)
 
   id = 4
   fitObs = getModelFit(y, m, period, nKnots = NULL, timeColname = timeColname)
-  # qs::qsave(fitObs, sprintf('model_fit_%d.qs', id))
+  if (setExpected) qs::qsave(fitObs, sprintf('model_fit_%d.qs', id))
   fitExp = qs::qread(sprintf('model_fit_%d.qs', id))
   expect_equal(fitObs, fitExp)
 
@@ -64,10 +73,10 @@ test_that('getModelFit', {
 
 
 test_that('getPosteriorFit', {
-  id = 1
+  id = 2
   fit = qs::qread(sprintf('model_fit_%d.qs', id))
   fitObs = getPosteriorFit(fit)
-  # qs::qsave(fitObs, sprintf('posterior_fit_%d.qs', id))
+  if (setExpected) qs::qsave(fitObs, sprintf('posterior_fit_%d.qs', id))
   fitExp = qs::qread(sprintf('posterior_fit_%d.qs', id))
 
   expect_equal(fitObs, fitExp)
@@ -84,11 +93,25 @@ test_that('getPosteriorFit', {
 })
 
 
+test_that('getPosteriorSamples', {
+  id = 2
+  fitObs = qs::qread(sprintf('posterior_fit_%d.qs', id))
+  fitObs = getPosteriorSamples(fitObs, nPosteriorSamples = 10)
+  if (setExpected) qs::qsave(fitObs, sprintf('posterior_samples_%d.qs', id))
+  fitExp = qs::qread(sprintf('posterior_samples_%d.qs', id))
+
+  expect_equal(fitObs, fitExp)
+  expect_error(getPosteriorSamples(fitObs))
+  # expect_equal(getPosteriorSamples(
+  #   fitObs, nPosteriorSamples = 10, overwrite = TRUE), fitExp)
+})
+
+
 test_that('getRhythmStats', {
   id = 1
   fit = qs::qread(sprintf('model_fit_%d.qs', id))
   statsObs = getRhythmStats(fit, 'raw')
-  # qs::qsave(statsObs, sprintf('rhy_stats_raw_%d.qs', id))
+  if (setExpected) qs::qsave(statsObs, sprintf('rhy_stats_raw_%d.qs', id))
   statsExp = qs::qread(sprintf('rhy_stats_raw_%d.qs', id))
 
   expect_equal(statsObs, statsExp)
@@ -97,7 +120,7 @@ test_that('getRhythmStats', {
   id = 2
   fit = qs::qread(sprintf('posterior_fit_%d.qs', id))
   statsObs = getRhythmStats(fit)
-  # qs::qsave(statsObs, sprintf('rhy_stats_post_%d.qs', id))
+  if (setExpected) qs::qsave(statsObs, sprintf('rhy_stats_post_%d.qs', id))
   statsExp = qs::qread(sprintf('rhy_stats_post_%d.qs', id))
 
   expect_equal(statsObs, statsExp)
@@ -106,7 +129,7 @@ test_that('getRhythmStats', {
 
   fit = qs::qread(sprintf('posterior_samples_%d.qs', id))
   statsObs = getRhythmStats(fit, 'posterior_samples', features = 1:2)
-  # qs::qsave(statsObs, sprintf('rhy_stats_samps_%d.qs', id))
+  if (setExpected) qs::qsave(statsObs, sprintf('rhy_stats_samps_%d.qs', id))
   statsExp = qs::qread(sprintf('rhy_stats_samps_%d.qs', id))
 
   expect_equal(statsObs, statsExp)
@@ -117,8 +140,8 @@ test_that('getDiffRhythmStats', {
   id = 2
   fit = qs::qread(sprintf('posterior_fit_%d.qs', id))
   rhyStats = qs::qread(sprintf('rhy_stats_post_%d.qs', id))
-  statsObs = getDiffRhythmStats(fit, rhyStats, conds$lev[1:2])
-  # qs::qsave(statsObs, sprintf('diff_rhy_stats_post_%d.qs', id))
+  statsObs = getDiffRhythmStats(fit, rhyStats)
+  if (setExpected) qs::qsave(statsObs, sprintf('diff_rhy_stats_post_%d.qs', id))
   statsExp = qs::qread(sprintf('diff_rhy_stats_post_%d.qs', id))
 
   expect_equal(statsObs, statsExp)
@@ -126,13 +149,13 @@ test_that('getDiffRhythmStats', {
   fit = qs::qread(sprintf('posterior_samples_%d.qs', id))
   rhyStats = qs::qread(sprintf('rhy_stats_samps_%d.qs', id))
   statsObs = getDiffRhythmStats(fit, rhyStats, conds$lev[1:2])
-  # qs::qsave(statsObs, sprintf('diff_rhy_stats_samps12_%d.qs', id))
+  if (setExpected) qs::qsave(statsObs, sprintf('diff_rhy_stats_samps12_%d.qs', id))
   statsExp = qs::qread(sprintf('diff_rhy_stats_samps12_%d.qs', id))
 
   expect_equal(statsObs, statsExp)
 
   statsObs = getDiffRhythmStats(fit, rhyStats, conds$lev[3:2])
-  # qs::qsave(statsObs, sprintf('diff_rhy_stats_samps32_%d.qs', id))
+  if (setExpected) qs::qsave(statsObs, sprintf('diff_rhy_stats_samps32_%d.qs', id))
   statsExp = qs::qread(sprintf('diff_rhy_stats_samps32_%d.qs', id))
 
   expect_equal(statsObs, statsExp)
@@ -153,7 +176,7 @@ test_that('getExpectedMeas', {
   fit = qs::qread(sprintf('posterior_samples_%d.qs', id))
   measObs = getExpectedMeas(
     fit, times = times, fitType = 'posterior_samples', features = features)
-  # qs::qsave(measObs, sprintf('expected_meas_%d.qs', id))
+  if (setExpected) qs::qsave(measObs, sprintf('expected_meas_%d.qs', id))
   measExp = qs::qread(sprintf('expected_meas_%d.qs', id))
 
   expect_equal(measObs, measExp)
@@ -162,24 +185,10 @@ test_that('getExpectedMeas', {
   fit = qs::qread(sprintf('model_fit_%d.qs', id))
   measObs = getExpectedMeas(
     fit, times = times, fitType = 'raw', features = features)
-  # qs::qsave(measObs, sprintf('expected_meas_%d.qs', id))
+  if (setExpected) qs::qsave(measObs, sprintf('expected_meas_%d.qs', id))
   measExp = qs::qread(sprintf('expected_meas_%d.qs', id))
 
   expect_equal(measObs, measExp)
-})
-
-
-test_that('getPosteriorSamples', {
-  id = 2
-  fitObs = qs::qread(sprintf('posterior_fit_%d.qs', id))
-  fitObs = getPosteriorSamples(fitObs, nPosteriorSamples = 10)
-  # qs::qsave(fitObs, sprintf('posterior_samples_%d.qs', id))
-  fitExp = qs::qread(sprintf('posterior_samples_%d.qs', id))
-
-  expect_equal(fitObs, fitExp)
-  expect_error(getPosteriorSamples(fitObs))
-  # expect_equal(getPosteriorSamples(
-  #   fitObs, nPosteriorSamples = 10, overwrite = TRUE), fitExp)
 })
 
 
@@ -187,7 +196,7 @@ test_that('getExpectedMeasIntervals', {
   id = 2
   meas = qs::qread(sprintf('expected_meas_%d.qs', id))
   intsObs = getExpectedMeasIntervals(meas)
-  # qs::qsave(intsObs, sprintf('meas_ints_%d.qs', id))
+  if (setExpected) qs::qsave(intsObs, sprintf('meas_ints_%d.qs', id))
   intsExp = qs::qread(sprintf('meas_ints_%d.qs', id))
 
   expect_equal(intsObs, intsExp)
@@ -202,14 +211,14 @@ test_that('getStatsIntervals', {
   id = 2
   rhyStats = qs::qread(sprintf('rhy_stats_samps_%d.qs', id))
   intsObs = getStatsIntervals(rhyStats)
-  # qs::qsave(intsObs, sprintf('stats_ints_rhy_%d.qs', id))
+  if (setExpected) qs::qsave(intsObs, sprintf('stats_ints_rhy_%d.qs', id))
   intsExp = qs::qread(sprintf('stats_ints_rhy_%d.qs', id))
 
   expect_equal(intsObs, intsExp)
 
   diffRhyStats = qs::qread(sprintf('diff_rhy_stats_samps12_%d.qs', id))
   intsObs = getStatsIntervals(diffRhyStats)
-  # qs::qsave(intsObs, sprintf('stats_ints_diff_%d.qs', id))
+  if (setExpected) qs::qsave(intsObs, sprintf('stats_ints_diff_%d.qs', id))
   intsExp = qs::qread(sprintf('stats_ints_diff_%d.qs', id))
 
   expect_equal(intsObs, intsExp)

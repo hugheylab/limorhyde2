@@ -8,7 +8,8 @@ getExpectedMeas(
   fit,
   times,
   fitType = c("posterior_mean", "posterior_samples", "raw"),
-  features = NULL
+  features = NULL,
+  dopar = TRUE
 )
 }
 \arguments{
@@ -23,6 +24,10 @@ on 'posterior_mean', the default.}
 
 \item{features}{Vector of names, row numbers, or logical values for
 subsetting the features. \code{NULL} indicates all features.}
+
+\item{dopar}{Logical indicating whether to run calculations in parallel if
+a parallel backend is already set up, e.g., using
+\code{\link[doParallel:registerDoParallel]{doParallel::registerDoParallel()}}. Recommended to minimize runtime.}
 }
 \value{
 A \code{data.table}.

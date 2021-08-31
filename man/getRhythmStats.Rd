@@ -7,7 +7,8 @@
 getRhythmStats(
   fit,
   fitType = c("posterior_mean", "posterior_samples", "raw"),
-  features = NULL
+  features = NULL,
+  dopar = TRUE
 )
 }
 \arguments{
@@ -19,6 +20,10 @@ rhythmic statistics. A typical analysis using \code{limorhyde2} will be based on
 
 \item{features}{Vector of names, row numbers, or logical values for
 subsetting the features. \code{NULL} indicates all features.}
+
+\item{dopar}{Logical indicating whether to run calculations in parallel if
+a parallel backend is already set up, e.g., using
+\code{\link[doParallel:registerDoParallel]{doParallel::registerDoParallel()}}. Recommended to minimize runtime.}
 }
 \value{
 A \code{data.table} containing the following rhythmic statistics:
@@ -51,8 +56,7 @@ sample.
 \description{
 This function uses \code{\link[stats:optim]{stats::optim()}} to compute various properties of
 fitted curves with respect to time, potentially in each condition and for
-each posterior sample, and adjusting for any covariates. Register a parallel
-backend to minimize runtime, e.g., using \code{\link[doParallel:registerDoParallel]{doParallel::registerDoParallel()}}.
+each posterior sample, and adjusting for any covariates.
 }
 \seealso{
 \code{\link[=getModelFit]{getModelFit()}}, \code{\link[=getPosteriorFit]{getPosteriorFit()}},  \code{\link[=getPosteriorSamples]{getPosteriorSamples()}},

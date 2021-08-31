@@ -44,7 +44,7 @@
 #' * `shifts`: Numeric vector indicating amount by which timepoints were shifted
 #'   for each shifted model.
 #' * `period`: As supplied above.
-#' * `condLevels`: If `condColname` is not `NULL`, a vector of unique values of
+#' * `conds`: If `condColname` is not `NULL`, a vector of unique values of
 #'   the condition variable.
 #' * `nKnots`: Number of knots, where 2 indicates a cosinor-based model.
 #' * `nConds`: Number of conditions.
@@ -120,7 +120,7 @@ getModelFit = function(
 
   fit$shifts = shifts
   fit$period = period
-  fit$condLevels = levels(m$cond) # always works
+  fit$conds = levels(m$cond) # always works
 
   nums = getNumKnotCondCovar(colnames(lmFits[[1L]]))
   fit$nKnots = nums[1L]

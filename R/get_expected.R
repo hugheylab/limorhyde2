@@ -13,6 +13,9 @@
 #'   on 'posterior_mean', the default.
 #' @param features Vector of names, row numbers, or logical values for
 #'   subsetting the features. `NULL` indicates all features.
+#' @param dopar Logical indicating whether to run calculations in parallel if
+#'   a parallel backend is already set up, e.g., using
+#'   [doParallel::registerDoParallel()]. Recommended to minimize runtime.
 #'
 #' @return A `data.table`.
 #'
@@ -22,7 +25,7 @@
 #' @export
 getExpectedMeas = function(
   fit, times, fitType = c('posterior_mean', 'posterior_samples', 'raw'),
-  features = NULL) {
+  features = NULL, dopar = TRUE) {
 
   shift = postSampIdx = posterior_sample = NULL
 
@@ -30,6 +33,7 @@ getExpectedMeas = function(
   assertNumeric(times, finite = TRUE, any.missing = FALSE)
   fitType = match.arg(fitType)
   checkFitType(fit, fitType)
+  assertLogical(dopar, any.missing = FALSE, len = 1L)
 
   coefArray = getCoefArray(fit, fitType)
   nPostSamps = dim(coefArray)[3L]
@@ -61,7 +65,9 @@ getExpectedMeas = function(
     set(mShift, j = 'time', value = mShift$time + shift)
     designShift = getDesign(mShift, fit$period, fit$nKnots)}
 
-  expectedMeas = foreach(postSampIdx = 1:nPostSamps, .combine = rbind) %dopar% {
+  doOp = if (dopar) `%dopar%` else `%do%`
+
+  expectedMeas = doOp(foreach(postSampIdx = 1:nPostSamps, .combine = rbind), {
     coefMat = abind::adrop(coefArray[, , postSampIdx, drop = FALSE], drop = 3)
     r = coefMat %*% t(design) / length(fit$shifts)
     colnames(r) = mNew[[sampleColname]]
@@ -71,7 +77,7 @@ getExpectedMeas = function(
       variable.factor = FALSE)
     d3 = merge(mNew, d2, by = sampleColname, sort = FALSE)
     set(d3, j = sampleColname, value = NULL)
-    set(d3, j = 'posterior_sample', value = postSampIdx)}
+    set(d3, j = 'posterior_sample', value = postSampIdx)})
 
   if (nPostSamps == 1L) expectedMeas[, posterior_sample := NULL]
   setattr(expectedMeas, 'fitType', fitType)

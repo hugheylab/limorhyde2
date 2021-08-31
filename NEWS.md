@@ -1,3 +1,6 @@
+# limorhyde2 0.0.0.9022
+* Output for `getDiffRhythmStats()` now includes all pairs of conditions by default
+
 # limorhyde2 0.0.0.9021
 * Fixed bug so getDiffRhythmStats uses all shifted models
 

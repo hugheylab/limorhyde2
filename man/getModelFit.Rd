@@ -73,7 +73,7 @@ model terms, including all shifted models.
 \item \code{shifts}: Numeric vector indicating amount by which timepoints were shifted
 for each shifted model.
 \item \code{period}: As supplied above.
-\item \code{condLevels}: If \code{condColname} is not \code{NULL}, a vector of unique values of
+\item \code{conds}: If \code{condColname} is not \code{NULL}, a vector of unique values of
 the condition variable.
 \item \code{nKnots}: Number of knots, where 2 indicates a cosinor-based model.
 \item \code{nConds}: Number of conditions.
