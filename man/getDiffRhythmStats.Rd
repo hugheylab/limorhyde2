@@ -4,7 +4,7 @@
 \alias{getDiffRhythmStats}
 \title{Compute differentially rhythmic statistics from fitted models}
 \usage{
-getDiffRhythmStats(fit, rhyStats, conds = fit$conds)
+getDiffRhythmStats(fit, rhyStats, conds = fit$conds, dopar = TRUE)
 }
 \arguments{
 \item{fit}{A \code{limorhyde2} object containing data from multiple conditions.}
@@ -12,7 +12,12 @@ getDiffRhythmStats(fit, rhyStats, conds = fit$conds)
 \item{rhyStats}{A \code{data.table} of rhythmic statistics, as returned by
 \code{\link[=getRhythmStats]{getRhythmStats()}}, for fitted models in \code{fit}.}
 
-\item{conds}{A character vector indicating the conditions to compare.}
+\item{conds}{A character vector indicating the conditions to compare
+pairwise, by default all conditions in \code{fit}.}
+
+\item{dopar}{Logical indicating whether to run calculations in parallel if
+a parallel backend is already set up, e.g., using
+\code{\link[doParallel:registerDoParallel]{doParallel::registerDoParallel()}}. Recommended to minimize runtime.}
 }
 \value{
 A \code{data.table} containing the following differentially rhythmic
@@ -39,8 +44,7 @@ per pair of conditions.
 }
 \description{
 This function computes differences in rhythmicity between fitted curves for a
-given pair of conditions. Register a parallel backend to minimize runtime,
-e.g., using \code{\link[doParallel:registerDoParallel]{doParallel::registerDoParallel()}}.
+given pair of conditions.
 }
 \seealso{
 \code{\link[=getRhythmStats]{getRhythmStats()}}, \code{\link[=getStatsIntervals]{getStatsIntervals()}}

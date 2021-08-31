@@ -74,7 +74,7 @@ getCoefMatDiffCond = function(coefMat, condIdx, nConds, nKnots, nShifts) {
   return(coefKeep)}
 
 
-getRmsDiffRhy = function(fit, conds, fitType, featureIdx) {
+getRmsDiffRhy = function(fit, conds, fitType, featureIdx, dopar) {
   shifts = period = nKnots = nConds = period = postSampIdx = co = NULL
   c(shifts, period, nKnots, nConds) %<-%
     fit[c('shifts', 'period', 'nKnots', 'nConds')]
@@ -88,8 +88,8 @@ getRmsDiffRhy = function(fit, conds, fitType, featureIdx) {
   coefArray = coefArray[featureIdx, , , drop = FALSE]
 
   condIdx = match(conds, fit$conds)
-  doPost = if (nPostSamps == 1L) `%do%` else `%dopar%`
-  doFeat = if (nPostSamps == 1L) `%dopar%` else `%do%`
+  doPost = if (nPostSamps == 1L | !dopar) `%do%` else `%dopar%`
+  doFeat = if (nPostSamps == 1L & dopar) `%dopar%` else `%do%`
 
   r = doPost(foreach(postSampIdx = 1:nPostSamps, .combine = rbind), {
     coefMat = abind::adrop(coefArray[, , postSampIdx, drop = FALSE], drop = 3)

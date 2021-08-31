@@ -2,8 +2,7 @@
 #'
 #' This function uses [stats::optim()] to compute various properties of
 #' fitted curves with respect to time, potentially in each condition and for
-#' each posterior sample, and adjusting for any covariates. Register a parallel
-#' backend to minimize runtime, e.g., using [doParallel::registerDoParallel()].
+#' each posterior sample, and adjusting for any covariates.
 #'
 #' @param fit A `limorhyde2` object.
 #' @param fitType String indicating which fitted models to use to compute the
@@ -11,6 +10,9 @@
 #'   'posterior_mean', the default.
 #' @param features Vector of names, row numbers, or logical values for
 #'   subsetting the features. `NULL` indicates all features.
+#' @param dopar Logical indicating whether to run calculations in parallel if
+#'   a parallel backend is already set up, e.g., using
+#'   [doParallel::registerDoParallel()]. Recommended to minimize runtime.
 #'
 #' @return A `data.table` containing the following rhythmic statistics:
 #'
@@ -43,7 +45,7 @@
 #' @export
 getRhythmStats = function(
   fit, fitType = c('posterior_mean', 'posterior_samples', 'raw'),
-  features = NULL) {
+  features = NULL, dopar = TRUE) {
 
   shifts = period = nKnots = nConds = postSampIdx = condIdx = cond = NULL
   peak_value = trough_value = peak_trough_amp = co = posterior_sample = NULL
@@ -51,6 +53,7 @@ getRhythmStats = function(
   assertClass(fit, 'limorhyde2')
   fitType = match.arg(fitType)
   checkFitType(fit, fitType)
+  assertLogical(dopar, any.missing = FALSE, len = 1L)
 
   c(shifts, period, conds, nKnots, nConds) %<-%
     fit[c('shifts', 'period', 'conds', 'nKnots', 'nConds')]
@@ -66,8 +69,8 @@ getRhythmStats = function(
   nPostSamps = dim(coefArray)[3L]
   if (!is.null(features)) coefArray = coefArray[features, , , drop = FALSE]
 
-  doPost = if (nPostSamps == 1L) `%do%` else `%dopar%`
-  doFeat = if (nPostSamps == 1L) `%dopar%` else `%do%`
+  doPost = if (nPostSamps == 1L | !dopar) `%do%` else `%dopar%`
+  doFeat = if (nPostSamps == 1L & dopar) `%dopar%` else `%do%`
 
   rhyStats = doPost(foreach(postSampIdx = 1:nPostSamps, .combine = rbind), {
     coefMat = abind::adrop(coefArray[, , postSampIdx, drop = FALSE], drop = 3)
@@ -103,13 +106,16 @@ getRhythmStats = function(
 #' Compute differentially rhythmic statistics from fitted models
 #'
 #' This function computes differences in rhythmicity between fitted curves for a
-#' given pair of conditions. Register a parallel backend to minimize runtime,
-#' e.g., using [doParallel::registerDoParallel()].
+#' given pair of conditions.
 #'
 #' @param fit A `limorhyde2` object containing data from multiple conditions.
 #' @param rhyStats A `data.table` of rhythmic statistics, as returned by
 #'   [getRhythmStats()], for fitted models in `fit`.
-#' @param conds A character vector indicating the conditions to compare.
+#' @param conds A character vector indicating the conditions to compare
+#'   pairwise, by default all conditions in `fit`.
+#' @param dopar Logical indicating whether to run calculations in parallel if
+#'   a parallel backend is already set up, e.g., using
+#'   [doParallel::registerDoParallel()]. Recommended to minimize runtime.
 #'
 #' @return A `data.table` containing the following differentially rhythmic
 #'   statistics:
@@ -134,7 +140,7 @@ getRhythmStats = function(
 #' @seealso [getRhythmStats()], [getStatsIntervals()]
 #'
 #' @export
-getDiffRhythmStats = function(fit, rhyStats, conds = fit$conds) {
+getDiffRhythmStats = function(fit, rhyStats, conds = fit$conds, dopar = TRUE) {
 
   cond = .SD = diff_peak_phase = diff_trough_phase = condInt = . = cond1  =
     condInt1 = mean_value1 = peak_trough_amp1 = rms_amp1 = peak_phase1 =
@@ -149,6 +155,7 @@ getDiffRhythmStats = function(fit, rhyStats, conds = fit$conds) {
   assertTRUE('cond' %in% colnames(rhyStats))
   assertSubset(conds, fit$conds)
   assertSubset(conds, levels(rhyStats$cond))
+  assertLogical(dopar, any.missing = FALSE, len = 1L)
 
   d0 = rhyStats[cond %in% conds]
   set(d0, j = 'cond', value = factor(d0$cond, conds))
@@ -178,7 +185,7 @@ getDiffRhythmStats = function(fit, rhyStats, conds = fit$conds) {
 
   feo = foreach(cond1 = pairs$cond1, cond2 = pairs$cond2, .combine = rbind)
   rmsDiffRhy = feo %do% {
-    rmsDiffRhyTmp = getRmsDiffRhy(fit, c(cond1, cond2), fitType, featureIdx)
+    rmsDiffRhyTmp = getRmsDiffRhy(fit, c(cond1, cond2), fitType, featureIdx, dopar)
     rmsDiffRhyTmp = data.table(rmsDiffRhyTmp, cond1, cond2)}
 
   diffRhyStats = merge(

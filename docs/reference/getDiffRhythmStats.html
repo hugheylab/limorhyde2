@@ -41,8 +41,7 @@
 
 <meta property="og:title" content="Compute differentially rhythmic statistics from fitted models — getDiffRhythmStats" />
 <meta property="og:description" content="This function computes differences in rhythmicity between fitted curves for a
-given pair of conditions. Register a parallel backend to minimize runtime,
-e.g., using doParallel::registerDoParallel()." />
+given pair of conditions." />
 
 
 
@@ -138,11 +137,10 @@ e.g., using doParallel::registerDoParallel()." />
 
     <div class="ref-description">
     <p>This function computes differences in rhythmicity between fitted curves for a
-given pair of conditions. Register a parallel backend to minimize runtime,
-e.g., using <code><a href='https://rdrr.io/pkg/doParallel/man/registerDoParallel.html'>doParallel::registerDoParallel()</a></code>.</p>
+given pair of conditions.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getDiffRhythmStats</span><span class='op'>(</span><span class='va'>fit</span>, <span class='va'>rhyStats</span>, conds <span class='op'>=</span> <span class='va'>fit</span><span class='op'>$</span><span class='va'>conds</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>getDiffRhythmStats</span><span class='op'>(</span><span class='va'>fit</span>, <span class='va'>rhyStats</span>, conds <span class='op'>=</span> <span class='va'>fit</span><span class='op'>$</span><span class='va'>conds</span>, dopar <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -158,7 +156,14 @@ e.g., using <code><a href='https://rdrr.io/pkg/doParallel/man/registerDoParallel
     </tr>
     <tr>
       <th>conds</th>
-      <td><p>A character vector indicating the conditions to compare.</p></td>
+      <td><p>A character vector indicating the conditions to compare
+pairwise, by default all conditions in <code>fit</code>.</p></td>
+    </tr>
+    <tr>
+      <th>dopar</th>
+      <td><p>Logical indicating whether to run calculations in parallel if
+a parallel backend is already set up, e.g., using
+<code><a href='https://rdrr.io/pkg/doParallel/man/registerDoParallel.html'>doParallel::registerDoParallel()</a></code>. Recommended to minimize runtime.</p></td>
     </tr>
     </table>
 

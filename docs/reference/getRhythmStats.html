@@ -42,8 +42,7 @@
 <meta property="og:title" content="Compute rhythmic statistics from fitted models — getRhythmStats" />
 <meta property="og:description" content="This function uses stats::optim() to compute various properties of
 fitted curves with respect to time, potentially in each condition and for
-each posterior sample, and adjusting for any covariates. Register a parallel
-backend to minimize runtime, e.g., using doParallel::registerDoParallel()." />
+each posterior sample, and adjusting for any covariates." />
 
 
 
@@ -140,14 +139,14 @@ backend to minimize runtime, e.g., using doParallel::registerDoParallel()." />
     <div class="ref-description">
     <p>This function uses <code><a href='https://rdrr.io/r/stats/optim.html'>stats::optim()</a></code> to compute various properties of
 fitted curves with respect to time, potentially in each condition and for
-each posterior sample, and adjusting for any covariates. Register a parallel
-backend to minimize runtime, e.g., using <code><a href='https://rdrr.io/pkg/doParallel/man/registerDoParallel.html'>doParallel::registerDoParallel()</a></code>.</p>
+each posterior sample, and adjusting for any covariates.</p>
     </div>
 
     <pre class="usage"><span class='fu'>getRhythmStats</span><span class='op'>(</span>
   <span class='va'>fit</span>,
   fitType <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"posterior_mean"</span>, <span class='st'>"posterior_samples"</span>, <span class='st'>"raw"</span><span class='op'>)</span>,
-  features <span class='op'>=</span> <span class='cn'>NULL</span>
+  features <span class='op'>=</span> <span class='cn'>NULL</span>,
+  dopar <span class='op'>=</span> <span class='cn'>TRUE</span>
 <span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -167,6 +166,12 @@ rhythmic statistics. A typical analysis using <code>limorhyde2</code> will be ba
       <th>features</th>
       <td><p>Vector of names, row numbers, or logical values for
 subsetting the features. <code>NULL</code> indicates all features.</p></td>
+    </tr>
+    <tr>
+      <th>dopar</th>
+      <td><p>Logical indicating whether to run calculations in parallel if
+a parallel backend is already set up, e.g., using
+<code><a href='https://rdrr.io/pkg/doParallel/man/registerDoParallel.html'>doParallel::registerDoParallel()</a></code>. Recommended to minimize runtime.</p></td>
     </tr>
     </table>
 
