@@ -2,7 +2,7 @@
 [![CircleCI](https://circleci.com/gh/hugheylab/limorhyde2.svg?style=shield)](https://circleci.com/gh/hugheylab/limorhyde2)
 [![codecov](https://codecov.io/gh/hugheylab/limorhyde2/branch/master/graph/badge.svg)](https://codecov.io/gh/hugheylab/limorhyde2)
 
-`limorhyde2` is an approach to analyze rhythmic, genome-scale data in a way that focuses on effect sizes. For a detailed description of `limorhyde2` along with examples showing its utility on data from one or more conditions, check out the [preprint]().
+`limorhyde2` is an approach to analyze rhythmic, genome-scale data in a way that focuses on effect sizes. For a detailed description of `limorhyde2` along with examples showing its utility on data from one or more conditions, please wait for the preprint.
 
 ## Installation
 
