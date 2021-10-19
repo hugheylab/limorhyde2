@@ -59,14 +59,24 @@ centerCircDiff = function(x, p) {
 
 
 getCoefMatDiffCond = function(coefMat, condIdx, nConds, nKnots, nShifts) {
+  print("In the getCoefMatDiffCond function!")
   nCoefs = ncol(coefMat) / nShifts
+  print(paste0("coefMat: ", coefMat))
+  print(paste0("condIdx: ", condIdx))
+  print(paste0("nConds: ", nConds))
+  print(paste0("nKnots: ", nKnots))
+  print(paste0("nShifts: ", nShifts))
+  print(paste0("nCoefs: ", nCoefs))
   coefKeep = foreach(j = 1:nShifts, .combine = cbind) %do% {
+    print("In the getCoefMatDiffCond loop!")
     coefTmp = coefMat[, (1:nCoefs) + nCoefs * (j - 1), drop = FALSE]
     if (1L %in% condIdx) {
+      print("In the getCoefMatDiffCond loop TRUE condition!")
       condIdxNow = setdiff(condIdx, 1L)
       i = nConds + (condIdxNow - 1) * nKnots + 1
       coefNow = coefTmp[, i:(i + nKnots - 1), drop = FALSE]
     } else {
+      print("In the getCoefMatDiffCond loop FALSE condition!")
       i = nConds + (condIdx - 1) * nKnots + 1
       j = i + nKnots - 1
       coefNow = coefTmp[, i[2]:j[2]] - coefTmp[, i[1]:j[1], drop = FALSE]}
@@ -75,6 +85,7 @@ getCoefMatDiffCond = function(coefMat, condIdx, nConds, nKnots, nShifts) {
 
 
 getRmsDiffRhy = function(fit, conds, fitType, featureIdx, dopar) {
+  print("In the getRmsDiffRhy function!")
   shifts = period = nKnots = nConds = period = postSampIdx = co = NULL
   c(shifts, period, nKnots, nConds) %<-%
     fit[c('shifts', 'period', 'nKnots', 'nConds')]
