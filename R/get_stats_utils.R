@@ -61,7 +61,6 @@ centerCircDiff = function(x, p) {
 getCoefMatDiffCond = function(coefMat, condIdx, nConds, nKnots, nShifts) {
   print("In the getCoefMatDiffCond function!")
   nCoefs = ncol(coefMat) / nShifts
-  print(paste0("coefMat: ", coefMat))
   print(paste0("condIdx: ", condIdx))
   print(paste0("nConds: ", nConds))
   print(paste0("nKnots: ", nKnots))
@@ -98,6 +97,8 @@ getRmsDiffRhy = function(fit, conds, fitType, featureIdx, dopar) {
   nPostSamps = dim(coefArray)[3L]
   coefArray = coefArray[featureIdx, , , drop = FALSE]
 
+  print(paste0("conds: ", conds))
+  print(paste0("fit$conds: ", fit$conds))
   condIdx = match(conds, fit$conds)
   doPost = if (nPostSamps == 1L | !dopar) `%do%` else `%dopar%`
   doFeat = if (nPostSamps == 1L & dopar) `%dopar%` else `%do%`
