@@ -150,6 +150,7 @@ getDiffRhythmStats = function(fit, rhyStats, conds = fit$conds, dopar = TRUE) {
   print("In the getDiffRhythmStats function!")
 
   conds = unique(conds)
+  print(paste0("conds: ", conds))
   assertClass(fit, 'limorhyde2')
   assertTRUE(fit$nConds >= 2)
   assertDataTable(rhyStats)
@@ -183,6 +184,9 @@ getDiffRhythmStats = function(fit, rhyStats, conds = fit$conds, dopar = TRUE) {
 
   # calculate rms difference in rhythmic fit between conditions
   pairs = unique(diffRhyStats[, .(cond1, cond2)])
+  print(paste0("pairs: ", pairs))
+  print(paste0("pairs$cond1: ", pairs$cond1))
+  print(paste0("pairs$cond2: ", pairs$cond2))
   featureIdx = rownames(fit$coefficients) %in% unique(rhyStats$feature)
 
   feo = foreach(cond1 = pairs$cond1, cond2 = pairs$cond2, .combine = rbind)
