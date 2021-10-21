@@ -30,7 +30,7 @@ library('ggplot2')
 library('limorhyde2')
 library('qs')
 
-doParallel::registerDoParallel()
+doParallel::registerDoParallel(cores = getOption('cores'))
 theme_set(theme_bw())
 ```
 
