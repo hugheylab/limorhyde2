@@ -30,7 +30,10 @@ library('ggplot2')
 library('limorhyde2')
 library('qs')
 
-doParallel::registerDoParallel()
+if (Sys.info()['sysname'] == 'Windows') {
+  doParallel::registerDoParallel()
+} else {
+  foreach::registerDoSEQ()}
 theme_set(theme_bw())
 ```
 
