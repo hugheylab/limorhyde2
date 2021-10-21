@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">limorhyde2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9023</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9024</span>
       </span>
     </div>
 
@@ -114,7 +114,7 @@
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/hugheylab/limorhyde2">'limorhyde2'</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/traversc/qs">'qs'</a></span><span class="op">)</span>
 
-<span class="fu">doParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/doParallel/man/registerDoParallel.html">registerDoParallel</a></span><span class="op">(</span><span class="op">)</span>
+<span class="fu">doParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/doParallel/man/registerDoParallel.html">registerDoParallel</a></span><span class="op">(</span>cores <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html">getOption</a></span><span class="op">(</span><span class="st">'cores'</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_bw</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="load-the-data" class="section level2">
@@ -168,9 +168,9 @@
 <code class="sourceCode R"><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/getModelFit.html">getModelFit</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">metadata</span>, nKnots <span class="op">=</span> <span class="fl">3L</span>, condColname <span class="op">=</span> <span class="st">'cond'</span><span class="op">)</span>
 <span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/getPosteriorFit.html">getPosteriorFit</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>
 <span class="co">#&gt;  - Computing 100 x 109 likelihood matrix.</span>
-<span class="co">#&gt;  - Likelihood calculations took 0.08 seconds.</span>
+<span class="co">#&gt;  - Likelihood calculations took 0.07 seconds.</span>
 <span class="co">#&gt;  - Fitting model with 109 mixture components.</span>
-<span class="co">#&gt;  - Model fitting took 0.05 seconds.</span>
+<span class="co">#&gt;  - Model fitting took 0.02 seconds.</span>
 <span class="co">#&gt;  - Computing posterior matrices.</span>
 <span class="co">#&gt;  - Computation allocated took 0.02 seconds.</span></code></pre></div>
 </div>
@@ -262,6 +262,14 @@
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">rhyStatsSamps</span> <span class="op">=</span> <span class="fu"><a href="../reference/getRhythmStats.html">getRhythmStats</a></span><span class="op">(</span><span class="va">fit</span>, features <span class="op">=</span> <span class="va">genes</span><span class="op">$</span><span class="va">id</span>, fitType <span class="op">=</span> <span class="st">'posterior_samples'</span><span class="op">)</span>
 <span class="va">diffRhyStatsSamps</span> <span class="op">=</span> <span class="fu"><a href="../reference/getDiffRhythmStats.html">getDiffRhythmStats</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">rhyStatsSamps</span><span class="op">)</span>
+<span class="co">#&gt; [1] "In the getDiffRhythmStats function!"</span>
+<span class="co">#&gt; [1] "conds: wild-type" "conds: knockout" </span>
+<span class="co">#&gt; [1] "pairs: 1" "pairs: 2"</span>
+<span class="co">#&gt; [1] "pairs$cond1: wild-type"</span>
+<span class="co">#&gt; [1] "pairs$cond2: knockout"</span>
+<span class="co">#&gt; [1] "In the getRmsDiffRhy function!"</span>
+<span class="co">#&gt; [1] "conds: wild-type" "conds: knockout" </span>
+<span class="co">#&gt; [1] "fit$conds: wild-type" "fit$conds: knockout"</span>
 <span class="va">diffRhyStatsSamps</span><span class="op">[</span><span class="va">genes</span>, <span class="va">symbol</span> <span class="op">:=</span> <span class="va">i.symbol</span>, on <span class="op">=</span> <span class="fu">.</span><span class="op">(</span>feature <span class="op">=</span> <span class="va">id</span><span class="op">)</span><span class="op">]</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">diffRhyStatsSamps</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
 <span class="co">#&gt;      feature posterior_sample     cond1    cond2 diff_mean_value</span>

@@ -1,3 +1,6 @@
+# limorhyde2 0.0.0.9024
+* Fixed vignette building on Windows machines
+
 # limorhyde2 0.0.0.9023
 * Fixed factor weirdness between R versions
 
