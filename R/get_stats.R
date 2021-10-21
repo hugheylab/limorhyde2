@@ -191,7 +191,8 @@ getDiffRhythmStats = function(fit, rhyStats, conds = fit$conds, dopar = TRUE) {
 
   feo = foreach(cond1 = pairs$cond1, cond2 = pairs$cond2, .combine = rbind)
   rmsDiffRhy = feo %do% {
-    rmsDiffRhyTmp = getRmsDiffRhy(fit, c(cond1, cond2), fitType, featureIdx, dopar)
+    rmsDiffRhyTmp = getRmsDiffRhy(
+      fit, c(as.character(cond1), as.character(cond2)), fitType, featureIdx, dopar)
     rmsDiffRhyTmp = data.table(rmsDiffRhyTmp, cond1, cond2)}
 
   diffRhyStats = merge(
