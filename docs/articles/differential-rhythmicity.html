@@ -112,7 +112,13 @@
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/hugheylab/limorhyde2">'limorhyde2'</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/traversc/qs">'qs'</a></span><span class="op">)</span>
 
-<span class="fu">doParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/doParallel/man/registerDoParallel.html">registerDoParallel</a></span><span class="op">(</span>cores <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html">getOption</a></span><span class="op">(</span><span class="st">'cores'</span><span class="op">)</span><span class="op">)</span>
+<span class="co"># Variable to indicate whether to run in parallel or sequentially. Change to TRUE if you wish to run in parallel.</span>
+<span class="va">dopar</span> <span class="op">=</span> <span class="cn">FALSE</span>
+<span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Logic.html">isTRUE</a></span><span class="op">(</span><span class="va">dopar</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+  <span class="fu">doParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/doParallel/man/registerDoParallel.html">registerDoParallel</a></span><span class="op">(</span><span class="op">)</span>
+<span class="op">}</span> <span class="kw">else</span> <span class="op">{</span>
+  <span class="fu">foreach</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/foreach/man/registerDoSEQ.html">registerDoSEQ</a></span><span class="op">(</span><span class="op">)</span><span class="op">}</span>
+
 <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_bw</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="load-the-data" class="section level2">
@@ -210,26 +216,6 @@
 <p>We can now calculate the rhythmic differences for each gene between any two conditions, here between wild-type and knockout.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">diffRhyStats</span> <span class="op">=</span> <span class="fu"><a href="../reference/getDiffRhythmStats.html">getDiffRhythmStats</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">rhyStats</span><span class="op">)</span>
-<span class="co">#&gt; [1] "In the getDiffRhythmStats function!"</span>
-<span class="co">#&gt; [1] "conds: wild-type" "conds: knockout" </span>
-<span class="co">#&gt; [1] "pairs: 1" "pairs: 2"</span>
-<span class="co">#&gt; [1] "pairs$cond1: wild-type"</span>
-<span class="co">#&gt; [1] "pairs$cond2: knockout"</span>
-<span class="co">#&gt; [1] "In the getRmsDiffRhy function!"</span>
-<span class="co">#&gt; [1] "conds: wild-type" "conds: knockout" </span>
-<span class="co">#&gt; [1] "fit$conds: wild-type" "fit$conds: knockout" </span>
-<span class="co">#&gt; [1] "In the getCoefMatDiffCond function!"</span>
-<span class="co">#&gt; [1] "condIdx: 1" "condIdx: 2"</span>
-<span class="co">#&gt; [1] "nConds: 2"</span>
-<span class="co">#&gt; [1] "nKnots: 3"</span>
-<span class="co">#&gt; [1] "nShifts: 3"</span>
-<span class="co">#&gt; [1] "nCoefs: 8"</span>
-<span class="co">#&gt; [1] "In the getCoefMatDiffCond loop!"</span>
-<span class="co">#&gt; [1] "In the getCoefMatDiffCond loop TRUE condition!"</span>
-<span class="co">#&gt; [1] "In the getCoefMatDiffCond loop!"</span>
-<span class="co">#&gt; [1] "In the getCoefMatDiffCond loop TRUE condition!"</span>
-<span class="co">#&gt; [1] "In the getCoefMatDiffCond loop!"</span>
-<span class="co">#&gt; [1] "In the getCoefMatDiffCond loop TRUE condition!"</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">diffRhyStats</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
 <span class="co">#&gt;        feature     cond1    cond2 diff_mean_value diff_peak_trough_amp</span>
 <span class="co">#&gt;   1:    101476 wild-type knockout     0.385079194         -0.119024736</span>
