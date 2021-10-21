@@ -147,7 +147,6 @@ getDiffRhythmStats = function(fit, rhyStats, conds = fit$conds, dopar = TRUE) {
     trough_phase1 = cond2 = condInt2 = mean_value2 = peak_trough_amp2 =
     rms_amp2 = peak_phase2 = trough_phase2 = NULL
 
-
   conds = unique(conds)
   assertClass(fit, 'limorhyde2')
   assertTRUE(fit$nConds >= 2)

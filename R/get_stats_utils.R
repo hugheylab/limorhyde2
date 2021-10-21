@@ -59,15 +59,8 @@ centerCircDiff = function(x, p) {
 
 
 getCoefMatDiffCond = function(coefMat, condIdx, nConds, nKnots, nShifts) {
-  print("In the getCoefMatDiffCond function!")
   nCoefs = ncol(coefMat) / nShifts
-  print(paste0("condIdx: ", condIdx))
-  print(paste0("nConds: ", nConds))
-  print(paste0("nKnots: ", nKnots))
-  print(paste0("nShifts: ", nShifts))
-  print(paste0("nCoefs: ", nCoefs))
   coefKeep = foreach(j = 1:nShifts, .combine = cbind) %do% {
-    print("In the getCoefMatDiffCond loop!")
     coefTmp = coefMat[, (1:nCoefs) + nCoefs * (j - 1), drop = FALSE]
     if (1L %in% condIdx) {
       condIdxNow = setdiff(condIdx, 1L)
