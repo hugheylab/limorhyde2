@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
   fig.align = 'center',
   fig.retina = 2)
 
-options(cores = 2L)
+options(cores = if (Sys.info()['sysname'] == 'Windows') 1L else 2L)
 ```
 
 ## Introduction
