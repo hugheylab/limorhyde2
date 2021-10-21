@@ -70,12 +70,10 @@ getCoefMatDiffCond = function(coefMat, condIdx, nConds, nKnots, nShifts) {
     print("In the getCoefMatDiffCond loop!")
     coefTmp = coefMat[, (1:nCoefs) + nCoefs * (j - 1), drop = FALSE]
     if (1L %in% condIdx) {
-      print("In the getCoefMatDiffCond loop TRUE condition!")
       condIdxNow = setdiff(condIdx, 1L)
       i = nConds + (condIdxNow - 1) * nKnots + 1
       coefNow = coefTmp[, i:(i + nKnots - 1), drop = FALSE]
     } else {
-      print("In the getCoefMatDiffCond loop FALSE condition!")
       i = nConds + (condIdx - 1) * nKnots + 1
       j = i + nKnots - 1
       coefNow = coefTmp[, i[2]:j[2]] - coefTmp[, i[1]:j[1], drop = FALSE]}
@@ -84,7 +82,6 @@ getCoefMatDiffCond = function(coefMat, condIdx, nConds, nKnots, nShifts) {
 
 
 getRmsDiffRhy = function(fit, conds, fitType, featureIdx, dopar) {
-  print("In the getRmsDiffRhy function!")
   shifts = period = nKnots = nConds = period = postSampIdx = co = NULL
   c(shifts, period, nKnots, nConds) %<-%
     fit[c('shifts', 'period', 'nKnots', 'nConds')]
@@ -97,8 +94,6 @@ getRmsDiffRhy = function(fit, conds, fitType, featureIdx, dopar) {
   nPostSamps = dim(coefArray)[3L]
   coefArray = coefArray[featureIdx, , , drop = FALSE]
 
-  print(paste0("conds: ", conds))
-  print(paste0("fit$conds: ", fit$conds))
   condIdx = match(conds, fit$conds)
   doPost = if (nPostSamps == 1L | !dopar) `%do%` else `%dopar%`
   doFeat = if (nPostSamps == 1L & dopar) `%dopar%` else `%do%`
