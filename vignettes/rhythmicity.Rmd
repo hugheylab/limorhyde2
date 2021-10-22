@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
   fig.align = 'center',
   fig.retina = 2)
 
-options(cores = 2L)
+foreach::registerDoSEQ()
 ```
 
 ## Introduction
@@ -30,12 +30,7 @@ library('ggplot2')
 library('limorhyde2')
 library('qs')
 
-# Variable to indicate whether to run in parallel or sequentially. Change to TRUE if you wish to run in parallel.
-dopar = FALSE
-if (isTRUE(dopar)) {
-  doParallel::registerDoParallel()
-} else {
-  foreach::registerDoSEQ()}
+# doParallel::registerDoParallel() # register a parallel backend to minimize runtime
 theme_set(theme_bw())
 ```
 
