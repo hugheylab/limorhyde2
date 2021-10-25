@@ -45,7 +45,7 @@ getPosteriorFit = function(
   assertList(getSigResArgs)
   assertCount(npc, positive = TRUE)
   assertList(covEdArgs)
-  assertLogical(overwrite, len = 1L)
+  assertFlag(overwrite)
   assertTRUE(overwrite || is.null(fit$mashFit))
 
   mashCondCoefs = TRUE
@@ -109,7 +109,7 @@ getPosteriorSamples = function(fit, nPosteriorSamples = 200L, overwrite = FALSE)
   assertClass(fit, 'limorhyde2')
   assertNumber(nPosteriorSamples, lower = 10)
   nPostSamps = assertCount(nPosteriorSamples, coerce = TRUE)
-  assertLogical(overwrite, len = 1L)
+  assertFlag(overwrite)
   assertTRUE(overwrite || is.null(fit$mashPosteriorSamples))
 
   mp = mashr::mash_compute_posterior_matrices(

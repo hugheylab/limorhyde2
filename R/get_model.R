@@ -91,7 +91,7 @@ getModelFit = function(
   method = match.arg(method)
   assertList(lmFitArgs)
   assertList(eBayesArgs)
-  assertLogical(keepLmFits, len = 1L)
+  assertFlag(keepLmFits)
 
   shifts = getShifts(nShifts, nKnots, period)
   m = getMetadata(metadata, timeColname, condColname, covarColnames)

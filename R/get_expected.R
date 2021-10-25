@@ -33,7 +33,7 @@ getExpectedMeas = function(
   assertNumeric(times, finite = TRUE, any.missing = FALSE)
   fitType = match.arg(fitType)
   checkFitType(fit, fitType)
-  assertLogical(dopar, any.missing = FALSE, len = 1L)
+  assertFlag(dopar)
 
   coefArray = getCoefArray(fit, fitType)
   nPostSamps = dim(coefArray)[3L]

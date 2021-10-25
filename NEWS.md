@@ -1,3 +1,6 @@
+# limorhyde2 0.0.0.9025
+* Changed `assertLogical()` to `assertFlag()` for checking inputs.
+
 # limorhyde2 0.0.0.9024
 * Fixed vignette building on Windows machines
 

@@ -53,7 +53,7 @@ getRhythmStats = function(
   assertClass(fit, 'limorhyde2')
   fitType = match.arg(fitType)
   checkFitType(fit, fitType)
-  assertLogical(dopar, any.missing = FALSE, len = 1L)
+  assertFlag(dopar)
 
   c(shifts, period, conds, nKnots, nConds) %<-%
     fit[c('shifts', 'period', 'conds', 'nKnots', 'nConds')]
@@ -155,7 +155,7 @@ getDiffRhythmStats = function(fit, rhyStats, conds = fit$conds, dopar = TRUE) {
   assertTRUE('cond' %in% colnames(rhyStats))
   assertSubset(conds, fit$conds)
   assertSubset(conds, levels(rhyStats$cond))
-  assertLogical(dopar, any.missing = FALSE, len = 1L)
+  assertFlag(dopar)
 
   d0 = rhyStats[cond %in% conds]
   set(d0, j = 'cond', value = factor(d0$cond, conds))
