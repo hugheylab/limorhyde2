@@ -9,7 +9,7 @@ Authors@R: as.person(c(
 Description: Fit linear models based on periodic splines, moderate model
   coefficients using mutivariate adaptive shrinkage, then compute properties of
   the moderated curves.
-URL: https://github.com/hugheylab/limorhyde2
+URL: https://limorhyde2.hughylab.org, https://github.com/hugheylab/limorhyde2
 License: GPL-2
 Encoding: UTF-8
 LazyData: true

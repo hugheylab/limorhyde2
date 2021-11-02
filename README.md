@@ -1,39 +1,35 @@
 # limorhyde2
 [![check-deploy](https://github.com/hugheylab/limorhyde2/workflows/check-deploy/badge.svg)](https://github.com/hugheylab/limorhyde2/actions)
 [![codecov](https://codecov.io/gh/hugheylab/limorhyde2/branch/master/graph/badge.svg)](https://codecov.io/gh/hugheylab/limorhyde2)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/2303634f-911d-4872-85ba-d3a04ed0b952/deploy-status)](https://app.netlify.com/sites/stupefied-engelbart-0482ba/deploys)
 
 `limorhyde2` is an approach to analyze rhythmic, genome-scale data in a way that focuses on effect sizes. For a detailed description of `limorhyde2` along with examples showing its utility on data from one or more conditions, please wait for the preprint.
 
 ## Installation
 
-If you use RStudio, go to Tools -> Global Options... -> Packages -> Add... (under Secondary repositories), then enter:
+1. Install [`BiocManager`](https://cran.r-project.org/package=BiocManager).
 
-- Name: hugheylab
-- Url: https://hugheylab.github.io/drat/
+    ```r
+    if (!requireNamespace('BiocManager', quietly = TRUE))
+      install.packages('BiocManager')
+    ```
 
-You only have to do this once. Then you can install or update the package by entering:
+1. If you use RStudio, go to Tools → Global Options... → Packages → Add... (under Secondary repositories), then enter:
 
-```R
-if (!requireNamespace('remotes', quietly = TRUE))
-  install.packages('remotes')
-remotes::install_github('stephens999/ashr')
+    - Name: hugheylab
+    - Url: https://hugheylab.github.io/drat/
 
-if (!requireNamespace('BiocManager', quietly = TRUE))
-  install.packages('BiocManager')
-BiocManager::install('limorhyde2')
-```
+    You only have to do this once. Then you can install or update the package by entering:
 
-Alternatively, you can install or update the package by entering:
+    ```r
+    BiocManager::install('limorhyde2')
+    ```
 
-```R
-if (!requireNamespace('remotes', quietly = TRUE))
-  install.packages('remotes')
-remotes::install_github('stephens999/ashr')
+    Alternatively, you can install or update the package by entering:
 
-if (!requireNamespace('BiocManager', quietly = TRUE))
-  install.packages('BiocManager')
-BiocManager::install('limorhyde2', site_repository = 'https://hugheylab.github.io/drat/')
-```
+    ```r
+    BiocManager::install('limorhyde2', site_repository = 'https://hugheylab.github.io/drat/')
+    ```
 
 ## Usage
 
