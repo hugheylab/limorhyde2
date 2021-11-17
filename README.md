@@ -14,6 +14,14 @@
       install.packages('BiocManager')
     ```
 
+1. Install the latest version of `ashr` from GitHub.
+
+    ```r
+    if (!requireNamespace('remotes', quietly = TRUE))
+      install.packages('remotes')
+    remotes::install_github('stephens999/ashr')
+    ```
+
 1. If you use RStudio, go to Tools → Global Options... → Packages → Add... (under Secondary repositories), then enter:
 
     - Name: hugheylab
