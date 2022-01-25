@@ -1,7 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://limorhyde2.hughylab.org/404.html</loc>
+  </url>
+  <url>
+    <loc>https://limorhyde2.hughylab.org/articles/differential-rhythmicity.html</loc>
+  </url>
+  <url>
+    <loc>https://limorhyde2.hughylab.org/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>https://limorhyde2.hughylab.org/articles/rhythmicity.html</loc>
+  </url>
+  <url>
+    <loc>https://limorhyde2.hughylab.org/articles/uncertainty.html</loc>
+  </url>
+  <url>
+    <loc>https://limorhyde2.hughylab.org/authors.html</loc>
+  </url>
+  <url>
     <loc>https://limorhyde2.hughylab.org/index.html</loc>
+  </url>
+  <url>
+    <loc>https://limorhyde2.hughylab.org/news/index.html</loc>
   </url>
   <url>
     <loc>https://limorhyde2.hughylab.org/reference/getDiffRhythmStats.html</loc>
@@ -28,15 +49,9 @@
     <loc>https://limorhyde2.hughylab.org/reference/getStatsIntervals.html</loc>
   </url>
   <url>
+    <loc>https://limorhyde2.hughylab.org/reference/index.html</loc>
+  </url>
+  <url>
     <loc>https://limorhyde2.hughylab.org/reference/mergeMeasMeta.html</loc>
-  </url>
-  <url>
-    <loc>https://limorhyde2.hughylab.org/articles/differential-rhythmicity.html</loc>
-  </url>
-  <url>
-    <loc>https://limorhyde2.hughylab.org/articles/rhythmicity.html</loc>
-  </url>
-  <url>
-    <loc>https://limorhyde2.hughylab.org/articles/uncertainty.html</loc>
   </url>
 </urlset>

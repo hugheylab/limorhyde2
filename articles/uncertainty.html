@@ -19,6 +19,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -31,18 +33,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">limorhyde2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9025</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.0.9026</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
@@ -70,7 +66,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/hugheylab/limorhyde2/">
+  <a href="https://github.com/hugheylab/limorhyde2/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -91,38 +87,40 @@
       <h1 data-toc-skip>Quantifying uncertainty in (differential) rhythmicity</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/hugheylab/limorhyde2/blob/master/vignettes/uncertainty.Rmd"><code>vignettes/uncertainty.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/hugheylab/limorhyde2/blob/HEAD/vignettes/uncertainty.Rmd" class="external-link"><code>vignettes/uncertainty.Rmd</code></a></small>
       <div class="hidden name"><code>uncertainty.Rmd</code></div>
 
     </div>
 
     
     
-<div id="introduction" class="section level2">
-<h2 class="hasAnchor">
-<a href="#introduction" class="anchor"></a>Introduction</h2>
-<p>Here we show how to use <code>limorhyde2</code> to quantify uncertainty in rhythmicity and differential rhythmicity. This step is not essential and can be computationally expensive, but can provide additional information. As <code>limorhyde2</code> is a <a href="https://en.wikipedia.org/wiki/Bayesian_statistics">Bayesian approach</a> focused on effect sizes rather than statistical significance, quantifying uncertainty relies on the concepts of <a href="https://en.wikipedia.org/wiki/Posterior_probability">posterior probability</a> and <a href="https://en.wikipedia.org/wiki/Credible_interval">credible intervals</a>.</p>
-<p>The data are based on liver samples from wild-type and Rev-erb<span class="math inline">\(\alpha/\beta\)</span> double-knockout mice (<a href="https://doi.org/10.1038/nature11048">Cho et al. 2012</a> and <a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE34018">GSE34018</a>).</p>
+<div class="section level2">
+<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+</h2>
+<p>Here we show how to use <code>limorhyde2</code> to quantify uncertainty in rhythmicity and differential rhythmicity. This step is not essential and can be computationally expensive, but can provide additional information. As <code>limorhyde2</code> is a <a href="https://en.wikipedia.org/wiki/Bayesian_statistics" class="external-link">Bayesian approach</a> focused on effect sizes rather than statistical significance, quantifying uncertainty relies on the concepts of <a href="https://en.wikipedia.org/wiki/Posterior_probability" class="external-link">posterior probability</a> and <a href="https://en.wikipedia.org/wiki/Credible_interval" class="external-link">credible intervals</a>.</p>
+<p>The data are based on liver samples from wild-type and Rev-erb<span class="math inline">\(\alpha/\beta\)</span> double-knockout mice (<a href="https://doi.org/10.1038/nature11048" class="external-link">Cho et al. 2012</a> and <a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE34018" class="external-link">GSE34018</a>).</p>
 </div>
-<div id="load-packages" class="section level2">
-<h2 class="hasAnchor">
-<a href="#load-packages" class="anchor"></a>Load packages</h2>
+<div class="section level2">
+<h2 id="load-packages">Load packages<a class="anchor" aria-label="anchor" href="#load-packages"></a>
+</h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://wilkelab.org/cowplot/">'cowplot'</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://r-datatable.com">'data.table'</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://ggplot2.tidyverse.org">'ggplot2'</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://limorhyde2.hughylab.org">'limorhyde2'</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/traversc/qs">'qs'</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://wilkelab.org/cowplot/" class="external-link">'cowplot'</a></span><span class="op">)</span>
+<span class="co">#&gt; Warning in register(): Can't find generic `scale_type` in package ggplot2 to</span>
+<span class="co">#&gt; register S3 method.</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://r-datatable.com" class="external-link">'data.table'</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://ggplot2.tidyverse.org" class="external-link">'ggplot2'</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://limorhyde2.hughylab.org">'limorhyde2'</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/traversc/qs" class="external-link">'qs'</a></span><span class="op">)</span>
 
 <span class="co"># doParallel::registerDoParallel() # register a parallel backend to minimize runtime</span>
-<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_bw</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html" class="external-link">theme_set</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 </div>
-<div id="load-the-data" class="section level2">
-<h2 class="hasAnchor">
-<a href="#load-the-data" class="anchor"></a>Load the data</h2>
+<div class="section level2">
+<h2 id="load-the-data">Load the data<a class="anchor" aria-label="anchor" href="#load-the-data"></a>
+</h2>
 <p>The expression data are in a matrix with one row per gene and one column per sample. The metadata are in a table with one row per sample. To save time and space, the expression data include only a subset of genes.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">y</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/qs/man/qread.html">qread</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span><span class="st">'extdata'</span>, <span class="st">'GSE34018_data.qs'</span>, package <span class="op">=</span> <span class="st">'limorhyde2'</span><span class="op">)</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">y</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/qs/man/qread.html" class="external-link">qread</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">'extdata'</span>, <span class="st">'GSE34018_data.qs'</span>, package <span class="op">=</span> <span class="st">'limorhyde2'</span><span class="op">)</span><span class="op">)</span>
 <span class="va">y</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>
 <span class="co">#&gt;       GSM840516 GSM840517 GSM840518 GSM840519 GSM840520</span>
 <span class="co">#&gt; 12686 11.962830 11.923338 11.098814 10.958933  9.256413</span>
@@ -131,7 +129,7 @@
 <span class="co">#&gt; 11287  7.985859  7.930935  7.674688  7.899531  7.768563</span>
 <span class="co">#&gt; 11731  8.481372  8.114623  8.058194  8.144267  8.152959</span>
 
-<span class="va">metadata</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/qs/man/qread.html">qread</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span><span class="st">'extdata'</span>, <span class="st">'GSE34018_metadata.qs'</span>, package <span class="op">=</span> <span class="st">'limorhyde2'</span><span class="op">)</span><span class="op">)</span>
+<span class="va">metadata</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/qs/man/qread.html" class="external-link">qread</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">'extdata'</span>, <span class="st">'GSE34018_metadata.qs'</span>, package <span class="op">=</span> <span class="st">'limorhyde2'</span><span class="op">)</span><span class="op">)</span>
 <span class="va">metadata</span>
 <span class="co">#&gt;        sample      cond time</span>
 <span class="co">#&gt;  1: GSM840516 wild-type    0</span>
@@ -160,40 +158,40 @@
 <span class="co">#&gt; 24: GSM840515  knockout   20</span>
 <span class="co">#&gt;        sample      cond time</span></code></pre></div>
 </div>
-<div id="fit-linear-models-and-compute-posterior-fits" class="section level2">
-<h2 class="hasAnchor">
-<a href="#fit-linear-models-and-compute-posterior-fits" class="anchor"></a>Fit linear models and compute posterior fits</h2>
+<div class="section level2">
+<h2 id="fit-linear-models-and-compute-posterior-fits">Fit linear models and compute posterior fits<a class="anchor" aria-label="anchor" href="#fit-linear-models-and-compute-posterior-fits"></a>
+</h2>
 <p>Because the samples were acquired at relatively low temporal resolution (every 4 h), we use three knots instead of the default four, which reduces the flexibility of the spline curves. We specify <code>condColname</code> so <code><a href="../reference/getModelFit.html">getModelFit()</a></code> knows to fit a differential rhythmicity model.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/getModelFit.html">getModelFit</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">metadata</span>, nKnots <span class="op">=</span> <span class="fl">3L</span>, condColname <span class="op">=</span> <span class="st">'cond'</span><span class="op">)</span>
 <span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/getPosteriorFit.html">getPosteriorFit</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>
 <span class="co">#&gt;  - Computing 100 x 109 likelihood matrix.</span>
-<span class="co">#&gt;  - Likelihood calculations took 0.09 seconds.</span>
+<span class="co">#&gt;  - Likelihood calculations took 0.08 seconds.</span>
 <span class="co">#&gt;  - Fitting model with 109 mixture components.</span>
 <span class="co">#&gt;  - Model fitting took 0.02 seconds.</span>
 <span class="co">#&gt;  - Computing posterior matrices.</span>
 <span class="co">#&gt;  - Computation allocated took 0.02 seconds.</span></code></pre></div>
 </div>
-<div id="draw-samples-from-the-posterior-fits" class="section level2">
-<h2 class="hasAnchor">
-<a href="#draw-samples-from-the-posterior-fits" class="anchor"></a>Draw samples from the posterior fits</h2>
+<div class="section level2">
+<h2 id="draw-samples-from-the-posterior-fits">Draw samples from the posterior fits<a class="anchor" aria-label="anchor" href="#draw-samples-from-the-posterior-fits"></a>
+</h2>
 <p>The posterior fits consist of not just a single set of model coefficients (the posterior means), but distributions of model coefficients. Sampling from these distributions is the first step to quantifying uncertainty in the fits. Here we generate 50 posterior samples, although an actual analysis would require more to accurately estimate the credible intervals.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/getPosteriorSamples.html">getPosteriorSamples</a></span><span class="op">(</span><span class="va">fit</span>, nPosteriorSamples <span class="op">=</span> <span class="fl">50L</span><span class="op">)</span></code></pre></div>
 </div>
-<div id="get-fitted-time-courses" class="section level2">
-<h2 class="hasAnchor">
-<a href="#get-fitted-time-courses" class="anchor"></a>Get fitted time-courses</h2>
+<div class="section level2">
+<h2 id="get-fitted-time-courses">Get fitted time-courses<a class="anchor" aria-label="anchor" href="#get-fitted-time-courses"></a>
+</h2>
 <p>We can use the posterior samples to quantify uncertainty in the expected measurements, i.e., the fitted curves, by specifying the <code>fitType</code> argument. Here we focus on three genes.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">genes</span> <span class="op">=</span> <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html">data.table</a></span><span class="op">(</span>id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'13170'</span>, <span class="st">'12686'</span>, <span class="st">'26897'</span><span class="op">)</span>,
-                   symbol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'Dbp'</span>, <span class="st">'Elovl3'</span>, <span class="st">'Acot1'</span><span class="op">)</span><span class="op">)</span>
-<span class="va">times</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">24</span>, <span class="fl">0.5</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">genes</span> <span class="op">=</span> <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'13170'</span>, <span class="st">'12686'</span>, <span class="st">'26897'</span><span class="op">)</span>,
+                   symbol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Dbp'</span>, <span class="st">'Elovl3'</span>, <span class="st">'Acot1'</span><span class="op">)</span><span class="op">)</span>
+<span class="va">times</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">24</span>, <span class="fl">0.5</span><span class="op">)</span>
 
 <span class="va">measFitSamps</span> <span class="op">=</span> <span class="fu"><a href="../reference/getExpectedMeas.html">getExpectedMeas</a></span><span class="op">(</span>
   <span class="va">fit</span>, times <span class="op">=</span> <span class="va">times</span>, fitType <span class="op">=</span> <span class="st">'posterior_samples'</span>, features <span class="op">=</span> <span class="va">genes</span><span class="op">$</span><span class="va">id</span><span class="op">)</span>
 <span class="va">measFitSamps</span><span class="op">[</span><span class="va">genes</span>, <span class="va">symbol</span> <span class="op">:=</span> <span class="va">i.symbol</span>, on <span class="op">=</span> <span class="fu">.</span><span class="op">(</span>feature <span class="op">=</span> <span class="va">id</span><span class="op">)</span><span class="op">]</span>
-<span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">measFitSamps</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">measFitSamps</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
 <span class="co">#&gt;        time      cond feature     value posterior_sample symbol</span>
 <span class="co">#&gt;     1:    0 wild-type   13170  9.389048                1    Dbp</span>
 <span class="co">#&gt;     2:    0 wild-type   12686 11.879609                1 Elovl3</span>
@@ -209,7 +207,7 @@
 <p>Given the expected measurements from the posterior samples, we can compute the lower and upper bounds of the credible interval for each combination of feature, condition, and time-point. By default, <code><a href="../reference/getExpectedMeasIntervals.html">getExpectedMeasIntervals()</a></code> calculates the 90% equal-tailed interval.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">measFitInts</span> <span class="op">=</span> <span class="fu"><a href="../reference/getExpectedMeasIntervals.html">getExpectedMeasIntervals</a></span><span class="op">(</span><span class="va">measFitSamps</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">measFitInts</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">measFitInts</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
 <span class="co">#&gt;      time      cond feature symbol     lower     upper</span>
 <span class="co">#&gt;   1:    0 wild-type   13170    Dbp  9.312920  9.545719</span>
 <span class="co">#&gt;   2:    0 wild-type   12686 Elovl3 11.742144 11.956802</span>
@@ -228,42 +226,42 @@
 <span class="va">measFitMean</span><span class="op">[</span><span class="va">genes</span>, <span class="va">symbol</span> <span class="op">:=</span> <span class="va">i.symbol</span>, on <span class="op">=</span> <span class="fu">.</span><span class="op">(</span>feature <span class="op">=</span> <span class="va">id</span><span class="op">)</span><span class="op">]</span></code></pre></div>
 <p>Now we can plot the results. In the first row, each curve corresponds to a posterior sample. In the second row, the ribbons indicate the credible intervals.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">timeBreaks</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">24</span>, <span class="fl">4</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">timeBreaks</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">24</span>, <span class="fl">4</span><span class="op">)</span>
 <span class="va">pal</span> <span class="op">=</span> <span class="st">'Dark2'</span>
 
-<span class="va">p1</span> <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">measFitSamps</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html">facet_wrap</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/vars.html">vars</a></span><span class="op">(</span><span class="va">symbol</span><span class="op">)</span>, scales <span class="op">=</span> <span class="st">'fixed'</span>, nrow <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">time</span>, y <span class="op">=</span> <span class="va">value</span>, color <span class="op">=</span> <span class="va">cond</span>,
-                group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interaction.html">interaction</a></span><span class="op">(</span><span class="va">cond</span>, <span class="va">posterior_sample</span><span class="op">)</span><span class="op">)</span>, alpha <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">'Circadian time (h)'</span>, y <span class="op">=</span> <span class="st">'Expression (norm.)'</span>, color <span class="op">=</span> <span class="st">'Condition'</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="va">timeBreaks</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html">scale_color_brewer</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="va">pal</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">'none'</span><span class="op">)</span>
+<span class="va">p1</span> <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">measFitSamps</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/vars.html" class="external-link">vars</a></span><span class="op">(</span><span class="va">symbol</span><span class="op">)</span>, scales <span class="op">=</span> <span class="st">'fixed'</span>, nrow <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">time</span>, y <span class="op">=</span> <span class="va">value</span>, color <span class="op">=</span> <span class="va">cond</span>,
+                group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interaction.html" class="external-link">interaction</a></span><span class="op">(</span><span class="va">cond</span>, <span class="va">posterior_sample</span><span class="op">)</span><span class="op">)</span>, alpha <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">'Circadian time (h)'</span>, y <span class="op">=</span> <span class="st">'Expression (norm.)'</span>, color <span class="op">=</span> <span class="st">'Condition'</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="va">timeBreaks</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html" class="external-link">scale_color_brewer</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="va">pal</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">'none'</span><span class="op">)</span>
 
-<span class="va">p2</span> <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html">facet_wrap</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/vars.html">vars</a></span><span class="op">(</span><span class="va">symbol</span><span class="op">)</span>, scales <span class="op">=</span> <span class="st">'fixed'</span>, nrow <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_ribbon.html">geom_ribbon</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">time</span>, ymin <span class="op">=</span> <span class="va">lower</span>, ymax <span class="op">=</span> <span class="va">upper</span>, fill <span class="op">=</span> <span class="va">cond</span><span class="op">)</span>,
+<span class="va">p2</span> <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/vars.html" class="external-link">vars</a></span><span class="op">(</span><span class="va">symbol</span><span class="op">)</span>, scales <span class="op">=</span> <span class="st">'fixed'</span>, nrow <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_ribbon.html" class="external-link">geom_ribbon</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">time</span>, ymin <span class="op">=</span> <span class="va">lower</span>, ymax <span class="op">=</span> <span class="va">upper</span>, fill <span class="op">=</span> <span class="va">cond</span><span class="op">)</span>,
               alpha <span class="op">=</span> <span class="fl">0.3</span>, data <span class="op">=</span> <span class="va">measFitInts</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">time</span>, y <span class="op">=</span> <span class="va">value</span>, color <span class="op">=</span> <span class="va">cond</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">measFitMean</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">'Circadian time (h)'</span>, y <span class="op">=</span> <span class="st">'Expression (norm.)'</span>, color <span class="op">=</span> <span class="st">'Condition'</span>,
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">time</span>, y <span class="op">=</span> <span class="va">value</span>, color <span class="op">=</span> <span class="va">cond</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">measFitMean</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">'Circadian time (h)'</span>, y <span class="op">=</span> <span class="st">'Expression (norm.)'</span>, color <span class="op">=</span> <span class="st">'Condition'</span>,
        fill <span class="op">=</span> <span class="st">'Condition'</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="va">timeBreaks</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html">scale_fill_brewer</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="va">pal</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html">scale_color_brewer</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="va">pal</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">'bottom'</span><span class="op">)</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="va">timeBreaks</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html" class="external-link">scale_fill_brewer</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="va">pal</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html" class="external-link">scale_color_brewer</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="va">pal</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">'bottom'</span><span class="op">)</span>
 
-<span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html">plot_grid</a></span><span class="op">(</span><span class="va">p1</span>, <span class="va">p2</span>, ncol <span class="op">=</span> <span class="fl">1</span>, rel_heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1.25</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span><span class="va">p1</span>, <span class="va">p2</span>, ncol <span class="op">=</span> <span class="fl">1</span>, rel_heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1.25</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><img src="uncertainty_files/figure-html/plot_timecourse_samps-1.png" width="672" style="display: block; margin: auto;"></p>
 </div>
-<div id="get-rhythmic-and-differentially-rhythmic-statistics" class="section level2">
-<h2 class="hasAnchor">
-<a href="#get-rhythmic-and-differentially-rhythmic-statistics" class="anchor"></a>Get rhythmic and differentially rhythmic statistics</h2>
+<div class="section level2">
+<h2 id="get-rhythmic-and-differentially-rhythmic-statistics">Get rhythmic and differentially rhythmic statistics<a class="anchor" aria-label="anchor" href="#get-rhythmic-and-differentially-rhythmic-statistics"></a>
+</h2>
 <p>We can also use the posterior samples to quantify uncertainty in the statistics, again by specifying the <code>fitType</code> argument.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">rhyStatsSamps</span> <span class="op">=</span> <span class="fu"><a href="../reference/getRhythmStats.html">getRhythmStats</a></span><span class="op">(</span><span class="va">fit</span>, features <span class="op">=</span> <span class="va">genes</span><span class="op">$</span><span class="va">id</span>, fitType <span class="op">=</span> <span class="st">'posterior_samples'</span><span class="op">)</span>
 <span class="va">diffRhyStatsSamps</span> <span class="op">=</span> <span class="fu"><a href="../reference/getDiffRhythmStats.html">getDiffRhythmStats</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">rhyStatsSamps</span><span class="op">)</span>
 <span class="va">diffRhyStatsSamps</span><span class="op">[</span><span class="va">genes</span>, <span class="va">symbol</span> <span class="op">:=</span> <span class="va">i.symbol</span>, on <span class="op">=</span> <span class="fu">.</span><span class="op">(</span>feature <span class="op">=</span> <span class="va">id</span><span class="op">)</span><span class="op">]</span>
-<span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">diffRhyStatsSamps</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">diffRhyStatsSamps</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
 <span class="co">#&gt;      feature posterior_sample     cond1    cond2 diff_mean_value</span>
 <span class="co">#&gt;   1:   12686                1 wild-type knockout      -0.4083296</span>
 <span class="co">#&gt;   2:   12686                2 wild-type knockout      -0.3386511</span>
@@ -276,77 +274,60 @@
 <span class="co">#&gt; 148:   26897               48 wild-type knockout      -2.4299884</span>
 <span class="co">#&gt; 149:   26897               49 wild-type knockout      -2.3018778</span>
 <span class="co">#&gt; 150:   26897               50 wild-type knockout      -2.4027325</span>
-<span class="co">#&gt;      diff_peak_trough_amp diff_rms_amp diff_peak_phase diff_trough_phase</span>
-<span class="co">#&gt;   1:           -2.5671171   -0.8933007      -1.8136085        -0.8240157</span>
-<span class="co">#&gt;   2:           -2.5290374   -0.9056453      -5.3312776        -0.9626241</span>
-<span class="co">#&gt;   3:           -2.6030130   -0.9237720      -4.8303454        -0.5388696</span>
-<span class="co">#&gt;   4:           -2.2099703   -0.7781436      -5.1200017        -3.1584134</span>
-<span class="co">#&gt;   5:           -2.2718334   -0.8052674      -4.7144006        -1.0342290</span>
-<span class="co">#&gt;  ---                                                                    </span>
-<span class="co">#&gt; 146:           -1.2587567   -0.4015045       1.0530490         7.2756453</span>
-<span class="co">#&gt; 147:           -1.4133809   -0.5230411       1.2877243        -2.3325067</span>
-<span class="co">#&gt; 148:           -1.0275415   -0.3705012       0.8332398         6.0653608</span>
-<span class="co">#&gt; 149:           -0.5256044   -0.1902584      -0.9409261         4.1293078</span>
-<span class="co">#&gt; 150:           -0.9094560   -0.3389905       0.9645104        -1.9435250</span>
-<span class="co">#&gt;      rms_diff_rhy symbol</span>
-<span class="co">#&gt;   1:    2.7237402 Elovl3</span>
-<span class="co">#&gt;   2:    2.9991839 Elovl3</span>
-<span class="co">#&gt;   3:    2.9245911 Elovl3</span>
-<span class="co">#&gt;   4:    2.8911712 Elovl3</span>
-<span class="co">#&gt;   5:    2.5913180 Elovl3</span>
-<span class="co">#&gt;  ---                    </span>
-<span class="co">#&gt; 146:    1.6513788  Acot1</span>
-<span class="co">#&gt; 147:    1.6882807  Acot1</span>
-<span class="co">#&gt; 148:    1.5340596  Acot1</span>
-<span class="co">#&gt; 149:    0.9794548  Acot1</span>
-<span class="co">#&gt; 150:    1.2876377  Acot1</span></code></pre></div>
+<span class="co">#&gt;      diff_peak_trough_amp diff_peak_phase diff_trough_phase symbol</span>
+<span class="co">#&gt;   1:           -2.5671171      -1.8136085        -0.8240157 Elovl3</span>
+<span class="co">#&gt;   2:           -2.5290374      -5.3312776        -0.9626241 Elovl3</span>
+<span class="co">#&gt;   3:           -2.6030130      -4.8303454        -0.5388696 Elovl3</span>
+<span class="co">#&gt;   4:           -2.2099703      -5.1200017        -3.1584134 Elovl3</span>
+<span class="co">#&gt;   5:           -2.2718334      -4.7144006        -1.0342290 Elovl3</span>
+<span class="co">#&gt;  ---                                                              </span>
+<span class="co">#&gt; 146:           -1.2587567       1.0530490         7.2756453  Acot1</span>
+<span class="co">#&gt; 147:           -1.4133809       1.2877243        -2.3325067  Acot1</span>
+<span class="co">#&gt; 148:           -1.0275415       0.8332398         6.0653608  Acot1</span>
+<span class="co">#&gt; 149:           -0.5256044      -0.9409261         4.1293078  Acot1</span>
+<span class="co">#&gt; 150:           -0.9094560       0.9645104        -1.9435250  Acot1</span></code></pre></div>
 <p>In the plots below, each point represents a posterior sample.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">p1</span> <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">diffRhyStatsSamps</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html">facet_wrap</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/vars.html">vars</a></span><span class="op">(</span><span class="va">symbol</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">diff_peak_trough_amp</span>, y <span class="op">=</span> <span class="va">diff_mean_value</span><span class="op">)</span>, alpha <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">'Difference in peak-to-trough amplitude (norm.)'</span>,
+<code class="sourceCode R"><span class="va">p1</span> <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">diffRhyStatsSamps</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/vars.html" class="external-link">vars</a></span><span class="op">(</span><span class="va">symbol</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">diff_peak_trough_amp</span>, y <span class="op">=</span> <span class="va">diff_mean_value</span><span class="op">)</span>, alpha <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">'Difference in peak-to-trough amplitude (norm.)'</span>,
        y <span class="op">=</span> <span class="st">'Difference in mean value (norm.)'</span><span class="op">)</span>
 
-<span class="va">p2</span> <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">diffRhyStatsSamps</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html">facet_wrap</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/vars.html">vars</a></span><span class="op">(</span><span class="va">symbol</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">diff_peak_trough_amp</span>, y <span class="op">=</span> <span class="va">diff_peak_phase</span><span class="op">)</span>, alpha <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">'Difference in peak-to-trough amplitude (norm.)'</span>,
+<span class="va">p2</span> <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">diffRhyStatsSamps</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/vars.html" class="external-link">vars</a></span><span class="op">(</span><span class="va">symbol</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">diff_peak_trough_amp</span>, y <span class="op">=</span> <span class="va">diff_peak_phase</span><span class="op">)</span>, alpha <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">'Difference in peak-to-trough amplitude (norm.)'</span>,
        y <span class="op">=</span> <span class="st">'Difference in peak phase (h)'</span><span class="op">)</span>
 
-<span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html">plot_grid</a></span><span class="op">(</span><span class="va">p1</span>, <span class="va">p2</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span><span class="va">p1</span>, <span class="va">p2</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></code></pre></div>
 <p><img src="uncertainty_files/figure-html/plot_stats_samps-1.png" width="672" style="display: block; margin: auto;"></p>
 <p>Finally, we can compute credible intervals for the rhythmic and differentially rhythmic statistics. Again, by default these are 90% equal-tailed intervals. Currently <code><a href="../reference/getStatsIntervals.html">getStatsIntervals()</a></code> does not calculate intervals for phase-based statistics, since phase and phase difference are circular quantities.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">rhyStatsInts</span> <span class="op">=</span> <span class="fu"><a href="../reference/getStatsIntervals.html">getStatsIntervals</a></span><span class="op">(</span><span class="va">rhyStatsSamps</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">rhyStatsInts</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
-<span class="co">#&gt;          cond feature  statistic      lower      upper</span>
-<span class="co">#&gt;  1: wild-type   13170 peak_value 14.9142461 15.1623426</span>
-<span class="co">#&gt;  2: wild-type   12686 peak_value 11.7551992 11.9611959</span>
-<span class="co">#&gt;  3: wild-type   26897 peak_value 12.2489294 12.5386247</span>
-<span class="co">#&gt;  4:  knockout   13170 peak_value 14.1364485 14.4867027</span>
-<span class="co">#&gt;  5:  knockout   12686 peak_value 10.1298897 10.5075167</span>
-<span class="co">#&gt; ---                                                   </span>
-<span class="co">#&gt; 20: wild-type   12686    rms_amp  1.0160493  1.1338332</span>
-<span class="co">#&gt; 21: wild-type   26897    rms_amp  0.5069692  0.7253600</span>
-<span class="co">#&gt; 22:  knockout   13170    rms_amp  0.7402332  0.9774765</span>
-<span class="co">#&gt; 23:  knockout   12686    rms_amp  0.1561527  0.3623270</span>
-<span class="co">#&gt; 24:  knockout   26897    rms_amp  0.1459739  0.3350913</span>
+<span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">rhyStatsInts</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
+<span class="co">#&gt;          cond feature       statistic      lower      upper</span>
+<span class="co">#&gt;  1: wild-type   13170      peak_value 14.9142461 15.1623426</span>
+<span class="co">#&gt;  2: wild-type   12686      peak_value 11.7551992 11.9611959</span>
+<span class="co">#&gt;  3: wild-type   26897      peak_value 12.2489294 12.5386247</span>
+<span class="co">#&gt;  4:  knockout   13170      peak_value 14.1364485 14.4867027</span>
+<span class="co">#&gt;  5:  knockout   12686      peak_value 10.1298897 10.5075167</span>
+<span class="co">#&gt; ---                                                        </span>
+<span class="co">#&gt; 14: wild-type   12686 peak_trough_amp  2.8982419  3.2295700</span>
+<span class="co">#&gt; 15: wild-type   26897 peak_trough_amp  1.4180054  2.0376529</span>
+<span class="co">#&gt; 16:  knockout   13170 peak_trough_amp  2.1155007  2.7422983</span>
+<span class="co">#&gt; 17:  knockout   12686 peak_trough_amp  0.4647210  1.0334074</span>
+<span class="co">#&gt; 18:  knockout   26897 peak_trough_amp  0.4317504  0.9859636</span>
 
 <span class="va">diffRhyStatsInts</span> <span class="op">=</span> <span class="fu"><a href="../reference/getStatsIntervals.html">getStatsIntervals</a></span><span class="op">(</span><span class="va">diffRhyStatsSamps</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">diffRhyStatsInts</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
-<span class="co">#&gt;         cond1    cond2 feature            statistic      lower      upper</span>
-<span class="co">#&gt;  1: wild-type knockout   12686      diff_mean_value -0.4761391 -0.3273693</span>
-<span class="co">#&gt;  2: wild-type knockout   13170      diff_mean_value  1.0946908  1.3077532</span>
-<span class="co">#&gt;  3: wild-type knockout   26897      diff_mean_value -2.4744074 -2.3132504</span>
-<span class="co">#&gt;  4: wild-type knockout   12686 diff_peak_trough_amp -2.6358331 -2.0279483</span>
-<span class="co">#&gt;  5: wild-type knockout   13170 diff_peak_trough_amp -3.7189186 -3.3477383</span>
-<span class="co">#&gt; ---                                                                      </span>
-<span class="co">#&gt;  8: wild-type knockout   13170         diff_rms_amp -1.3045149 -1.1650380</span>
-<span class="co">#&gt;  9: wild-type knockout   26897         diff_rms_amp -0.4515353 -0.2527135</span>
-<span class="co">#&gt; 10: wild-type knockout   12686         rms_diff_rhy  2.6023486  3.1263108</span>
-<span class="co">#&gt; 11: wild-type knockout   13170         rms_diff_rhy  3.5986650  4.0251194</span>
-<span class="co">#&gt; 12: wild-type knockout   26897         rms_diff_rhy  1.1039042  1.8415935</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">diffRhyStatsInts</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
+<span class="co">#&gt;        cond1    cond2 feature            statistic      lower      upper</span>
+<span class="co">#&gt; 1: wild-type knockout   12686      diff_mean_value -0.4761391 -0.3273693</span>
+<span class="co">#&gt; 2: wild-type knockout   13170      diff_mean_value  1.0946908  1.3077532</span>
+<span class="co">#&gt; 3: wild-type knockout   26897      diff_mean_value -2.4744074 -2.3132504</span>
+<span class="co">#&gt; 4: wild-type knockout   12686 diff_peak_trough_amp -2.6358331 -2.0279483</span>
+<span class="co">#&gt; 5: wild-type knockout   13170 diff_peak_trough_amp -3.7189186 -3.3477383</span>
+<span class="co">#&gt; 6: wild-type knockout   26897 diff_peak_trough_amp -1.2288045 -0.7108265</span></code></pre></div>
 </div>
   </div>
 
@@ -361,11 +342,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Jake Hughey, Dora Obodo, Elliot Outland.</p>
+  <p></p>
+<p>Developed by Jake Hughey, Dora Obodo, Elliot Outland.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
 </div>
 
       </footer>
@@ -373,6 +356,8 @@
 
   
 
+
+  
 
   </body>
 </html>

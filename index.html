@@ -21,6 +21,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -33,18 +35,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">limorhyde2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9025</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.0.9026</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="reference/index.html">Reference</a>
 </li>
@@ -72,7 +68,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/hugheylab/limorhyde2/">
+  <a href="https://github.com/hugheylab/limorhyde2/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -89,33 +85,33 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
-<div id="limorhyde2" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#limorhyde2" class="anchor"></a>limorhyde2</h1></div>
+<div class="section level1">
+<div class="page-header"><h1 id="limorhyde2">limorhyde2<a class="anchor" aria-label="anchor" href="#limorhyde2"></a>
+</h1></div>
 
 <p><code>limorhyde2</code> is an approach to analyze rhythmic, genome-scale data in a way that focuses on effect sizes. For a detailed description of <code>limorhyde2</code> along with examples showing its utility on data from one or more conditions, please wait for the preprint.</p>
-<div id="installation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#installation" class="anchor"></a>Installation</h2>
-<ol>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<ol style="list-style-type: decimal">
 <li>
-<p>Install <a href="https://cran.r-project.org/package=BiocManager"><code>BiocManager</code></a>.</p>
+<p>Install <a href="https://cran.r-project.org/package=BiocManager" class="external-link"><code>BiocManager</code></a>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html">requireNamespace</a></span><span class="op">(</span><span class="st">'BiocManager'</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>
-  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">'BiocManager'</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">'BiocManager'</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>
+  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">'BiocManager'</span><span class="op">)</span></code></pre></div>
 </li>
 <li>
 <p>Install the latest version of <code>ashr</code> from GitHub.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html">requireNamespace</a></span><span class="op">(</span><span class="st">'remotes'</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>
-  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">'remotes'</span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">'remotes'</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>
+  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">'remotes'</span><span class="op">)</span>
 <span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">'stephens999/ashr'</span><span class="op">)</span></code></pre></div>
 </li>
 <li>
 <p>If you use RStudio, go to Tools → Global Options… → Packages → Add… (under Secondary repositories), then enter:</p>
 <ul>
 <li>Name: hugheylab</li>
-<li>Url: <a href="https://hugheylab.github.io/drat/" class="uri">https://hugheylab.github.io/drat/</a>
+<li>Url: <a href="https://hugheylab.github.io/drat/" class="external-link uri">https://hugheylab.github.io/drat/</a>
 </li>
 </ul>
 <p>You only have to do this once. Then you can install or update the package by entering:</p>
@@ -127,30 +123,39 @@
 </li>
 </ol>
 </div>
-<div id="usage" class="section level2">
-<h2 class="hasAnchor">
-<a href="#usage" class="anchor"></a>Usage</h2>
-<p>See the examples and detailed guidance in the <a href="https://limorhyde2.hugheylab.org/reference/index.html">reference documentation</a>.</p>
+<div class="section level2">
+<h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
+</h2>
+<p>See the examples and detailed guidance in the <a href="https://limorhyde2.hugheylab.org/reference/index.html" class="external-link">reference documentation</a>.</p>
 </div>
 </div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="links">
-<h2>Links</h2>
+<h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li>Browse source code at <br><a href="https://github.com/hugheylab/limorhyde2/">https://​github.com/​hugheylab/​limorhyde2/​</a>
-</li>
+<li><a href="https://github.com/hugheylab/limorhyde2/" class="external-link">Browse source code</a></li>
 </ul>
 </div>
+
 <div class="license">
-<h2>License</h2>
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
-<li><a href="https://www.r-project.org/Licenses/GPL-2">GPL-2</a></li>
+<li><a href="https://www.r-project.org/Licenses/GPL-2" class="external-link">GPL-2</a></li>
 </ul>
 </div>
+
+
+<div class="citation">
+<h2 data-toc-skip>Citation</h2>
+<ul class="list-unstyled">
+<li><a href="authors.html#citation">Citing limorhyde2</a></li>
+</ul>
+</div>
+
 <div class="developers">
-<h2>Developers</h2>
+<h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
 <li>Jake Hughey <br><small class="roles"> Author, maintainer </small>  </li>
 <li>Dora Obodo <br><small class="roles"> Author </small>  </li>
@@ -158,24 +163,27 @@
 </ul>
 </div>
 
-  <div class="dev-status">
-<h2>Dev status</h2>
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/hugheylab/limorhyde2/actions"><img src="https://github.com/hugheylab/limorhyde2/workflows/check-deploy/badge.svg" alt="check-deploy"></a></li>
-<li><a href="https://codecov.io/gh/hugheylab/limorhyde2"><img src="https://codecov.io/gh/hugheylab/limorhyde2/branch/master/graph/badge.svg" alt="codecov"></a></li>
-<li><a href="https://app.netlify.com/sites/stupefied-engelbart-0482ba/deploys"><img src="https://api.netlify.com/api/v1/badges/2303634f-911d-4872-85ba-d3a04ed0b952/deploy-status" alt="Netlify Status"></a></li>
+<li><a href="https://github.com/hugheylab/limorhyde2/actions" class="external-link"><img src="https://github.com/hugheylab/limorhyde2/workflows/check-deploy/badge.svg" alt="check-deploy"></a></li>
+<li><a href="https://codecov.io/gh/hugheylab/limorhyde2" class="external-link"><img src="https://codecov.io/gh/hugheylab/limorhyde2/branch/master/graph/badge.svg" alt="codecov"></a></li>
+<li><a href="https://app.netlify.com/sites/stupefied-engelbart-0482ba/deploys" class="external-link"><img src="https://api.netlify.com/api/v1/badges/2303634f-911d-4872-85ba-d3a04ed0b952/deploy-status" alt="Netlify Status"></a></li>
 </ul>
 </div>
-</div>
+
+  </div>
 </div>
 
 
       <footer><div class="copyright">
-  <p>Developed by Jake Hughey, Dora Obodo, Elliot Outland.</p>
+  <p></p>
+<p>Developed by Jake Hughey, Dora Obodo, Elliot Outland.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
 </div>
 
       </footer>
@@ -183,6 +191,8 @@
 
   
 
+
+  
 
   </body>
 </html>
