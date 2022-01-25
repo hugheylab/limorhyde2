@@ -2,13 +2,14 @@
 % Please edit documentation in R/get_stats.R
 \name{getRhythmStats}
 \alias{getRhythmStats}
-\title{Compute rhythmic statistics from fitted models}
+\title{Compute rhythm statistics from fitted models}
 \usage{
 getRhythmStats(
   fit,
   fitType = c("posterior_mean", "posterior_samples", "raw"),
   features = NULL,
-  dopar = TRUE
+  dopar = TRUE,
+  rms = FALSE
 )
 }
 \arguments{
@@ -24,9 +25,11 @@ subsetting the features. \code{NULL} indicates all features.}
 \item{dopar}{Logical indicating whether to run calculations in parallel if
 a parallel backend is already set up, e.g., using
 \code{\link[doParallel:registerDoParallel]{doParallel::registerDoParallel()}}. Recommended to minimize runtime.}
+
+\item{rms}{Logical indicating whether to calculate \code{rms_amp}.}
 }
 \value{
-A \code{data.table} containing the following rhythmic statistics:
+A \code{data.table} containing the following rhythm statistics:
 \itemize{
 \item \code{peak_phase}: time between 0 and \code{fit$period} at which the peak or maximum
 value occurs
@@ -36,7 +39,7 @@ minimum value occurs
 \item \code{trough_value}
 \item \code{peak_trough_amp}: \code{peak_value - trough_value}
 \item \code{rms_amp}: root mean square difference between fitted curve and mean value
-between time 0 and \code{fit$period}
+between time 0 and \code{fit$period} (only calculated if \code{rms} is \code{TRUE})
 \item \code{mean_value}: between time 0 and \code{fit$period}
 }
 

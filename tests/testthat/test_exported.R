@@ -10,17 +10,8 @@
 
 ########################################
 
-setExpected = FALSE
-# if using setExpected = TRUE:
-# wd = setwd(file.path('tests', 'testthat'))
-# library('data.table')
-# library('testthat')
-# clean and rebuild the package
-# source('test_exported.R')
-# setwd(wd)
-
 foreach::registerDoSEQ()
-m = data.table::fread('GSE34018_test_metadata.csv')
+m = data.table::fread(file.path(dataDir, 'GSE34018_test_metadata.csv'))
 
 timeColname = 'time_test'
 data.table::setnames(m, 'time', timeColname)
@@ -32,7 +23,7 @@ set(m, j = condColname, value = factor(m[[condColname]], conds$lab, conds$lev))
 
 m[, batch := rep(c('a', 'b'), length.out = .N)]
 
-y = qs::qread('GSE34018_test_data.qs')
+y = qs::qread(file.path(dataDir, 'GSE34018_test_data.qs'))
 y = y[, m$sample]
 
 
@@ -42,27 +33,23 @@ test_that('getModelFit', {
 
   id = 1
   fitObs = getModelFit(y, m, period, nKnots, timeColname, keepLmFits = TRUE)
-  if (setExpected) qs::qsave(fitObs, sprintf('model_fit_%d.qs', id))
-  fitExp = qs::qread(sprintf('model_fit_%d.qs', id))
+  fitExp = snapshot(fitObs, file.path(dataDir, glue('model_fit_{id}.qs')))
   expect_equal(fitObs, fitExp)
 
   id = 2
   fitObs = getModelFit(y, m, period, nKnots, timeColname, condColname)
-  if (setExpected)  qs::qsave(fitObs, sprintf('model_fit_%d.qs', id))
-  fitExp = qs::qread(sprintf('model_fit_%d.qs', id))
+  fitExp = snapshot(fitObs, file.path(dataDir, glue('model_fit_{id}.qs')))
   expect_equal(fitObs, fitExp)
 
   id = 3
   fitObs = getModelFit(y, m, period, nKnots, timeColname, condColname,
                        covarColnames = 'batch')
-  if (setExpected) qs::qsave(fitObs, sprintf('model_fit_%d.qs', id))
-  fitExp = qs::qread(sprintf('model_fit_%d.qs', id))
+  fitExp = snapshot(fitObs, file.path(dataDir, glue('model_fit_{id}.qs')))
   expect_equal(fitObs, fitExp)
 
   id = 4
   fitObs = getModelFit(y, m, period, nKnots = NULL, timeColname = timeColname)
-  if (setExpected) qs::qsave(fitObs, sprintf('model_fit_%d.qs', id))
-  fitExp = qs::qread(sprintf('model_fit_%d.qs', id))
+  fitExp = snapshot(fitObs, file.path(dataDir, glue('model_fit_{id}.qs')))
   expect_equal(fitObs, fitExp)
 
   expect_error(getModelFit(y, m[-1L], period, nKnots, timeColname))
@@ -74,20 +61,20 @@ test_that('getModelFit', {
 
 test_that('getPosteriorFit', {
   id = 2
-  fit = qs::qread(sprintf('model_fit_%d.qs', id))
+  fit = qs::qread(file.path(dataDir, glue('model_fit_{id}.qs')))
   fitObs = getPosteriorFit(fit)
-  if (setExpected) qs::qsave(fitObs, sprintf('posterior_fit_%d.qs', id))
-  fitExp = qs::qread(sprintf('posterior_fit_%d.qs', id))
+  fitExp = snapshot(
+    fitObs, file.path(dataDir, glue('posterior_fit_{id}.qs')))
 
   expect_equal(fitObs, fitExp)
   expect_error(getPosteriorFit(fitObs))
   # expect_equal(getPosteriorFit(fitObs, overwrite = TRUE), fitExp)
 
   # id = 1
-  # fit = qs::qread(sprintf('model_fit_%d.qs', id))
+  # fit = qs::qread(glue('model_fit_{id}.qs'))
   # fitObs = getPosteriorFit(fit, covMethod = 'canonical')
-  # # qs::qsave(fitObs, sprintf('posterior_fit_canon_%d.qs', id))
-  # fitExp = qs::qread(sprintf('posterior_fit_canon_%d.qs', id))
+  # # qs::qsave(fitObs, glue('posterior_fit_canon_{id}.qs'))
+  # fitExp = qs::qread(glue('posterior_fit_canon_{id}.qs'))
   #
   # expect_equal(fitObs, fitExp)
 })
@@ -95,10 +82,10 @@ test_that('getPosteriorFit', {
 
 test_that('getPosteriorSamples', {
   id = 2
-  fitObs = qs::qread(sprintf('posterior_fit_%d.qs', id))
+  fitObs = qs::qread(file.path(dataDir, glue('posterior_fit_{id}.qs')))
   fitObs = getPosteriorSamples(fitObs, nPosteriorSamples = 10)
-  if (setExpected) qs::qsave(fitObs, sprintf('posterior_samples_%d.qs', id))
-  fitExp = qs::qread(sprintf('posterior_samples_%d.qs', id))
+  fitExp = snapshot(
+    fitObs, file.path(dataDir, glue('posterior_samples_{id}.qs')))
 
   expect_equal(fitObs, fitExp)
   expect_error(getPosteriorSamples(fitObs))
@@ -109,28 +96,28 @@ test_that('getPosteriorSamples', {
 
 test_that('getRhythmStats', {
   id = 1
-  fit = qs::qread(sprintf('model_fit_%d.qs', id))
+  fit = qs::qread(file.path(dataDir, glue('model_fit_{id}.qs')))
   statsObs = getRhythmStats(fit, 'raw')
-  if (setExpected) qs::qsave(statsObs, sprintf('rhy_stats_raw_%d.qs', id))
-  statsExp = qs::qread(sprintf('rhy_stats_raw_%d.qs', id))
+  statsExp = snapshot(
+    statsObs, file.path(dataDir, glue('rhy_stats_raw_{id}.qs')))
 
   expect_equal(statsObs, statsExp)
   expect_error(getRhythmStats(fit))
 
   id = 2
-  fit = qs::qread(sprintf('posterior_fit_%d.qs', id))
-  statsObs = getRhythmStats(fit)
-  if (setExpected) qs::qsave(statsObs, sprintf('rhy_stats_post_%d.qs', id))
-  statsExp = qs::qread(sprintf('rhy_stats_post_%d.qs', id))
+  fit = qs::qread(file.path(dataDir, glue('posterior_fit_{id}.qs')))
+  statsObs = getRhythmStats(fit, rms = TRUE)
+  statsExp = snapshot(
+    statsObs, file.path(dataDir, glue('rhy_stats_post_{id}.qs')))
 
   expect_equal(statsObs, statsExp)
-  expect_equal(getRhythmStats(fit, features = '11287'),
+  expect_equal(getRhythmStats(fit, features = '11287', rms = TRUE),
                statsExp[feature == '11287'])
 
-  fit = qs::qread(sprintf('posterior_samples_%d.qs', id))
+  fit = qs::qread(file.path(dataDir, glue('posterior_samples_{id}.qs')))
   statsObs = getRhythmStats(fit, 'posterior_samples', features = 1:2)
-  if (setExpected) qs::qsave(statsObs, sprintf('rhy_stats_samps_%d.qs', id))
-  statsExp = qs::qread(sprintf('rhy_stats_samps_%d.qs', id))
+  statsExp = snapshot(
+    statsObs, file.path(dataDir, glue('rhy_stats_samps_{id}.qs')))
 
   expect_equal(statsObs, statsExp)
 })
@@ -138,31 +125,31 @@ test_that('getRhythmStats', {
 
 test_that('getDiffRhythmStats', {
   id = 2
-  fit = qs::qread(sprintf('posterior_fit_%d.qs', id))
-  rhyStats = qs::qread(sprintf('rhy_stats_post_%d.qs', id))
+  fit = qs::qread(file.path(dataDir, glue('posterior_fit_{id}.qs')))
+  rhyStats = qs::qread(file.path(dataDir, glue('rhy_stats_post_{id}.qs')))
   statsObs = getDiffRhythmStats(fit, rhyStats)
-  if (setExpected) qs::qsave(statsObs, sprintf('diff_rhy_stats_post_%d.qs', id))
-  statsExp = qs::qread(sprintf('diff_rhy_stats_post_%d.qs', id))
+  statsExp = snapshot(
+    statsObs, file.path(dataDir, glue('diff_rhy_stats_post_{id}.qs')))
 
   expect_equal(statsObs, statsExp)
 
-  fit = qs::qread(sprintf('posterior_samples_%d.qs', id))
-  rhyStats = qs::qread(sprintf('rhy_stats_samps_%d.qs', id))
+  fit = qs::qread(file.path(dataDir, glue('posterior_samples_{id}.qs')))
+  rhyStats = qs::qread(file.path(dataDir, glue('rhy_stats_samps_{id}.qs')))
   statsObs = getDiffRhythmStats(fit, rhyStats, conds$lev[1:2])
-  if (setExpected) qs::qsave(statsObs, sprintf('diff_rhy_stats_samps12_%d.qs', id))
-  statsExp = qs::qread(sprintf('diff_rhy_stats_samps12_%d.qs', id))
+  statsExp = snapshot(
+    statsObs, file.path(dataDir, glue('diff_rhy_stats_samps12_{id}.qs')))
 
   expect_equal(statsObs, statsExp)
 
   statsObs = getDiffRhythmStats(fit, rhyStats, conds$lev[3:2])
-  if (setExpected) qs::qsave(statsObs, sprintf('diff_rhy_stats_samps32_%d.qs', id))
-  statsExp = qs::qread(sprintf('diff_rhy_stats_samps32_%d.qs', id))
+  statsExp = snapshot(
+    statsObs, file.path(dataDir, glue('diff_rhy_stats_samps32_{id}.qs')))
 
   expect_equal(statsObs, statsExp)
 
   id = 1
-  fit = qs::qread(sprintf('model_fit_%d.qs', id))
-  rhyStats = qs::qread(sprintf('rhy_stats_raw_%d.qs', id))
+  fit = qs::qread(file.path(dataDir, glue('model_fit_{id}.qs')))
+  rhyStats = qs::qread(file.path(dataDir, glue('rhy_stats_raw_{id}.qs')))
 
   expect_error(getDiffRhythmStats(fit, rhyStats, conds$lev[1:2]))
 })
@@ -173,20 +160,20 @@ test_that('getExpectedMeas', {
   features = 1:5
 
   id = 2
-  fit = qs::qread(sprintf('posterior_samples_%d.qs', id))
+  fit = qs::qread(file.path(dataDir, glue('posterior_samples_{id}.qs')))
   measObs = getExpectedMeas(
     fit, times = times, fitType = 'posterior_samples', features = features)
-  if (setExpected) qs::qsave(measObs, sprintf('expected_meas_%d.qs', id))
-  measExp = qs::qread(sprintf('expected_meas_%d.qs', id))
+  measExp = snapshot(
+    measObs, file.path(dataDir, glue('expected_meas_{id}.qs')))
 
   expect_equal(measObs, measExp)
 
   id = 3
-  fit = qs::qread(sprintf('model_fit_%d.qs', id))
+  fit = qs::qread(file.path(dataDir, glue('model_fit_{id}.qs')))
   measObs = getExpectedMeas(
     fit, times = times, fitType = 'raw', features = features)
-  if (setExpected) qs::qsave(measObs, sprintf('expected_meas_%d.qs', id))
-  measExp = qs::qread(sprintf('expected_meas_%d.qs', id))
+  measExp = snapshot(
+    measObs, file.path(dataDir, glue('expected_meas_{id}.qs')))
 
   expect_equal(measObs, measExp)
 })
@@ -194,32 +181,33 @@ test_that('getExpectedMeas', {
 
 test_that('getExpectedMeasIntervals', {
   id = 2
-  meas = qs::qread(sprintf('expected_meas_%d.qs', id))
+  meas = qs::qread(file.path(dataDir, glue('expected_meas_{id}.qs')))
   intsObs = getExpectedMeasIntervals(meas)
-  if (setExpected) qs::qsave(intsObs, sprintf('meas_ints_%d.qs', id))
-  intsExp = qs::qread(sprintf('meas_ints_%d.qs', id))
+  intsExp = snapshot(
+    intsObs, file.path(dataDir, glue('meas_ints_{id}.qs')))
 
   expect_equal(intsObs, intsExp)
 
   id = 3
-  meas = qs::qread(sprintf('expected_meas_%d.qs', id))
+  meas = qs::qread(file.path(dataDir, glue('expected_meas_{id}.qs')))
   expect_error(getExpectedMeasIntervals(meas))
 })
 
 
 test_that('getStatsIntervals', {
   id = 2
-  rhyStats = qs::qread(sprintf('rhy_stats_samps_%d.qs', id))
+  rhyStats = qs::qread(file.path(dataDir, glue('rhy_stats_samps_{id}.qs')))
   intsObs = getStatsIntervals(rhyStats)
-  if (setExpected) qs::qsave(intsObs, sprintf('stats_ints_rhy_%d.qs', id))
-  intsExp = qs::qread(sprintf('stats_ints_rhy_%d.qs', id))
+  intsExp = snapshot(
+    intsObs, file.path(dataDir, glue('stats_ints_rhy_{id}.qs')))
 
   expect_equal(intsObs, intsExp)
 
-  diffRhyStats = qs::qread(sprintf('diff_rhy_stats_samps12_%d.qs', id))
+  diffRhyStats = qs::qread(
+    file.path(dataDir, glue('diff_rhy_stats_samps12_{id}.qs')))
   intsObs = getStatsIntervals(diffRhyStats)
-  if (setExpected) qs::qsave(intsObs, sprintf('stats_ints_diff_%d.qs', id))
-  intsExp = qs::qread(sprintf('stats_ints_diff_%d.qs', id))
+  intsExp = snapshot(
+    intsObs, file.path(dataDir, glue('stats_ints_diff_{id}.qs')))
 
   expect_equal(intsObs, intsExp)
   expect_error(getStatsIntervals(diffRhyStats, mass = 90))

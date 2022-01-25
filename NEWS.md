@@ -1,3 +1,7 @@
+# limorhyde2 0.0.0.9026
+* Made calculation of rms-based stats optional.
+* Simplified tests to use snapshotting.
+
 # limorhyde2 0.0.0.9025
 * Changed `assertLogical()` to `assertFlag()` for checking inputs.
 

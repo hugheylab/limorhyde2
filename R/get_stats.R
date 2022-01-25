@@ -1,4 +1,4 @@
-#' Compute rhythmic statistics from fitted models
+#' Compute rhythm statistics from fitted models
 #'
 #' This function uses [stats::optim()] to compute various properties of
 #' fitted curves with respect to time, potentially in each condition and for
@@ -13,8 +13,9 @@
 #' @param dopar Logical indicating whether to run calculations in parallel if
 #'   a parallel backend is already set up, e.g., using
 #'   [doParallel::registerDoParallel()]. Recommended to minimize runtime.
+#' @param rms Logical indicating whether to calculate `rms_amp`.
 #'
-#' @return A `data.table` containing the following rhythmic statistics:
+#' @return A `data.table` containing the following rhythm statistics:
 #'
 #' * `peak_phase`: time between 0 and `fit$period` at which the peak or maximum
 #'   value occurs
@@ -24,7 +25,7 @@
 #' * `trough_value`
 #' * `peak_trough_amp`: `peak_value - trough_value`
 #' * `rms_amp`: root mean square difference between fitted curve and mean value
-#'   between time 0 and `fit$period`
+#'   between time 0 and `fit$period` (only calculated if `rms` is `TRUE`)
 #' * `mean_value`: between time 0 and `fit$period`
 #'
 #' The rows of the `data.table` depend on the `fit` object and `fitType`:
@@ -45,7 +46,7 @@
 #' @export
 getRhythmStats = function(
   fit, fitType = c('posterior_mean', 'posterior_samples', 'raw'),
-  features = NULL, dopar = TRUE) {
+  features = NULL, dopar = TRUE, rms = FALSE) {
 
   shifts = period = nKnots = nConds = postSampIdx = condIdx = cond = NULL
   peak_value = trough_value = peak_trough_amp = co = posterior_sample = NULL
@@ -54,6 +55,7 @@ getRhythmStats = function(
   fitType = match.arg(fitType)
   checkFitType(fit, fitType)
   assertFlag(dopar)
+  assertFlag(rms)
 
   c(shifts, period, conds, nKnots, nConds) %<-%
     fit[c('shifts', 'period', 'conds', 'nKnots', 'nConds')]
@@ -84,7 +86,8 @@ getRhythmStats = function(
         f = function(time) (g(time) %*% t(co)) / length(shifts)
         d = getOptima(f, tr)
         d[, peak_trough_amp := peak_value - trough_value]
-        set(d, j = 'rms_amp', value = getRmsAmp(f, co, period))})
+        if (rms) set(d, j = 'rms_amp', value = getRmsAmp(f, co, period))
+        d})
 
       idx = seq(1, ncol(coefNow), ncol(coefNow) / length(shifts))
       set(r2, j = 'mean_value', value = rowMeans(coefNow[, idx, drop = FALSE]))
@@ -103,7 +106,7 @@ getRhythmStats = function(
   return(rhyStats)}
 
 
-#' Compute differentially rhythmic statistics from fitted models
+#' Compute differential rhythm statistics from fitted models
 #'
 #' This function computes differences in rhythmicity between fitted curves for a
 #' given pair of conditions.
@@ -117,17 +120,18 @@ getRhythmStats = function(
 #'   a parallel backend is already set up, e.g., using
 #'   [doParallel::registerDoParallel()]. Recommended to minimize runtime.
 #'
-#' @return A `data.table` containing the following differentially rhythmic
+#' @return A `data.table` containing the following differential rhythm
 #'   statistics:
 #'
 #' * `diff_mean_value`
 #' * `diff_peak_trough_amp`
-#' * `diff_rms_amp`
+#' * `diff_rms_amp` (only calculated if `rms` to [getRhythmStats()] was `TRUE`)
 #' * `diff_peak_phase`: circular difference between `-fit$period/2` and
 #'   `fit$period/2`
 #' * `diff_trough_phase`: circular difference between `-fit$period/2` and
 #'   `fit$period/2`
 #' * `rms_diff_rhy`: root mean square difference in mean-centered fitted curves
+#'    (only calculated if `rms` to [getRhythmStats()] was `TRUE`)
 #'
 #' The stats will be based on the value for `cond2` minus the value for `cond1`.
 #' The rows of the `data.table` depend on the 'fitType' attribute of `rhyStats`:
@@ -140,12 +144,13 @@ getRhythmStats = function(
 #' @seealso [getRhythmStats()], [getStatsIntervals()]
 #'
 #' @export
-getDiffRhythmStats = function(fit, rhyStats, conds = fit$conds, dopar = TRUE) {
+getDiffRhythmStats = function(
+  fit, rhyStats, conds = fit$conds, dopar = TRUE) {
 
   cond = .SD = diff_peak_phase = diff_trough_phase = condInt = . = cond1  =
     condInt1 = mean_value1 = peak_trough_amp1 = rms_amp1 = peak_phase1 =
     trough_phase1 = cond2 = condInt2 = mean_value2 = peak_trough_amp2 =
-    rms_amp2 = peak_phase2 = trough_phase2 = NULL
+    rms_amp2 = peak_phase2 = trough_phase2 = diff_rms_amp = NULL
 
   conds = unique(conds)
   assertClass(fit, 'limorhyde2')
@@ -164,40 +169,47 @@ getDiffRhythmStats = function(fit, rhyStats, conds = fit$conds, dopar = TRUE) {
   fitType = attr(rhyStats, 'fitType')
   byCols = c('feature', if (fitType == 'posterior_samples') 'posterior_sample')
 
-  diffRhyStats = merge(
+  diffRhyStats0 = merge(
     d0, d0, allow.cartesian = TRUE, by = byCols, suffixes = 1:2)
-  diffRhyStats = diffRhyStats[condInt1 < condInt2]
-  diffRhyStats = diffRhyStats[,
-    .(cond1, cond2,
-      diff_mean_value = mean_value2 - mean_value1,
-      diff_peak_trough_amp = peak_trough_amp2 - peak_trough_amp1,
-      diff_rms_amp = rms_amp2 - rms_amp1,
-      diff_peak_phase = peak_phase2 - peak_phase1,
-      diff_trough_phase = trough_phase2 - trough_phase1),
+  diffRhyStats0 = diffRhyStats0[condInt1 < condInt2]
+  diffRhyStats = diffRhyStats0[
+    , .(cond1, cond2,
+        diff_mean_value = mean_value2 - mean_value1,
+        diff_peak_trough_amp = peak_trough_amp2 - peak_trough_amp1,
+        # diff_rms_amp = rms_amp2 - rms_amp1,
+        diff_peak_phase = peak_phase2 - peak_phase1,
+        diff_trough_phase = trough_phase2 - trough_phase1),
     by = byCols]
+
+  if ('rms_amp' %in% colnames(rhyStats)) {
+    diffRhyStatsRms = diffRhyStats0[
+      , .(cond1, cond2, diff_rms_amp = rms_amp2 - rms_amp1),
+      by = byCols]
+    diffRhyStats = cbind(diffRhyStats, diffRhyStatsRms[, .(diff_rms_amp)])}
 
   diffRhyStats[, diff_peak_phase := centerCircDiff(diff_peak_phase, fit$period)]
   diffRhyStats[, diff_trough_phase := centerCircDiff(diff_trough_phase, fit$period)]
 
   # calculate rms difference in rhythmic fit between conditions
-  pairs = unique(diffRhyStats[, .(cond1, cond2)])
-  featureIdx = rownames(fit$coefficients) %in% unique(rhyStats$feature)
+  if ('rms_amp' %in% colnames(rhyStats)) {
+    pairs = unique(diffRhyStats[, .(cond1, cond2)])
+    featureIdx = rownames(fit$coefficients) %in% unique(rhyStats$feature)
 
-  feo = foreach(cond1 = pairs$cond1, cond2 = pairs$cond2, .combine = rbind)
-  rmsDiffRhy = feo %do% {
-    rmsDiffRhyTmp = getRmsDiffRhy(
-      fit, c(as.character(cond1), as.character(cond2)), fitType, featureIdx, dopar)
-    rmsDiffRhyTmp = data.table(rmsDiffRhyTmp, cond1, cond2)}
+    feo = foreach(cond1 = pairs$cond1, cond2 = pairs$cond2, .combine = rbind)
+    rmsDiffRhy = feo %do% {
+      rmsDiffRhyTmp = getRmsDiffRhy(
+        fit, c(as.character(cond1), as.character(cond2)), fitType, featureIdx, dopar)
+      rmsDiffRhyTmp = data.table(rmsDiffRhyTmp, cond1, cond2)}
 
-  diffRhyStats = merge(
-    diffRhyStats, rmsDiffRhy, sort = FALSE, by = c(byCols, 'cond1', 'cond2'))
+    diffRhyStats = merge(
+      diffRhyStats, rmsDiffRhy, sort = FALSE, by = c(byCols, 'cond1', 'cond2'))}
 
   setattr(diffRhyStats, 'statType', 'diff_rhy')
   setattr(diffRhyStats, 'fitType', fitType)
   return(diffRhyStats)}
 
 
-#' Compute credible intervals for rhythmic or differentially rhythmic statistics
+#' Compute credible intervals for rhythm or differential rhythm statistics
 #'
 #' This function uses posterior samples to quantify uncertainty in the
 #' properties of fitted curves.
@@ -240,6 +252,7 @@ getStatsIntervals = function(
     c('peak_value', 'trough_value', 'peak_trough_amp', 'rms_amp')
   } else {
     c('diff_mean_value', 'diff_peak_trough_amp', 'diff_rms_amp', 'rms_diff_rhy')}
+  measCols = measCols[measCols %in% colnames(posteriorStats)]
 
   d1 = data.table::melt(
     posteriorStats, id.vars = idCols, measure.vars = measCols,

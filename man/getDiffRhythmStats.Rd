@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_stats.R
 \name{getDiffRhythmStats}
 \alias{getDiffRhythmStats}
-\title{Compute differentially rhythmic statistics from fitted models}
+\title{Compute differential rhythm statistics from fitted models}
 \usage{
 getDiffRhythmStats(fit, rhyStats, conds = fit$conds, dopar = TRUE)
 }
@@ -20,17 +20,18 @@ a parallel backend is already set up, e.g., using
 \code{\link[doParallel:registerDoParallel]{doParallel::registerDoParallel()}}. Recommended to minimize runtime.}
 }
 \value{
-A \code{data.table} containing the following differentially rhythmic
+A \code{data.table} containing the following differential rhythm
 statistics:
 \itemize{
 \item \code{diff_mean_value}
 \item \code{diff_peak_trough_amp}
-\item \code{diff_rms_amp}
+\item \code{diff_rms_amp} (only calculated if \code{rms} to \code{\link[=getRhythmStats]{getRhythmStats()}} was \code{TRUE})
 \item \code{diff_peak_phase}: circular difference between \code{-fit$period/2} and
 \code{fit$period/2}
 \item \code{diff_trough_phase}: circular difference between \code{-fit$period/2} and
 \code{fit$period/2}
 \item \code{rms_diff_rhy}: root mean square difference in mean-centered fitted curves
+(only calculated if \code{rms} to \code{\link[=getRhythmStats]{getRhythmStats()}} was \code{TRUE})
 }
 
 The stats will be based on the value for \code{cond2} minus the value for \code{cond1}.

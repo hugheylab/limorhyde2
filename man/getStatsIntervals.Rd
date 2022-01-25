@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_stats.R
 \name{getStatsIntervals}
 \alias{getStatsIntervals}
-\title{Compute credible intervals for rhythmic or differentially rhythmic statistics}
+\title{Compute credible intervals for rhythm or differential rhythm statistics}
 \usage{
 getStatsIntervals(posteriorStats, mass = 0.9, method = c("eti", "hdi"))
 }
