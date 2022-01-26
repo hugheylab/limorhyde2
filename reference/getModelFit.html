@@ -18,7 +18,7 @@ moderate the fits using getPosteriorFit()."><!-- mathjax --><script src="https:/
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">limorhyde2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.0.9026</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.0.9027</span>
       </span>
     </div>
 
@@ -80,9 +80,10 @@ moderate the fits using <code><a href="getPosteriorFit.html">getPosteriorFit()</
   condColname <span class="op">=</span> <span class="cn">NULL</span>,
   covarColnames <span class="op">=</span> <span class="cn">NULL</span>,
   nShifts <span class="op">=</span> <span class="fl">3L</span>,
-  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"trend"</span>, <span class="st">"voom"</span><span class="op">)</span>,
+  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"trend"</span>, <span class="st">"voom"</span>, <span class="st">"deseq2"</span><span class="op">)</span>,
   lmFitArgs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,
   eBayesArgs <span class="op">=</span> <span class="kw">if</span> <span class="op">(</span><span class="va">method</span> <span class="op">==</span> <span class="st">"trend"</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>trend <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="kw">else</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,
+  DESeqArgs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,
   keepLmFits <span class="op">=</span> <span class="cn">FALSE</span>
 <span class="op">)</span></code></pre></div>
     </div>
@@ -120,16 +121,18 @@ covariates.</p></dd>
 splines, not for cosinor. Do not change from the default unless you know
 what you're doing.</p></dd>
 <dt>method</dt>
-<dd><p>String indicating how to fit the mean-variance relationship in
-the data. Use 'trend' for microarray data and 'voom' for RNA-seq count
-data.</p></dd>
+<dd><p>String indicating method to obtain model coefficients. For
+microarray data, use 'trend'. For RNA-seq count data, use 'voom' or
+'deseq2'.</p></dd>
 <dt>lmFitArgs</dt>
 <dd><p>List of arguments passed to <code><a href="https://rdrr.io/pkg/limma/man/lmFit.html" class="external-link">limma::lmFit()</a></code>.</p></dd>
 <dt>eBayesArgs</dt>
 <dd><p>List of arguments passed to <code><a href="https://rdrr.io/pkg/limma/man/ebayes.html" class="external-link">limma::eBayes()</a></code>.</p></dd>
+<dt>DESeqArgs</dt>
+<dd><p>List of arguments passed to <code><a href="https://rdrr.io/pkg/DESeq2/man/DESeq.html" class="external-link">DESeq2::DESeq()</a></code>.</p></dd>
 <dt>keepLmFits</dt>
 <dd><p>Logical indicating whether to keep the complete fit objects
-from <code>limma</code>. Not needed by any functions in <code>limorhyde2</code>.</p></dd>
+from <code>limma</code> or <code>DESeq2</code>. Not needed by any functions in <code>limorhyde2</code>.</p></dd>
 </dl></div>
     <div id="value">
     <h2>Value</h2>
@@ -147,8 +150,8 @@ the condition variable.</p></li>
 <li><p><code>nKnots</code>: Number of knots, where 2 indicates a cosinor-based model.</p></li>
 <li><p><code>nConds</code>: Number of conditions.</p></li>
 <li><p><code>nCovs</code>: Number of covariates.</p></li>
-<li><p><code>lmFits</code>: If <code>keepLmFits</code> is <code>TRUE</code>, a list of fit objects from <code>limma</code>,
-with length equal to length of the <code>shifts</code> element.</p></li>
+<li><p><code>lmFits</code>: If <code>keepLmFits</code> is <code>TRUE</code>, a list of objects from <code>limma</code> or
+<code>DESeq2</code>, with length equal to length of the <code>shifts</code> element.</p></li>
 </ul></div>
     <div id="see-also">
     <h2>See also</h2>
