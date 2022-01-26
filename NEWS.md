@@ -1,3 +1,6 @@
+# limorhyde2 0.0.0.9027
+* Added ability to fit models using `DESeq2`.
+
 # limorhyde2 0.0.0.9026
 * Made calculation of rms-based stats optional.
 * Simplified tests to use snapshotting.

@@ -13,9 +13,10 @@ getModelFit(
   condColname = NULL,
   covarColnames = NULL,
   nShifts = 3L,
-  method = c("trend", "voom"),
+  method = c("trend", "voom", "deseq2"),
   lmFitArgs = list(),
   eBayesArgs = if (method == "trend") list(trend = TRUE) else list(),
+  DESeqArgs = list(),
   keepLmFits = FALSE
 )
 }
@@ -50,16 +51,18 @@ covariates.}
 splines, not for cosinor. Do not change from the default unless you know
 what you're doing.}
 
-\item{method}{String indicating how to fit the mean-variance relationship in
-the data. Use 'trend' for microarray data and 'voom' for RNA-seq count
-data.}
+\item{method}{String indicating method to obtain model coefficients. For
+microarray data, use 'trend'. For RNA-seq count data, use 'voom' or
+'deseq2'.}
 
 \item{lmFitArgs}{List of arguments passed to \code{\link[limma:lmFit]{limma::lmFit()}}.}
 
 \item{eBayesArgs}{List of arguments passed to \code{\link[limma:ebayes]{limma::eBayes()}}.}
 
+\item{DESeqArgs}{List of arguments passed to \code{\link[DESeq2:DESeq]{DESeq2::DESeq()}}.}
+
 \item{keepLmFits}{Logical indicating whether to keep the complete fit objects
-from \code{limma}. Not needed by any functions in \code{limorhyde2}.}
+from \code{limma} or \code{DESeq2}. Not needed by any functions in \code{limorhyde2}.}
 }
 \value{
 A \code{limorhyde2} object with elements:
@@ -78,8 +81,8 @@ the condition variable.
 \item \code{nKnots}: Number of knots, where 2 indicates a cosinor-based model.
 \item \code{nConds}: Number of conditions.
 \item \code{nCovs}: Number of covariates.
-\item \code{lmFits}: If \code{keepLmFits} is \code{TRUE}, a list of fit objects from \code{limma},
-with length equal to length of the \code{shifts} element.
+\item \code{lmFits}: If \code{keepLmFits} is \code{TRUE}, a list of objects from \code{limma} or
+\code{DESeq2}, with length equal to length of the \code{shifts} element.
 }
 }
 \description{

@@ -25,13 +25,14 @@
 #' @param nShifts Number of shifted models to fit. Only used for periodic
 #'   splines, not for cosinor. Do not change from the default unless you know
 #'   what you're doing.
-#' @param method String indicating how to fit the mean-variance relationship in
-#'   the data. Use 'trend' for microarray data and 'voom' for RNA-seq count
-#'   data.
+#' @param method String indicating method to estimate model coefficients. For
+#'   microarray data, use 'trend'. For RNA-seq count data, use 'voom' or
+#'   'deseq2'.
 #' @param lmFitArgs List of arguments passed to [limma::lmFit()].
 #' @param eBayesArgs List of arguments passed to [limma::eBayes()].
+#' @param DESeqArgs List of arguments passed to [DESeq2::DESeq()].
 #' @param keepLmFits Logical indicating whether to keep the complete fit objects
-#'   from `limma`. Not needed by any functions in `limorhyde2`.
+#'   from `limma` or `DESeq2`. Not needed by any functions in `limorhyde2`.
 #'
 #' @return A `limorhyde2` object with elements:
 #'
@@ -49,8 +50,8 @@
 #' * `nKnots`: Number of knots, where 2 indicates a cosinor-based model.
 #' * `nConds`: Number of conditions.
 #' * `nCovs`: Number of covariates.
-#' * `lmFits`: If `keepLmFits` is `TRUE`, a list of fit objects from `limma`,
-#'   with length equal to length of the `shifts` element.
+#' * `lmFits`: If `keepLmFits` is `TRUE`, a list of objects from `limma` or
+#'   `DESeq2`, with length equal to length of the `shifts` element.
 #'
 #' @seealso [getPosteriorFit()]
 #'
@@ -58,9 +59,9 @@
 getModelFit = function(
   y, metadata, period = 24, nKnots = 4L, timeColname = 'time',
   condColname = NULL, covarColnames = NULL, nShifts = 3L,
-  method = c('trend', 'voom'), lmFitArgs = list(),
+  method = c('trend', 'voom', 'deseq2'), lmFitArgs = list(),
   eBayesArgs = if (method == 'trend') list(trend = TRUE) else list(),
-  keepLmFits = FALSE) {
+  DESeqArgs = list(), keepLmFits = FALSE) {
 
   shift = NULL
   assertDataFrame(metadata)
@@ -101,18 +102,28 @@ getModelFit = function(
     set(mShift, j = 'time', value = mShift$time + shift)
     design = getDesign(mShift, period, nKnots)
 
-    v = if (method == 'voom') limma::voom(y, design) else y
-    fitNow = do.call(limma::lmFit, c(list(v, design), lmFitArgs))
-    fitNow = do.call(limma::eBayes, c(list(fitNow), eBayesArgs))}
+    if (method == 'deseq2') {
+      fitNow = do.call(DESeq2::DESeq, c(list(y, full = design), DESeqArgs))
+    } else {
+      v = if (method == 'voom') limma::voom(y, design) else y
+      fitNow = do.call(limma::lmFit, c(list(v, design), lmFitArgs))
+      fitNow = do.call(limma::eBayes, c(list(fitNow), eBayesArgs))}}
 
   fit = list(metadata = data.table::as.data.table(metadata),
              timeColname = timeColname,
              condColname = condColname,
              covarColnames = covarColnames)
 
-  fit$coefficients = do.call(cbind, lapply(lmFits, `[[`, 'coefficients'))
-  fit$stdErrors = do.call(
-    cbind, lapply(lmFits, function(f) sqrt(f$s2.post) * f$stdev.unscaled))
+  if (method == 'deseq2') {
+    fit$coefficients = do.call(cbind, lapply(lmFits, stats::coef))
+    fit$stdErrors = do.call(cbind, lapply(lmFits, stats::coef, SE = TRUE))
+  } else {
+    fit$coefficients = do.call(cbind, lapply(lmFits, `[[`, 'coefficients'))
+    fit$stdErrors = do.call(
+      cbind, lapply(lmFits, function(f) sqrt(f$s2.post) * f$stdev.unscaled))}
+
+  idx = 1:(ncol(fit$coefficients) / length(shifts))
+  nums = getNumKnotCondCovar(colnames(fit$coefficients)[idx])
 
   sufs = rep(paste0('_shift', 1:length(shifts)),
              each = ncol(fit$coefficients) / length(shifts))
@@ -122,7 +133,6 @@ getModelFit = function(
   fit$period = period
   fit$conds = levels(m$cond) # always works
 
-  nums = getNumKnotCondCovar(colnames(lmFits[[1L]]))
   fit$nKnots = nums[1L]
   fit$nConds = nums[2L]
   fit$nCovs = nums[3L]
