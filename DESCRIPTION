@@ -21,7 +21,7 @@ Imports:
   ashr (>= 2.2-51),
   checkmate (>= 2.0.0),
   data.table (>= 1.12.8),
-  DESeq2 (>= 1.34.0),
+  DESeq2 (>= 1.30.0),
   foreach (>= 1.5.0),
   HDInterval (>= 0.2.2),
   iterators (>= 1.0.12),
