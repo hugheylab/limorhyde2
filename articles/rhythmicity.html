@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">limorhyde2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.0.9027</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.0.9028</span>
       </span>
     </div>
 
@@ -54,6 +54,9 @@
     </li>
     <li>
       <a href="../articles/rhythmicity.html">Quantifying rhythmicity in one condition</a>
+    </li>
+    <li>
+      <a href="../articles/rnaseq.html">Analyzing RNA-seq data</a>
     </li>
     <li>
       <a href="../articles/uncertainty.html">Quantifying uncertainty in (differential) rhythmicity</a>
@@ -177,9 +180,9 @@
 <span class="co">#&gt;  - Computation allocated took 0.01 seconds.</span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="get-rhythmic-statistics">Get rhythmic statistics<a class="anchor" aria-label="anchor" href="#get-rhythmic-statistics"></a>
+<h2 id="get-rhythm-statistics">Get rhythm statistics<a class="anchor" aria-label="anchor" href="#get-rhythm-statistics"></a>
 </h2>
-<p>We can now use the posterior fits to compute rhythmic statistics, i.e. properties of the curve, for each gene.</p>
+<p>We can now use the posterior fits to compute rhythm statistics, i.e. properties of the curve, for each gene.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">rhyStats</span> <span class="op">=</span> <span class="fu"><a href="../reference/getRhythmStats.html">getRhythmStats</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></code></pre></div>
 <p>We can examine the distributions of the statistics in various ways, such as ranking genes by peak-to-trough amplitude (no p-values necessary) or plotting peak-to-trough amplitude vs. peak phase.</p>
