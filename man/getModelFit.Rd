@@ -51,7 +51,7 @@ covariates.}
 splines, not for cosinor. Do not change from the default unless you know
 what you're doing.}
 
-\item{method}{String indicating method to obtain model coefficients. For
+\item{method}{String indicating method to estimate model coefficients. For
 microarray data, use 'trend'. For RNA-seq count data, use 'voom' or
 'deseq2'.}
 

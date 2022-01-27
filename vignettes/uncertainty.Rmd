@@ -125,7 +125,7 @@ p2 = ggplot() +
 plot_grid(p1, p2, ncol = 1, rel_heights = c(1, 1.25))
 ```
 
-## Get rhythmic and differentially rhythmic statistics
+## Get rhythm and differential rhythm statistics
 
 We can also use the posterior samples to quantify uncertainty in the statistics, again by specifying the `fitType` argument.
 
@@ -154,7 +154,7 @@ p2 = ggplot(diffRhyStatsSamps) +
 plot_grid(p1, p2, ncol = 1)
 ```
 
-Finally, we can compute credible intervals for the rhythmic and differentially rhythmic statistics. Again, by default these are 90% equal-tailed intervals. Currently `getStatsIntervals()` does not calculate intervals for phase-based statistics, since phase and phase difference are circular quantities.
+Finally, we can compute credible intervals for the rhythm and differential rhythm statistics. Again, by default these are 90% equal-tailed intervals. Currently `getStatsIntervals()` does not calculate intervals for phase-based statistics, since phase and phase difference are circular quantities.
 
 ```{r stats_intervals}
 rhyStatsInts = getStatsIntervals(rhyStatsSamps)

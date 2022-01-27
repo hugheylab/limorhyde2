@@ -55,16 +55,16 @@ fit = getModelFit(y, metadata, nKnots = 3L, condColname = 'cond')
 fit = getPosteriorFit(fit)
 ```
 
-## Get rhythmic statistics
+## Get rhythm statistics
 
-Next, we use the posterior fits to compute rhythmic statistics for each gene in each condition.
+Next, we use the posterior fits to compute rhythm statistics for each gene in each condition.
 
 ```{r rhythm_stats}
 rhyStats = getRhythmStats(fit)
 print(rhyStats, nrows = 10L)
 ```
 
-## Get differentially rhythmic statistics
+## Get differential rhythm statistics
 
 We can now calculate the rhythmic differences for each gene between any two conditions, here between wild-type and knockout.
 

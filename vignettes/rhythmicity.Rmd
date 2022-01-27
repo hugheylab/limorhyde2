@@ -62,9 +62,9 @@ The next step is obtain posterior estimates of the model coefficients using [mul
 fit = getPosteriorFit(fit)
 ```
 
-## Get rhythmic statistics
+## Get rhythm statistics
 
-We can now use the posterior fits to compute rhythmic statistics, i.e. properties of the curve, for each gene. 
+We can now use the posterior fits to compute rhythm statistics, i.e. properties of the curve, for each gene. 
 
 ```{r rhythm_stats}
 rhyStats = getRhythmStats(fit)

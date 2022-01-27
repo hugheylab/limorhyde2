@@ -1,3 +1,6 @@
+# limorhyde2 0.0.0.9028
+* Added vignette for RNA-seq data.
+
 # limorhyde2 0.0.0.9027
 * Added ability to fit models using `DESeq2`.
 
