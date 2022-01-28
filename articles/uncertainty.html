@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">limorhyde2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.0.9028</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.0.9030</span>
       </span>
     </div>
 
@@ -168,12 +168,18 @@
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/getModelFit.html">getModelFit</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">metadata</span>, nKnots <span class="op">=</span> <span class="fl">3L</span>, condColname <span class="op">=</span> <span class="st">'cond'</span><span class="op">)</span>
 <span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/getPosteriorFit.html">getPosteriorFit</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>
-<span class="co">#&gt;  - Computing 100 x 109 likelihood matrix.</span>
-<span class="co">#&gt;  - Likelihood calculations took 0.09 seconds.</span>
-<span class="co">#&gt;  - Fitting model with 109 mixture components.</span>
-<span class="co">#&gt;  - Model fitting took 0.02 seconds.</span>
+<span class="co">#&gt;  - Computing 100 x 97 likelihood matrix.</span>
+<span class="co">#&gt;  - Likelihood calculations took 0.02 seconds.</span>
+<span class="co">#&gt;  - Fitting model with 97 mixture components.</span>
+<span class="co">#&gt;  - Model fitting took 0.03 seconds.</span>
 <span class="co">#&gt;  - Computing posterior matrices.</span>
-<span class="co">#&gt;  - Computation allocated took 0.02 seconds.</span></code></pre></div>
+<span class="co">#&gt;  - Computation allocated took 0.01 seconds.</span>
+<span class="co">#&gt;  - Computing 100 x 89 likelihood matrix.</span>
+<span class="co">#&gt;  - Likelihood calculations took 0.02 seconds.</span>
+<span class="co">#&gt;  - Fitting model with 89 mixture components.</span>
+<span class="co">#&gt;  - Model fitting took 0.03 seconds.</span>
+<span class="co">#&gt;  - Computing posterior matrices.</span>
+<span class="co">#&gt;  - Computation allocated took 0.00 seconds.</span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="draw-samples-from-the-posterior-fits">Draw samples from the posterior fits<a class="anchor" aria-label="anchor" href="#draw-samples-from-the-posterior-fits"></a>
@@ -196,33 +202,33 @@
 <span class="va">measFitSamps</span><span class="op">[</span><span class="va">genes</span>, <span class="va">symbol</span> <span class="op">:=</span> <span class="va">i.symbol</span>, on <span class="op">=</span> <span class="fu">.</span><span class="op">(</span>feature <span class="op">=</span> <span class="va">id</span><span class="op">)</span><span class="op">]</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">measFitSamps</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
 <span class="co">#&gt;        time      cond feature     value posterior_sample symbol</span>
-<span class="co">#&gt;     1:    0 wild-type   13170  9.389048                1    Dbp</span>
-<span class="co">#&gt;     2:    0 wild-type   12686 11.879609                1 Elovl3</span>
-<span class="co">#&gt;     3:    0 wild-type   26897 11.516696                1  Acot1</span>
-<span class="co">#&gt;     4:    0  knockout   13170 12.149865                1    Dbp</span>
-<span class="co">#&gt;     5:    0  knockout   12686 10.193404                1 Elovl3</span>
+<span class="co">#&gt;     1:    0 wild-type   13170  9.311712                1    Dbp</span>
+<span class="co">#&gt;     2:    0 wild-type   12686 11.900372                1 Elovl3</span>
+<span class="co">#&gt;     3:    0 wild-type   26897 11.573833                1  Acot1</span>
+<span class="co">#&gt;     4:    0  knockout   13170 11.960591                1    Dbp</span>
+<span class="co">#&gt;     5:    0  knockout   12686  9.910882                1 Elovl3</span>
 <span class="co">#&gt;    ---                                                         </span>
-<span class="co">#&gt; 14696:   24 wild-type   12686 11.846712               50 Elovl3</span>
-<span class="co">#&gt; 14697:   24 wild-type   26897 11.494776               50  Acot1</span>
-<span class="co">#&gt; 14698:   24  knockout   13170 11.940549               50    Dbp</span>
-<span class="co">#&gt; 14699:   24  knockout   12686 10.013645               50 Elovl3</span>
-<span class="co">#&gt; 14700:   24  knockout   26897  9.140671               50  Acot1</span></code></pre></div>
+<span class="co">#&gt; 14696:   24 wild-type   12686 11.792501               50 Elovl3</span>
+<span class="co">#&gt; 14697:   24 wild-type   26897 11.541084               50  Acot1</span>
+<span class="co">#&gt; 14698:   24  knockout   13170 12.156376               50    Dbp</span>
+<span class="co">#&gt; 14699:   24  knockout   12686  9.775243               50 Elovl3</span>
+<span class="co">#&gt; 14700:   24  knockout   26897  9.149810               50  Acot1</span></code></pre></div>
 <p>Given the expected measurements from the posterior samples, we can compute the lower and upper bounds of the credible interval for each combination of feature, condition, and time-point. By default, <code><a href="../reference/getExpectedMeasIntervals.html">getExpectedMeasIntervals()</a></code> calculates the 90% equal-tailed interval.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">measFitInts</span> <span class="op">=</span> <span class="fu"><a href="../reference/getExpectedMeasIntervals.html">getExpectedMeasIntervals</a></span><span class="op">(</span><span class="va">measFitSamps</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">measFitInts</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
 <span class="co">#&gt;      time      cond feature symbol     lower     upper</span>
-<span class="co">#&gt;   1:    0 wild-type   13170    Dbp  9.312920  9.545719</span>
-<span class="co">#&gt;   2:    0 wild-type   12686 Elovl3 11.742144 11.956802</span>
-<span class="co">#&gt;   3:    0 wild-type   26897  Acot1 11.451277 11.683526</span>
-<span class="co">#&gt;   4:    0  knockout   13170    Dbp 11.989281 12.456412</span>
-<span class="co">#&gt;   5:    0  knockout   12686 Elovl3  9.896537 10.239946</span>
+<span class="co">#&gt;   1:    0 wild-type   13170    Dbp  9.198385  9.548343</span>
+<span class="co">#&gt;   2:    0 wild-type   12686 Elovl3 11.730815 11.932970</span>
+<span class="co">#&gt;   3:    0 wild-type   26897  Acot1 11.530799 11.695425</span>
+<span class="co">#&gt;   4:    0  knockout   13170    Dbp 11.782626 12.096190</span>
+<span class="co">#&gt;   5:    0  knockout   12686 Elovl3  9.659338  9.912190</span>
 <span class="co">#&gt;  ---                                                  </span>
-<span class="co">#&gt; 290:   24 wild-type   12686 Elovl3 11.742144 11.956802</span>
-<span class="co">#&gt; 291:   24 wild-type   26897  Acot1 11.451277 11.683526</span>
-<span class="co">#&gt; 292:   24  knockout   13170    Dbp 11.989281 12.456412</span>
-<span class="co">#&gt; 293:   24  knockout   12686 Elovl3  9.896537 10.239946</span>
-<span class="co">#&gt; 294:   24  knockout   26897  Acot1  9.094299  9.510977</span></code></pre></div>
+<span class="co">#&gt; 290:   24 wild-type   12686 Elovl3 11.730815 11.932970</span>
+<span class="co">#&gt; 291:   24 wild-type   26897  Acot1 11.530799 11.695425</span>
+<span class="co">#&gt; 292:   24  knockout   13170    Dbp 11.782626 12.096190</span>
+<span class="co">#&gt; 293:   24  knockout   12686 Elovl3  9.659338  9.912190</span>
+<span class="co">#&gt; 294:   24  knockout   26897  Acot1  9.029779  9.328263</span></code></pre></div>
 <p>It’s always a good idea to also calculate the posterior mean fitted curves.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">measFitMean</span> <span class="op">=</span> <span class="fu"><a href="../reference/getExpectedMeas.html">getExpectedMeas</a></span><span class="op">(</span><span class="va">fit</span>, times <span class="op">=</span> <span class="va">times</span>, features <span class="op">=</span> <span class="va">genes</span><span class="op">$</span><span class="va">id</span><span class="op">)</span>
@@ -266,29 +272,29 @@
 <span class="va">diffRhyStatsSamps</span><span class="op">[</span><span class="va">genes</span>, <span class="va">symbol</span> <span class="op">:=</span> <span class="va">i.symbol</span>, on <span class="op">=</span> <span class="fu">.</span><span class="op">(</span>feature <span class="op">=</span> <span class="va">id</span><span class="op">)</span><span class="op">]</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">diffRhyStatsSamps</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
 <span class="co">#&gt;      feature posterior_sample     cond1    cond2 diff_mean_value</span>
-<span class="co">#&gt;   1:   12686                1 wild-type knockout      -0.4083296</span>
-<span class="co">#&gt;   2:   12686                2 wild-type knockout      -0.3386511</span>
-<span class="co">#&gt;   3:   12686                3 wild-type knockout      -0.4269917</span>
-<span class="co">#&gt;   4:   12686                4 wild-type knockout      -0.3265127</span>
-<span class="co">#&gt;   5:   12686                5 wild-type knockout      -0.3463000</span>
+<span class="co">#&gt;   1:   12686                1 wild-type knockout      -0.4215416</span>
+<span class="co">#&gt;   2:   12686                2 wild-type knockout      -0.4215416</span>
+<span class="co">#&gt;   3:   12686                3 wild-type knockout      -0.4215416</span>
+<span class="co">#&gt;   4:   12686                4 wild-type knockout      -0.4215416</span>
+<span class="co">#&gt;   5:   12686                5 wild-type knockout      -0.4215416</span>
 <span class="co">#&gt;  ---                                                            </span>
-<span class="co">#&gt; 146:   26897               46 wild-type knockout      -2.3821759</span>
-<span class="co">#&gt; 147:   26897               47 wild-type knockout      -2.3301956</span>
-<span class="co">#&gt; 148:   26897               48 wild-type knockout      -2.4299884</span>
-<span class="co">#&gt; 149:   26897               49 wild-type knockout      -2.3018778</span>
-<span class="co">#&gt; 150:   26897               50 wild-type knockout      -2.4027325</span>
+<span class="co">#&gt; 146:   26897               46 wild-type knockout      -2.4048158</span>
+<span class="co">#&gt; 147:   26897               47 wild-type knockout      -2.4048158</span>
+<span class="co">#&gt; 148:   26897               48 wild-type knockout      -2.4048158</span>
+<span class="co">#&gt; 149:   26897               49 wild-type knockout      -2.4048158</span>
+<span class="co">#&gt; 150:   26897               50 wild-type knockout      -2.4048158</span>
 <span class="co">#&gt;      diff_peak_trough_amp diff_peak_phase diff_trough_phase symbol</span>
-<span class="co">#&gt;   1:           -2.5671171      -1.8136085        -0.8240157 Elovl3</span>
-<span class="co">#&gt;   2:           -2.5290374      -5.3312776        -0.9626241 Elovl3</span>
-<span class="co">#&gt;   3:           -2.6030130      -4.8303454        -0.5388696 Elovl3</span>
-<span class="co">#&gt;   4:           -2.2099703      -5.1200017        -3.1584134 Elovl3</span>
-<span class="co">#&gt;   5:           -2.2718334      -4.7144006        -1.0342290 Elovl3</span>
+<span class="co">#&gt;   1:            -2.650320      -5.5773081        0.44582253 Elovl3</span>
+<span class="co">#&gt;   2:            -2.355473      -5.8709421        0.14414408 Elovl3</span>
+<span class="co">#&gt;   3:            -2.644143      -6.0791250       -0.41983340 Elovl3</span>
+<span class="co">#&gt;   4:            -2.249548      -5.6883296        0.50251545 Elovl3</span>
+<span class="co">#&gt;   5:            -2.398686      -5.7243896       -0.04821331 Elovl3</span>
 <span class="co">#&gt;  ---                                                              </span>
-<span class="co">#&gt; 146:           -1.2587567       1.0530490         7.2756453  Acot1</span>
-<span class="co">#&gt; 147:           -1.4133809       1.2877243        -2.3325067  Acot1</span>
-<span class="co">#&gt; 148:           -1.0275415       0.8332398         6.0653608  Acot1</span>
-<span class="co">#&gt; 149:           -0.5256044      -0.9409261         4.1293078  Acot1</span>
-<span class="co">#&gt; 150:           -0.9094560       0.9645104        -1.9435250  Acot1</span></code></pre></div>
+<span class="co">#&gt; 146:            -1.484115       2.1315304        6.42675145  Acot1</span>
+<span class="co">#&gt; 147:            -1.138951      -0.6212417       -4.81497406  Acot1</span>
+<span class="co">#&gt; 148:            -1.117957       2.4322014        5.92741707  Acot1</span>
+<span class="co">#&gt; 149:            -1.211833       2.0488712        5.95459958  Acot1</span>
+<span class="co">#&gt; 150:            -1.573323       0.2242170       -3.52459598  Acot1</span></code></pre></div>
 <p>In the plots below, each point represents a posterior sample.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">p1</span> <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">diffRhyStatsSamps</span><span class="op">)</span> <span class="op">+</span>
@@ -310,27 +316,27 @@
 <code class="sourceCode R"><span class="va">rhyStatsInts</span> <span class="op">=</span> <span class="fu"><a href="../reference/getStatsIntervals.html">getStatsIntervals</a></span><span class="op">(</span><span class="va">rhyStatsSamps</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">rhyStatsInts</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
 <span class="co">#&gt;          cond feature       statistic      lower      upper</span>
-<span class="co">#&gt;  1: wild-type   13170      peak_value 14.9142461 15.1623426</span>
-<span class="co">#&gt;  2: wild-type   12686      peak_value 11.7551992 11.9611959</span>
-<span class="co">#&gt;  3: wild-type   26897      peak_value 12.2489294 12.5386247</span>
-<span class="co">#&gt;  4:  knockout   13170      peak_value 14.1364485 14.4867027</span>
-<span class="co">#&gt;  5:  knockout   12686      peak_value 10.1298897 10.5075167</span>
+<span class="co">#&gt;  1: wild-type   13170      peak_value 14.9359565 15.2077150</span>
+<span class="co">#&gt;  2: wild-type   12686      peak_value 11.7369355 11.9389750</span>
+<span class="co">#&gt;  3: wild-type   26897      peak_value 12.1691605 12.4847103</span>
+<span class="co">#&gt;  4:  knockout   13170      peak_value 14.1789915 14.4385085</span>
+<span class="co">#&gt;  5:  knockout   12686      peak_value 10.1756030 10.4841136</span>
 <span class="co">#&gt; ---                                                        </span>
-<span class="co">#&gt; 14: wild-type   12686 peak_trough_amp  2.8982419  3.2295700</span>
-<span class="co">#&gt; 15: wild-type   26897 peak_trough_amp  1.4180054  2.0376529</span>
-<span class="co">#&gt; 16:  knockout   13170 peak_trough_amp  2.1155007  2.7422983</span>
-<span class="co">#&gt; 17:  knockout   12686 peak_trough_amp  0.4647210  1.0334074</span>
-<span class="co">#&gt; 18:  knockout   26897 peak_trough_amp  0.4317504  0.9859636</span>
+<span class="co">#&gt; 14: wild-type   12686 peak_trough_amp  2.8589927  3.1928311</span>
+<span class="co">#&gt; 15: wild-type   26897 peak_trough_amp  1.2151911  1.9527641</span>
+<span class="co">#&gt; 16:  knockout   13170 peak_trough_amp  2.3482342  2.8821283</span>
+<span class="co">#&gt; 17:  knockout   12686 peak_trough_amp  0.4121706  0.8699201</span>
+<span class="co">#&gt; 18:  knockout   26897 peak_trough_amp  0.2437379  0.7548640</span>
 
 <span class="va">diffRhyStatsInts</span> <span class="op">=</span> <span class="fu"><a href="../reference/getStatsIntervals.html">getStatsIntervals</a></span><span class="op">(</span><span class="va">diffRhyStatsSamps</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">diffRhyStatsInts</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
 <span class="co">#&gt;        cond1    cond2 feature            statistic      lower      upper</span>
-<span class="co">#&gt; 1: wild-type knockout   12686      diff_mean_value -0.4761391 -0.3273693</span>
-<span class="co">#&gt; 2: wild-type knockout   13170      diff_mean_value  1.0946908  1.3077532</span>
-<span class="co">#&gt; 3: wild-type knockout   26897      diff_mean_value -2.4744074 -2.3132504</span>
-<span class="co">#&gt; 4: wild-type knockout   12686 diff_peak_trough_amp -2.6358331 -2.0279483</span>
-<span class="co">#&gt; 5: wild-type knockout   13170 diff_peak_trough_amp -3.7189186 -3.3477383</span>
-<span class="co">#&gt; 6: wild-type knockout   26897 diff_peak_trough_amp -1.2288045 -0.7108265</span></code></pre></div>
+<span class="co">#&gt; 1: wild-type knockout   12686      diff_mean_value -0.4215416 -0.4215416</span>
+<span class="co">#&gt; 2: wild-type knockout   13170      diff_mean_value  1.1950262  1.1950262</span>
+<span class="co">#&gt; 3: wild-type knockout   26897      diff_mean_value -2.4048158 -2.4048158</span>
+<span class="co">#&gt; 4: wild-type knockout   12686 diff_peak_trough_amp -2.6551795 -2.1104614</span>
+<span class="co">#&gt; 5: wild-type knockout   13170 diff_peak_trough_amp -3.9306604 -3.0313858</span>
+<span class="co">#&gt; 6: wild-type knockout   26897 diff_peak_trough_amp -1.5389498 -0.6001562</span></code></pre></div>
 </div>
   </div>
 
