@@ -59,7 +59,7 @@ getDesign = function(metadata, period, nKnots) {
   m = cbind(metadata, b)
 
   r = paste0('basis', 1:nKnots, collapse = ' + ')
-  if ('cond' %in% colnames(m)) r = sprintf('cond * (%s)', r)
+  if ('cond' %in% colnames(m)) r = sprintf('cond + cond : (%s)', r)
 
   covarIdx = startsWith(colnames(m), 'covar')
   if (any(covarIdx)) r = paste(c(r, colnames(m)[covarIdx]), collapse = ' + ')
@@ -69,11 +69,11 @@ getDesign = function(metadata, period, nKnots) {
   if (any(covarIdx)) design = design[, c(which(!covarIdx), which(covarIdx))]
 
   nConds = length(unique(m$cond)) # works even if cond is not a column
-  if (nConds > 2) {
+  if (nConds > 1) {
     nCols = ncol(design) - sum(covarIdx)
-    idx = foreach(condIdx = 2:nConds, .combine = c) %do% {
-      seq(c(nConds + nKnots + condIdx - 1), nCols, nConds - 1)}
-    idx = c(1:(nConds + nKnots), idx)
+    idx = foreach(condIdx = 1:nConds, .combine = c) %do% {
+      seq(nConds + condIdx, nCols, nConds)}
+    idx = c(1:nConds, idx)
     if (any(covarIdx)) idx = c(idx, (nCols + 1):ncol(design))
     design = design[, idx]}
   return(design)}
@@ -81,6 +81,8 @@ getDesign = function(metadata, period, nKnots) {
 
 getNumKnotCondCovar = function(cols) {
   nCovs = sum(startsWith(cols, 'covar'))
-  nConds = which(cols == 'basis1') - 1L
+  # works for limma and deseq2
+  nConds = which(grepl('^cond.+(:|\\.)basis1$', cols))[1L] - 1L
+  if (is.na(nConds)) nConds = 1L
   nKnots = as.integer((length(cols) - nConds - nCovs) / nConds)
   return(c(nKnots, nConds, nCovs))}

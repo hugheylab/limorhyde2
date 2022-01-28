@@ -39,8 +39,8 @@ exists.}
 A \code{limorhyde2} object containing everything in \code{fit} with added or
 updated elements:
 \itemize{
-\item \code{mashData}: \code{mash} data object
-\item \code{mashFit}: \code{mash} fit object
+\item \code{mashData}: list of \code{mash} data objects
+\item \code{mashFits}: list of \code{mash} fit objects
 \item \code{mashCoefficients}: Matrix of posterior mean coefficients, with rows
 corresponding to features and columns to model terms.
 \item \code{mashIdx}: Vector indicating which model terms were included in the mash

@@ -65,7 +65,7 @@ test_that('getDesign', {
 
 test_that('getNumKnotCondCovar', {
   nKnots = 3L
-  cols = c('(Intercept)', 'condko', paste0('basis', 1:nKnots),
+  cols = c('(Intercept)', 'condko', paste0('condwt:basis', 1:nKnots),
            paste0('condko:basis', 1:nKnots), 'covar_batch')
   n = getNumKnotCondCovar(cols)
   expect_equal(n, 3:1)

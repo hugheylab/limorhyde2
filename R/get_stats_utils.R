@@ -32,15 +32,24 @@ getOptima = function(f, tt) {
   return(d)}
 
 
+getShiftCols = function(shiftIdx, nCoefs) {
+  x = (1:nCoefs) + nCoefs * (shiftIdx - 1)
+  return(x)}
+
+
+getBasisCols = function(condIdx, nConds, nKnots) {
+  x = nConds + (1 + (condIdx - 1) * nKnots):(condIdx * nKnots)
+  return(x)}
+
+
 getCoefMatOneCond = function(coefMat, condIdx, nConds, nKnots, nShifts) {
-  nCoefs = ncol(coefMat) / nShifts
+  j = NULL
   coefKeep = foreach(j = 1:nShifts, .combine = cbind) %do% {
-    coefTmp = coefMat[, (1:nCoefs) + nCoefs * (j - 1), drop = FALSE]
-    coefNow = coefTmp[, c(1, (nConds + 1):(nConds + nKnots)), drop = FALSE]
-    if (condIdx > 1) {
-      i = nConds + (condIdx - 1) * nKnots + 1
-      j = c(condIdx, i:(i + nKnots - 1))
-      coefNow = coefNow + coefTmp[, j, drop = FALSE]}
+    shiftCols = getShiftCols(j, ncol(coefMat) / nShifts)
+    coefTmp = coefMat[, shiftCols, drop = FALSE]
+    i = getBasisCols(condIdx, nConds, nKnots)
+    coefNow = coefTmp[, c(condIdx, i), drop = FALSE]
+    if (condIdx > 1) coefNow[, 1L] = coefNow[, 1L] + coefTmp[, 1L]
     coefNow}
   return(coefKeep)}
 
@@ -70,17 +79,13 @@ centerCircDiff = function(x, p) {
 
 
 getCoefMatDiffCond = function(coefMat, condIdx, nConds, nKnots, nShifts) {
-  nCoefs = ncol(coefMat) / nShifts
+  j = k = NULL
   coefKeep = foreach(j = 1:nShifts, .combine = cbind) %do% {
-    coefTmp = coefMat[, (1:nCoefs) + nCoefs * (j - 1), drop = FALSE]
-    if (1L %in% condIdx) {
-      condIdxNow = setdiff(condIdx, 1L)
-      i = nConds + (condIdxNow - 1) * nKnots + 1
-      coefNow = coefTmp[, i:(i + nKnots - 1), drop = FALSE]
-    } else {
-      i = nConds + (condIdx - 1) * nKnots + 1
-      j = i + nKnots - 1
-      coefNow = coefTmp[, i[2]:j[2]] - coefTmp[, i[1]:j[1], drop = FALSE]}
+    shiftCols = getShiftCols(j, ncol(coefMat) / nShifts)
+    coefTmp = coefMat[, shiftCols, drop = FALSE]
+    i = foreach(k = 1:2, .combine = rbind) %do% {
+      getBasisCols(condIdx[k], nConds, nKnots)}
+    coefNow = coefTmp[, i[2L, ], drop = FALSE] - coefTmp[, i[1L, ], drop = FALSE]
     coefNow}
   return(coefKeep)}
 

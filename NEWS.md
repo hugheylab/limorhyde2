@@ -1,3 +1,6 @@
+# limorhyde2 0.0.0.9030
+* Updated model parameterization and mashing to treat all conditions fairly.
+
 # limorhyde2 0.0.0.9029
 * Updated calculation of credible intervals for rhythm amplitudes.
 

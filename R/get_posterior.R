@@ -1,3 +1,19 @@
+getMash = function(coefs, ses, covMethod, getSigResArgs, npc, covEdArgs, ...) {
+  md = mashr::mash_set_data(coefs, ses)
+  uc = if (covMethod == 'data-driven') NULL else mashr::cov_canonical(md)
+
+  if (covMethod == 'canonical') {
+    ued = NULL
+  } else {
+    m1by1 = mashr::mash_1by1(md)
+    strong = do.call(mashr::get_significant_results, c(list(m1by1), getSigResArgs))
+    upca = mashr::cov_pca(md, npc = min(npc, length(strong)), subset = strong)
+    ued = do.call(mashr::cov_ed, c(list(md, upca, strong), covEdArgs))}
+
+  mc = mashr::mash(md, c(uc, ued), ...)
+  return(list(mashData = md, mashFit = mc))}
+
+
 #' Compute posterior fit for linear models for rhythmicity
 #'
 #' This is the second step in an analysis using `limorhyde2`, the first is to
@@ -24,8 +40,8 @@
 #' @return A `limorhyde2` object containing everything in `fit` with added or
 #'   updated elements:
 #'
-#' * `mashData`: `mash` data object
-#' * `mashFit`: `mash` fit object
+#' * `mashData`: list of `mash` data objects
+#' * `mashFits`: list of `mash` fit objects
 #' * `mashCoefficients`: Matrix of posterior mean coefficients, with rows
 #'   corresponding to features and columns to model terms.
 #' * `mashIdx`: Vector indicating which model terms were included in the mash
@@ -46,39 +62,44 @@ getPosteriorFit = function(
   assertCount(npc, positive = TRUE)
   assertList(covEdArgs)
   assertFlag(overwrite)
-  assertTRUE(overwrite || is.null(fit$mashFit))
+  assertTRUE(overwrite || is.null(fit$mashFits))
 
-  mashCondCoefs = TRUE
   co = fit$coefficients
   c(shifts, nKnots, nConds) %<-% fit[c('shifts', 'nKnots', 'nConds')]
 
-  idxStart = if (isTRUE(mashCondCoefs)) 2 else nConds + 1
-  idxEnd = nConds * (nKnots + 1)
-  idxTmp = idxStart:idxEnd # only shrink these
+  nShifts = length(shifts)
+  nCoefs = ncol(co) / nShifts
+  mashData = list()
+  mashFits = list()
+  mashIdx = c()
+  i = 1L
 
-  idx = rep(idxTmp, length(shifts)) +
-    rep((0:(length(shifts) - 1)) * ncol(co) / length(shifts),
-        each = length(idxTmp))
+  # TODO: what if nConds == 2, so only one condition coef, just run ash?
+  # std errors for mean_value are so small, shrinkage has very little effect
+  # if (nConds > 1) {
+  #   idx = rep(2:nConds, nShifts) +
+  #     rep(seq(0, nShifts * nCoefs - 1, nCoefs), each = nConds - 1)
+  #   mashes[[i]] = getMash(co[, idx], fit$stdErrors[, idx], covMethod,
+  #                          getSigResArgs, npc, covEdArgs, ...)
+  #   mashIdx = c(mashIdx, idx)
+  #   i = i + 1L}
 
-  md = mashr::mash_set_data(co[, idx], fit$stdErrors[, idx])
+  for (condIdx in 1:nConds) {
+    idx = rep(getBasisCols(condIdx, nConds, nKnots), nShifts) +
+      rep(seq(0, nShifts * nCoefs - 1, nCoefs), each = nKnots)
+    mashOutput = getMash(co[, idx], fit$stdErrors[, idx], covMethod,
+                         getSigResArgs, npc, covEdArgs, ...)
+    mashData[[i]] = mashOutput$mashData
+    mashFits[[i]] = mashOutput$mashFit
+    mashIdx = c(mashIdx, idx)
+    i = i + 1L}
 
-  uc = if (covMethod == 'data-driven') NULL else mashr::cov_canonical(md)
+  co[, mashIdx] = do.call(cbind, lapply(mashFits, ashr::get_pm))
 
-  if (covMethod == 'canonical') {
-    ued = NULL
-  } else {
-    m1by1 = mashr::mash_1by1(md)
-    strong = do.call(mashr::get_significant_results, c(list(m1by1), getSigResArgs))
-    upca = mashr::cov_pca(md, npc = npc, subset = strong)
-    ued = do.call(mashr::cov_ed, c(list(md, upca, strong), covEdArgs))}
-
-  mc = mashr::mash(md, c(uc, ued), ...)
-  co[, idx] = ashr::get_pm(mc)
-
-  fit$mashData = md
-  fit$mashFit = mc
+  fit$mashData = mashData
+  fit$mashFits = mashFits
   fit$mashCoefficients = co
-  fit$mashIdx = idx
+  fit$mashIdx = mashIdx
   return(fit)}
 
 
@@ -106,20 +127,22 @@ getPosteriorFit = function(
 #' @export
 getPosteriorSamples = function(fit, nPosteriorSamples = 200L, overwrite = FALSE) {
 
+  mf = md = NULL
   assertClass(fit, 'limorhyde2')
   assertNumber(nPosteriorSamples, lower = 10)
   nPostSamps = assertCount(nPosteriorSamples, coerce = TRUE)
   assertFlag(overwrite)
   assertTRUE(overwrite || is.null(fit$mashPosteriorSamples))
 
-  mp = mashr::mash_compute_posterior_matrices(
-    fit$mashFit, fit$mashData, algorithm.version = 'R',
-    posterior_samples = nPostSamps)
+  mp = foreach(mf = fit$mashFits, md = fit$mashData) %do% {
+    mpr = mashr::mash_compute_posterior_matrices(
+      mf, md, algorithm.version = 'R', posterior_samples = nPostSamps)
+    mpi = mpr$PosteriorSamples}
 
   co = fit$coefficients
   coArray = array(rep(co, nPostSamps), dim = c(dim(co), nPostSamps),
                   dimnames = dimnames(co))
-  coArray[, fit$mashIdx, ] = mp$PosteriorSamples
+  coArray[, fit$mashIdx, ] = abind::abind(mp, along = 2L)
 
   fit$mashPosteriorSamples = coArray
   return(fit)}

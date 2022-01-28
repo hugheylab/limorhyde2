@@ -49,7 +49,7 @@ test_that('getCoefMatOneCond', {
   nConds = 2L
   nKnots = 2L
   nShifts = 2L
-  cols = c('(Intercept)', 'condb', paste0('basis', 1:nKnots),
+  cols = c('(Intercept)', 'condb', paste0('conda:basis', 1:nKnots),
            paste0('condb:basis', 1:nKnots))
   cols = paste0(rep(cols, nShifts),
                 rep(paste0('_shift', 1:nShifts), each = length(cols)))
@@ -64,7 +64,7 @@ test_that('getCoefMatOneCond', {
   condIdx = 2L
   coefMat = matrix(rep(1:length(cols), each = nFeats), ncol = length(cols))
   coefObs = getCoefMatOneCond(coefMat, condIdx, nConds, nKnots, nShifts)
-  coefExp = matrix(c(3, 8, 10, 15, 20, 22), nrow = nFeats)
+  coefExp = matrix(c(3, 5, 6, 15, 11, 12), nrow = nFeats)
   expect_equal(coefObs, coefExp)
 
   nFeats = 8L
@@ -77,7 +77,7 @@ test_that('getCoefMatOneCond', {
   condIdx = 2L
   coefMat = matrix(rep(1:length(cols), each = nFeats), ncol = length(cols))
   coefObs = getCoefMatOneCond(coefMat, condIdx, nConds, nKnots, nShifts)
-  coefExp = matrix(rep(c(3, 8, 10, 15, 20, 22), each = nFeats), nrow = nFeats)
+  coefExp = matrix(rep(c(3, 5, 6, 15, 11, 12), each = nFeats), nrow = nFeats)
   expect_equal(coefObs, coefExp)
 })
 

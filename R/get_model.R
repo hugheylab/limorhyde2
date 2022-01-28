@@ -81,7 +81,9 @@ getModelFit = function(
   assertString(condColname, null.ok = TRUE)
   if (!is.null(condColname)) {
     assertTRUE(condColname != timeColname)
-    assertChoice(condColname, colnames(metadata))}
+    assertChoice(condColname, colnames(metadata))
+    assert(checkCharacter(metadata[[condColname]]),
+           checkFactor(metadata[[condColname]]))}
 
   assertCharacter(covarColnames, null.ok = TRUE)
   if (!is.null(covarColnames)) {
