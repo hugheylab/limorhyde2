@@ -103,6 +103,7 @@ getRhythmStats = function(
 
   setattr(rhyStats, 'statType', 'rhy')
   setattr(rhyStats, 'fitType', fitType)
+  setattr(rhyStats, 'period', period)
   return(rhyStats)}
 
 
@@ -206,6 +207,7 @@ getDiffRhythmStats = function(
 
   setattr(diffRhyStats, 'statType', 'diff_rhy')
   setattr(diffRhyStats, 'fitType', fitType)
+  setattr(diffRhyStats, 'period', fit$period)
   return(diffRhyStats)}
 
 
@@ -223,7 +225,9 @@ getDiffRhythmStats = function(
 #'   [HDInterval::hdi()].
 #'
 #' @return A `data.table` containing lower and upper bounds of various
-#'   statistics for each feature or each feature-condition pair.
+#'   statistics for each feature or each feature-condition pair. For
+#'   `peak_trough_amp` and `rms_amp`, a negative lower bound indicates a rhythm
+#'   of the opposite phase.
 #'
 #' @seealso [getRhythmStats()], [getDiffRhythmStats()],
 #'   [getExpectedMeasIntervals()]
@@ -233,14 +237,17 @@ getStatsIntervals = function(
   posteriorStats, mass = 0.9, method = c('eti', 'hdi')) {
   # TODO: extend for phase-based stats, possibly in 2D
 
-  value = NULL
+  value = . = amp = mean_phase = peak_phase = NULL
   assertDataTable(posteriorStats)
   assertTRUE(attr(posteriorStats, 'fitType') == 'posterior_samples')
   assertChoice(attr(posteriorStats, 'statType'), c('rhy', 'diff_rhy'))
+  assertNumber(attr(posteriorStats, 'period'), lower = .Machine$double.eps)
   assertNumber(mass, lower = 0.5, upper = 1 - .Machine$double.eps)
   method = match.arg(method)
 
   statType = attr(posteriorStats, 'statType')
+  period = attr(posteriorStats, 'period')
+
   condCols = if (statType == 'rhy') 'cond' else c('cond1', 'cond2')
   idCols = intersect(c(condCols, 'feature', 'posterior_sample'),
                      colnames(posteriorStats))
@@ -249,10 +256,10 @@ getStatsIntervals = function(
   byCols = c(setdiff(idCols, 'posterior_sample'), varName)
 
   measCols = if (statType == 'rhy') {
-    c('peak_value', 'trough_value', 'peak_trough_amp', 'rms_amp')
+    c('peak_value', 'trough_value')#, 'peak_trough_amp', 'rms_amp')
   } else {
     c('diff_mean_value', 'diff_peak_trough_amp', 'diff_rms_amp', 'rms_diff_rhy')}
-  measCols = measCols[measCols %in% colnames(posteriorStats)]
+  measCols = intersect(measCols, colnames(posteriorStats))
 
   d1 = data.table::melt(
     posteriorStats, id.vars = idCols, measure.vars = measCols,
@@ -260,7 +267,28 @@ getStatsIntervals = function(
   getInterval = if (method == 'eti') getEti else getHdi
   d2 = d1[, getInterval(value, mass), by = byCols]
 
+  # amp gets special treatment
+  if (statType == 'rhy') {
+    byCols = intersect(c('feature', 'cond'), colnames(posteriorStats))
+    ampCols = intersect(c('peak_trough_amp', 'rms_amp'), colnames(posteriorStats))
+
+    ampCol = NULL
+    d3 = foreach(ampCol = ampCols, .combine = rbind) %do% {
+      pStats = posteriorStats[, c(byCols, 'peak_phase', ampCol), with = FALSE]
+      data.table::setnames(pStats, ampCol, 'amp')
+
+      dNow = pStats[, .(mean_phase = circMean(amp, peak_phase, period)[2L]),
+                    by = byCols]
+      dNow = merge(pStats, dNow, by = byCols, sort = FALSE)
+      dNow[abs(centerCircDiff(peak_phase - mean_phase, period)) > period / 4,
+           amp := -amp]
+      dNow = dNow[, getInterval(amp, mass), by = byCols]
+      dNow[, (varName) := ampCol]}
+
+    d2 = rbind(d2, d3)}
+
   setattr(d2, 'statType', statType)
+  setattr(d2, 'period', period)
   setattr(d2, 'mass', mass)
   setattr(d2, 'method', method)
   return(d2)}

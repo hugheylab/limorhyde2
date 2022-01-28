@@ -19,7 +19,9 @@ using \code{\link[stats:quantile]{stats::quantile()}}, or 'hdi' for highest dens
 }
 \value{
 A \code{data.table} containing lower and upper bounds of various
-statistics for each feature or each feature-condition pair.
+statistics for each feature or each feature-condition pair. For
+\code{peak_trough_amp} and \code{rms_amp}, a negative lower bound indicates a rhythm
+of the opposite phase.
 }
 \description{
 This function uses posterior samples to quantify uncertainty in the

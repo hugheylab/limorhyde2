@@ -51,6 +51,17 @@ getRmsAmp = function(f, co, period) {
   return(r)}
 
 
+circMean = function(amp, phase, period) {
+  w = 2 * pi * phase / period
+  x = amp * cos(w)
+  y = amp * sin(w)
+  mx = mean(x)
+  my = mean(y)
+  mamp = sqrt(mx^2 + my^2)
+  mphase = atan2(my, mx) * period / (2 * pi)
+  return(c(mamp, mphase))}
+
+
 centerCircDiff = function(x, p) {
   z = x %% p
   z = data.table::fifelse(

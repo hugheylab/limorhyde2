@@ -1,3 +1,6 @@
+# limorhyde2 0.0.0.9029
+* Updated calculation of credible intervals for rhythm amplitudes.
+
 # limorhyde2 0.0.0.9028
 * Added vignette for RNA-seq data.
 
