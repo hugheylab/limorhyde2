@@ -256,7 +256,7 @@ getStatsIntervals = function(
   byCols = c(setdiff(idCols, 'posterior_sample'), varName)
 
   measCols = if (statType == 'rhy') {
-    c('peak_value', 'trough_value')#, 'peak_trough_amp', 'rms_amp')
+    c('peak_value', 'trough_value')
   } else {
     c('diff_mean_value', 'diff_peak_trough_amp', 'diff_rms_amp', 'rms_diff_rhy')}
   measCols = intersect(measCols, colnames(posteriorStats))
@@ -269,23 +269,16 @@ getStatsIntervals = function(
 
   # amp gets special treatment
   if (statType == 'rhy') {
+    .SD = NULL
     byCols = intersect(c('feature', 'cond'), colnames(posteriorStats))
     ampCols = intersect(c('peak_trough_amp', 'rms_amp'), colnames(posteriorStats))
 
-    ampCol = NULL
-    d3 = foreach(ampCol = ampCols, .combine = rbind) %do% {
-      pStats = posteriorStats[, c(byCols, 'peak_phase', ampCol), with = FALSE]
-      data.table::setnames(pStats, ampCol, 'amp')
-
-      dNow = pStats[, .(mean_phase = circMean(amp, peak_phase, period)[2L]),
-                    by = byCols]
-      dNow = merge(pStats, dNow, by = byCols, sort = FALSE)
-      dNow[abs(centerCircDiff(peak_phase - mean_phase, period)) > period / 4,
-           amp := -amp]
-      dNow = dNow[, getInterval(amp, mass), by = byCols]
-      dNow[, (varName) := ampCol]}
-
-    d2 = rbind(d2, d3)}
+    d3 = posteriorStats[, lapply(.SD, getSignedAmp, peak_phase, period),
+                        by = byCols, .SDcols = ampCols]
+    d4 = data.table::melt(
+      d3, id.vars = byCols, variable.name = varName, variable.factor = FALSE)
+    d5 = d4[, getInterval(value, mass), by = c(byCols, varName)]
+    d2 = rbind(d2, d5)}
 
   setattr(d2, 'statType', statType)
   setattr(d2, 'period', period)

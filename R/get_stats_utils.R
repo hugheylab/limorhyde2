@@ -133,3 +133,10 @@ getHdi = function(v, mass) {
   r = HDInterval::hdi(v, credMass = mass)
   d = data.table(lower = r[1L], upper = r[2L])
   return(d)}
+
+
+getSignedAmp = function(amp, phase, period) {
+  meanPhase = circMean(amp, phase, period)[2L]
+  idxFlip = abs(centerCircDiff(phase - meanPhase, period)) > period / 4
+  ampSigned = amp * (1 - 2 * idxFlip)
+  return(ampSigned)}
