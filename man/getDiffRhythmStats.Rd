@@ -30,6 +30,8 @@ statistics:
 \code{fit$period/2}
 \item \code{diff_trough_phase}: circular difference between \code{-fit$period/2} and
 \code{fit$period/2}
+\item \code{diff_rhy_dist}: Euclidean distance between polar coordinates
+(\code{peak_trough_amp}, \code{peak_phase})
 \item \code{rms_diff_rhy}: root mean square difference in mean-centered fitted curves
 (only calculated if \code{rms} to \code{\link[=getRhythmStats]{getRhythmStats()}} was \code{TRUE})
 }

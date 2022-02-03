@@ -48,8 +48,8 @@ getRhythmStats = function(
   fit, fitType = c('posterior_mean', 'posterior_samples', 'raw'),
   features = NULL, dopar = TRUE, rms = FALSE) {
 
-  shifts = period = nKnots = nConds = postSampIdx = condIdx = cond = NULL
-  peak_value = trough_value = peak_trough_amp = co = posterior_sample = NULL
+  shifts = period = nKnots = nConds = postSampIdx = condIdx = cond =
+    peak_value = trough_value = peak_trough_amp = co = posterior_sample = NULL
 
   assertClass(fit, 'limorhyde2')
   fitType = match.arg(fitType)
@@ -131,6 +131,8 @@ getRhythmStats = function(
 #'   `fit$period/2`
 #' * `diff_trough_phase`: circular difference between `-fit$period/2` and
 #'   `fit$period/2`
+#' * `diff_rhy_dist`: Euclidean distance between polar coordinates
+#'   (`peak_trough_amp`, `peak_phase`)
 #' * `rms_diff_rhy`: root mean square difference in mean-centered fitted curves
 #'    (only calculated if `rms` to [getRhythmStats()] was `TRUE`)
 #'
@@ -167,19 +169,22 @@ getDiffRhythmStats = function(
   set(d0, j = 'cond', value = factor(d0$cond, conds))
   d0[, condInt := as.integer(cond)]
 
+  period = fit$period
   fitType = attr(rhyStats, 'fitType')
   byCols = c('feature', if (fitType == 'posterior_samples') 'posterior_sample')
 
   diffRhyStats0 = merge(
     d0, d0, allow.cartesian = TRUE, by = byCols, suffixes = 1:2)
   diffRhyStats0 = diffRhyStats0[condInt1 < condInt2]
+
   diffRhyStats = diffRhyStats0[
     , .(cond1, cond2,
         diff_mean_value = mean_value2 - mean_value1,
         diff_peak_trough_amp = peak_trough_amp2 - peak_trough_amp1,
-        # diff_rms_amp = rms_amp2 - rms_amp1,
         diff_peak_phase = peak_phase2 - peak_phase1,
-        diff_trough_phase = trough_phase2 - trough_phase1),
+        diff_trough_phase = trough_phase2 - trough_phase1,
+        diff_rhy_dist = getDist(peak_trough_amp1, peak_phase1,
+                                peak_trough_amp2, peak_phase2, period)),
     by = byCols]
 
   if ('rms_amp' %in% colnames(rhyStats)) {
@@ -188,8 +193,8 @@ getDiffRhythmStats = function(
       by = byCols]
     diffRhyStats = cbind(diffRhyStats, diffRhyStatsRms[, .(diff_rms_amp)])}
 
-  diffRhyStats[, diff_peak_phase := centerCircDiff(diff_peak_phase, fit$period)]
-  diffRhyStats[, diff_trough_phase := centerCircDiff(diff_trough_phase, fit$period)]
+  diffRhyStats[, diff_peak_phase := centerCircDiff(diff_peak_phase, period)]
+  diffRhyStats[, diff_trough_phase := centerCircDiff(diff_trough_phase, period)]
 
   # calculate rms difference in rhythmic fit between conditions
   if ('rms_amp' %in% colnames(rhyStats)) {
@@ -207,7 +212,7 @@ getDiffRhythmStats = function(
 
   setattr(diffRhyStats, 'statType', 'diff_rhy')
   setattr(diffRhyStats, 'fitType', fitType)
-  setattr(diffRhyStats, 'period', fit$period)
+  setattr(diffRhyStats, 'period', period)
   return(diffRhyStats)}
 
 

@@ -60,14 +60,24 @@ getRmsAmp = function(f, co, period) {
   return(r)}
 
 
-circMean = function(amp, phase, period) {
+getCartesian = function(amp, phase, period) {
   w = 2 * pi * phase / period
-  x = amp * cos(w)
-  y = amp * sin(w)
-  mx = mean(x)
-  my = mean(y)
-  mamp = sqrt(mx^2 + my^2)
-  mphase = atan2(my, mx) * period / (2 * pi)
+  xy = amp * cbind(cos(w), sin(w))
+  return(xy)}
+
+
+getDist = function(amp1, phase1, amp2, phase2, period) {
+  xy1 = getCartesian(amp1, phase1, period)
+  xy2 = getCartesian(amp2, phase2, period)
+  d = sqrt(rowSums((xy2 - xy1)^2))
+  return(d)}
+
+
+circMean = function(amp, phase, period) {
+  xy = getCartesian(amp, phase, period)
+  mxy = colMeans(xy)
+  mamp = sqrt(sum(mxy^2))
+  mphase = atan2(mxy[2L], mxy[1L]) * period / (2 * pi)
   return(c(mamp, mphase))}
 
 

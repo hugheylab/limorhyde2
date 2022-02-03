@@ -1,3 +1,6 @@
+# limorhyde2 0.0.0.9032
+* Added differential rhythm statistic `diff_rhy_dist`.
+
 # limorhyde2 0.0.0.9031
 * Cleaned up calculation of credible intervals for rhythm amplitudes.
 
