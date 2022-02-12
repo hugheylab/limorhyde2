@@ -19,7 +19,7 @@ each posterior sample, and adjusting for any covariates."><!-- mathjax --><scrip
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">limorhyde2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.0.9032</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.0.9033</span>
       </span>
     </div>
 
@@ -114,7 +114,7 @@ minimum value occurs</p></li>
 <li><p><code>peak_trough_amp</code>: <code>peak_value - trough_value</code></p></li>
 <li><p><code>rms_amp</code>: root mean square difference between fitted curve and mean value
 between time 0 and <code>fit$period</code> (only calculated if <code>rms</code> is <code>TRUE</code>)</p></li>
-<li><p><code>mean_value</code>: between time 0 and <code>fit$period</code></p></li>
+<li><p><code>mesor</code>: mean value between time 0 and <code>fit$period</code></p></li>
 </ul><p>The rows of the <code>data.table</code> depend on the <code>fit</code> object and <code>fitType</code>:</p><ul><li><p><code>fit</code> contains data from one condition and <code>fitType</code> is posterior_mean' or
 'raw': one row per feature.</p></li>
 <li><p><code>fit</code> contains data from one condition and <code>fitType</code> is

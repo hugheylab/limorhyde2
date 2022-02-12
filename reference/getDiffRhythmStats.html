@@ -18,7 +18,7 @@ given pair of conditions."><!-- mathjax --><script src="https://cdnjs.cloudflare
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">limorhyde2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.0.9032</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.0.9033</span>
       </span>
     </div>
 
@@ -95,7 +95,10 @@ a parallel backend is already set up, e.g., using
     <div id="value">
     <h2>Value</h2>
     <p>A <code>data.table</code> containing the following differential rhythm
-statistics:</p><ul><li><p><code>diff_mean_value</code></p></li>
+statistics:</p><ul><li><p><code>mean_mesor</code></p></li>
+<li><p><code>mean_peak_trough_amp</code></p></li>
+<li><p><code>mean_rms_amp</code> (only calculated if <code>rms</code> to <code><a href="getRhythmStats.html">getRhythmStats()</a></code> was <code>TRUE</code>)</p></li>
+<li><p><code>diff_mesor</code></p></li>
 <li><p><code>diff_peak_trough_amp</code></p></li>
 <li><p><code>diff_rms_amp</code> (only calculated if <code>rms</code> to <code><a href="getRhythmStats.html">getRhythmStats()</a></code> was <code>TRUE</code>)</p></li>
 <li><p><code>diff_peak_phase</code>: circular difference between <code>-fit$period/2</code> and

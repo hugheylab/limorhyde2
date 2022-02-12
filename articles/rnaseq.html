@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">limorhyde2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.0.9032</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.0.9033</span>
       </span>
     </div>
 
@@ -100,7 +100,7 @@
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>Here we show two options for using <code>limorhyde2</code> to analyze RNA-seq data: <a href="https://bioconductor.org/packages/release/bioc/html/DESeq2.html" class="external-link">DESeq2</a> and <a href="https://bioconductor.org/packages/release/bioc/html/limma.html" class="external-link">limma-voom</a>. The two approaches give very similar results.</p>
+<p>Here we show two options for using <code>limorhyde2</code> to analyze RNA-seq data: <a href="https://bioconductor.org/packages/release/bioc/html/limma.html" class="external-link">limma-voom</a> and <a href="https://bioconductor.org/packages/release/bioc/html/DESeq2.html" class="external-link">DESeq2</a>. The two approaches give very similar results.</p>
 <p>This vignette assumes you are starting with the output of <a href="https://bioconductor.org/packages/release/bioc/html/tximport.html" class="external-link">tximport</a>.</p>
 </div>
 <div class="section level2">
@@ -128,23 +128,23 @@
 <code class="sourceCode R"><span class="va">keep</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="fu">edgeR</span><span class="fu">::</span><span class="fu">cpm</span><span class="op">(</span><span class="va">txi</span><span class="op">$</span><span class="va">counts</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">txi</span><span class="op">$</span><span class="va">counts</span><span class="op">)</span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="option-1-deseq2">Option 1: DESeq2<a class="anchor" aria-label="anchor" href="#option-1-deseq2"></a>
+<h2 id="option-1-limma-voom">Option 1: limma-voom<a class="anchor" aria-label="anchor" href="#option-1-limma-voom"></a>
 </h2>
-<p>The second and third arguments to <code>DESeqDataSetFromTxImport()</code> are required, but will not be used by <code>limorhyde2</code>.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">y</span> <span class="op">=</span> <span class="fu">DESeq2</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/DESeqDataSet.html" class="external-link">DESeqDataSetFromTximport</a></span><span class="op">(</span><span class="va">txi</span>, <span class="va">metadata</span>, <span class="op">~</span><span class="fl">1</span><span class="op">)</span>
-<span class="va">y</span> <span class="op">=</span> <span class="va">y</span><span class="op">[</span><span class="va">keep</span>, <span class="op">]</span>
-
-<span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/getModelFit.html">getModelFit</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">metadata</span>, <span class="va">...</span>, method <span class="op">=</span> <span class="st">'deseq2'</span><span class="op">)</span> <span class="co"># replace '...' as appropriate for your data</span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="option-2-limma-voom">Option 2: limma-voom<a class="anchor" aria-label="anchor" href="#option-2-limma-voom"></a>
-</h2>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">y</span> <span class="op">=</span> <span class="fu">edgeR</span><span class="fu">::</span><span class="fu">DGEList</span><span class="op">(</span><span class="va">txi</span><span class="op">$</span><span class="va">counts</span><span class="op">[</span><span class="va">keep</span>, <span class="op">]</span><span class="op">)</span>
 <span class="va">y</span> <span class="op">=</span> <span class="fu">edgeR</span><span class="fu">::</span><span class="fu">calcNormFactors</span><span class="op">(</span><span class="va">y</span><span class="op">)</span>
 
 <span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/getModelFit.html">getModelFit</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">metadata</span>, <span class="va">...</span>, method <span class="op">=</span> <span class="st">'voom'</span><span class="op">)</span> <span class="co"># replace '...' as appropriate for your data</span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="option-2-deseq2">Option 2: DESeq2<a class="anchor" aria-label="anchor" href="#option-2-deseq2"></a>
+</h2>
+<p>The second and third arguments to <code>DESeqDataSetFromTxImport()</code> are required, but will not be used by <code>limorhyde2</code>.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">y</span> <span class="op">=</span> <span class="fu">DESeq2</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/DESeqDataSet.html" class="external-link">DESeqDataSetFromTximport</a></span><span class="op">(</span><span class="va">txi</span>, <span class="va">metadata</span>, <span class="op">~</span><span class="fl">1</span><span class="op">)</span>
+<span class="va">y</span> <span class="op">=</span> <span class="va">y</span><span class="op">[</span><span class="va">keep</span>, <span class="op">]</span>
+
+<span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/getModelFit.html">getModelFit</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">metadata</span>, <span class="va">...</span>, method <span class="op">=</span> <span class="st">'deseq2'</span><span class="op">)</span> <span class="co"># replace '...' as appropriate for your data</span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="continue-using-limorhyde2">Continue using <code>limorhyde2</code><a class="anchor" aria-label="anchor" href="#continue-using-limorhyde2"></a>
