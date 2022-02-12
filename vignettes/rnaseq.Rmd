@@ -21,7 +21,7 @@ foreach::registerDoSEQ()
 
 ## Introduction
 
-Here we show two options for using `limorhyde2` to analyze RNA-seq data: [DESeq2](https://bioconductor.org/packages/release/bioc/html/DESeq2.html) and [limma-voom](https://bioconductor.org/packages/release/bioc/html/limma.html). The two approaches give very similar results.
+Here we show two options for using `limorhyde2` to analyze RNA-seq data: [limma-voom](https://bioconductor.org/packages/release/bioc/html/limma.html) and [DESeq2](https://bioconductor.org/packages/release/bioc/html/DESeq2.html). The two approaches give very similar results.
 
 This vignette assumes you are starting with the output of [tximport](https://bioconductor.org/packages/release/bioc/html/tximport.html).
 
@@ -48,7 +48,16 @@ There are many reasonable strategies to do this, here is one.
 keep = rowSums(edgeR::cpm(txi$counts) >= 1) >= 0.5 * ncol(txi$counts)
 ```
 
-## Option 1: DESeq2
+## Option 1: limma-voom
+
+```{r}
+y = edgeR::DGEList(txi$counts[keep, ])
+y = edgeR::calcNormFactors(y)
+
+fit = getModelFit(y, metadata, ..., method = 'voom') # replace '...' as appropriate for your data
+```
+
+## Option 2: DESeq2
 
 The second and third arguments to `DESeqDataSetFromTxImport()` are required, but will not be used by `limorhyde2`.
 
@@ -57,15 +66,6 @@ y = DESeq2::DESeqDataSetFromTximport(txi, metadata, ~1)
 y = y[keep, ]
 
 fit = getModelFit(y, metadata, ..., method = 'deseq2') # replace '...' as appropriate for your data
-```
-
-## Option 2: limma-voom
-
-```{r}
-y = edgeR::DGEList(txi$counts[keep, ])
-y = edgeR::calcNormFactors(y)
-
-fit = getModelFit(y, metadata, ..., method = 'voom') # replace '...' as appropriate for your data
 ```
 
 ## Continue using `limorhyde2`

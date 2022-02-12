@@ -71,8 +71,9 @@ fit = getPosteriorSamples(fit, nPosteriorSamples = 50L)
 We can use the posterior samples to quantify uncertainty in the expected measurements, i.e., the fitted curves, by specifying the `fitType` argument. Here we focus on three genes.
 
 ```{r meas_samps}
-genes = data.table(id = c('13170', '12686', '26897'),
-                   symbol = c('Dbp', 'Elovl3', 'Acot1'))
+genes = data.table(
+  id = c('13170', '12686', '26897'),
+  symbol = c('Dbp', 'Elovl3', 'Acot1'))
 times = seq(0, 24, 0.5)
 
 measFitSamps = getExpectedMeas(
@@ -141,15 +142,13 @@ In the plots below, each point represents a posterior sample.
 ```{r plot_stats_samps, fig.width = 7, fig.height = 5}
 p1 = ggplot(diffRhyStatsSamps) +
   facet_wrap(vars(symbol), nrow = 1) +
-  geom_point(aes(x = diff_peak_trough_amp, y = diff_mean_value), alpha = 0.2) +
-  labs(x = 'Difference in peak-to-trough amplitude (norm.)',
-       y = 'Difference in mean value (norm.)')
+  geom_point(aes(x = diff_peak_trough_amp, y = diff_mesor), alpha = 0.2) +
+  labs(x = bquote(Delta*'amplitude (norm.)'), y = bquote(Delta*'mesor (norm.)'))
 
 p2 = ggplot(diffRhyStatsSamps) +
   facet_wrap(vars(symbol), nrow = 1) +
   geom_point(aes(x = diff_peak_trough_amp, y = diff_peak_phase), alpha = 0.2) +
-  labs(x = 'Difference in peak-to-trough amplitude (norm.)',
-       y = 'Difference in peak phase (h)')
+  labs(x = bquote(Delta*'amplitude (norm.)'), y = bquote(Delta*'phase (h)'))
 
 plot_grid(p1, p2, ncol = 1)
 ```

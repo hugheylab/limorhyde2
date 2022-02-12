@@ -75,13 +75,12 @@ print(diffRhyStats, nrows = 10L)
 
 We can examine the distributions of the statistics in various ways, such as ranking genes by difference in peak-to-trough amplitude (no p-values necessary) or plotting difference in peak-to-trough amplitude vs. difference in mean expression.
 
-```{r plot_stats, fig.width = 6, fig.height = 4}
+```{r plot_stats, fig.width = 4, fig.height = 4}
 print(diffRhyStats[order(diff_peak_trough_amp)], nrows = 10L)
 
 ggplot(diffRhyStats) +
-  geom_point(aes(x = diff_mean_value, y = diff_peak_trough_amp), alpha = 0.2) +
-  labs(x = 'Difference in mean expression (norm.)',
-       y = 'Difference in peak-to-trough amplitude (norm.)')
+  geom_point(aes(x = diff_mesor, y = diff_peak_trough_amp), alpha = 0.2) +
+  labs(x = bquote(Delta*'mesor (norm.)'), y = bquote(Delta*'amplitude (norm.)'))
 ```
 
 ## Get observed and fitted time-courses
@@ -89,8 +88,9 @@ ggplot(diffRhyStats) +
 We can compute the expected measurements for one or more genes at one or more time-points in each condition, which correspond to the fitted curves. Here we plot the posterior fits and observed expression for three genes (converting from gene id to gene symbol).
 
 ```{r expected_meas}
-genes = data.table(id = c('13170', '12686', '26897'),
-                   symbol = c('Dbp', 'Elovl3', 'Acot1'))
+genes = data.table(
+  id = c('13170', '12686', '26897'),
+  symbol = c('Dbp', 'Elovl3', 'Acot1'))
 
 measFit = getExpectedMeas(fit, times = seq(0, 24, 0.5), features = genes$id)
 measFit[genes, symbol := i.symbol, on = .(feature = id)]

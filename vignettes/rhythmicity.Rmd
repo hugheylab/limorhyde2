@@ -72,7 +72,7 @@ rhyStats = getRhythmStats(fit)
 
 We can examine the distributions of the statistics in various ways, such as ranking genes by peak-to-trough amplitude (no p-values necessary) or plotting peak-to-trough amplitude vs. peak phase.
 
-```{r plot_stats, fig.width = 6, fig.height = 4}
+```{r plot_stats, fig.width = 5, fig.height = 4}
 print(rhyStats[order(-peak_trough_amp)], nrows = 10L)
 
 ggplot(rhyStats) +
@@ -87,8 +87,9 @@ ggplot(rhyStats) +
 We can also compute the expected measurements for one or more genes at one or more time-points, which correspond to the fitted curves. Here we plot the posterior fits and observed expression for three of the top rhythmic genes (converting from gene id to gene symbol).
 
 ```{r expected_meas}
-genes = data.table(id = c('13088', '13170', '13869'),
-                   symbol = c('Cyp2b10', 'Dbp', 'Erbb4'))
+genes = data.table(
+  id = c('13088', '13170', '13869'),
+  symbol = c('Cyp2b10', 'Dbp', 'Erbb4'))
 
 measFit = getExpectedMeas(fit, times = seq(0, 24, 0.5), features = genes$id)
 measFit[genes, symbol := i.symbol, on = .(feature = id)]

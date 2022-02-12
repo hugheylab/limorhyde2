@@ -40,7 +40,7 @@ minimum value occurs
 \item \code{peak_trough_amp}: \code{peak_value - trough_value}
 \item \code{rms_amp}: root mean square difference between fitted curve and mean value
 between time 0 and \code{fit$period} (only calculated if \code{rms} is \code{TRUE})
-\item \code{mean_value}: between time 0 and \code{fit$period}
+\item \code{mesor}: mean value between time 0 and \code{fit$period}
 }
 
 The rows of the \code{data.table} depend on the \code{fit} object and \code{fitType}:

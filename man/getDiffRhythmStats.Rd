@@ -23,7 +23,10 @@ a parallel backend is already set up, e.g., using
 A \code{data.table} containing the following differential rhythm
 statistics:
 \itemize{
-\item \code{diff_mean_value}
+\item \code{mean_mesor}
+\item \code{mean_peak_trough_amp}
+\item \code{mean_rms_amp} (only calculated if \code{rms} to \code{\link[=getRhythmStats]{getRhythmStats()}} was \code{TRUE})
+\item \code{diff_mesor}
 \item \code{diff_peak_trough_amp}
 \item \code{diff_rms_amp} (only calculated if \code{rms} to \code{\link[=getRhythmStats]{getRhythmStats()}} was \code{TRUE})
 \item \code{diff_peak_phase}: circular difference between \code{-fit$period/2} and

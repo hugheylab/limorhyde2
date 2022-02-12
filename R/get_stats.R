@@ -26,7 +26,7 @@
 #' * `peak_trough_amp`: `peak_value - trough_value`
 #' * `rms_amp`: root mean square difference between fitted curve and mean value
 #'   between time 0 and `fit$period` (only calculated if `rms` is `TRUE`)
-#' * `mean_value`: between time 0 and `fit$period`
+#' * `mesor`: mean value between time 0 and `fit$period`
 #'
 #' The rows of the `data.table` depend on the `fit` object and `fitType`:
 #'
@@ -90,7 +90,7 @@ getRhythmStats = function(
         d})
 
       idx = seq(1, ncol(coefNow), ncol(coefNow) / length(shifts))
-      set(r2, j = 'mean_value', value = rowMeans(coefNow[, idx, drop = FALSE]))
+      set(r2, j = 'mesor', value = rowMeans(coefNow[, idx, drop = FALSE]))
       set(r2, j = 'cond', value = conds[condIdx])
       set(r2, j = 'feature', value = rownames(coefMat))}
 
@@ -124,7 +124,10 @@ getRhythmStats = function(
 #' @return A `data.table` containing the following differential rhythm
 #'   statistics:
 #'
-#' * `diff_mean_value`
+#' * `mean_mesor`
+#' * `mean_peak_trough_amp`
+#' * `mean_rms_amp` (only calculated if `rms` to [getRhythmStats()] was `TRUE`)
+#' * `diff_mesor`
 #' * `diff_peak_trough_amp`
 #' * `diff_rms_amp` (only calculated if `rms` to [getRhythmStats()] was `TRUE`)
 #' * `diff_peak_phase`: circular difference between `-fit$period/2` and
@@ -151,9 +154,9 @@ getDiffRhythmStats = function(
   fit, rhyStats, conds = fit$conds, dopar = TRUE) {
 
   cond = .SD = diff_peak_phase = diff_trough_phase = condInt = . = cond1  =
-    condInt1 = mean_value1 = peak_trough_amp1 = rms_amp1 = peak_phase1 =
-    trough_phase1 = cond2 = condInt2 = mean_value2 = peak_trough_amp2 =
-    rms_amp2 = peak_phase2 = trough_phase2 = diff_rms_amp = NULL
+    condInt1 = mesor1 = peak_trough_amp1 = rms_amp1 = peak_phase1 =
+    trough_phase1 = cond2 = condInt2 = mesor2 = peak_trough_amp2 =
+    rms_amp2 = peak_phase2 = trough_phase2 = mean_rms_amp = diff_rms_amp = NULL
 
   conds = unique(conds)
   assertClass(fit, 'limorhyde2')
@@ -179,7 +182,9 @@ getDiffRhythmStats = function(
 
   diffRhyStats = diffRhyStats0[
     , .(cond1, cond2,
-        diff_mean_value = mean_value2 - mean_value1,
+        mean_mesor = 0.5 * (mesor1 + mesor2),
+        mean_peak_trough_amp = 0.5 * (peak_trough_amp1 + peak_trough_amp2),
+        diff_mesor = mesor2 - mesor1,
         diff_peak_trough_amp = peak_trough_amp2 - peak_trough_amp1,
         diff_peak_phase = peak_phase2 - peak_phase1,
         diff_trough_phase = trough_phase2 - trough_phase1,
@@ -189,9 +194,12 @@ getDiffRhythmStats = function(
 
   if ('rms_amp' %in% colnames(rhyStats)) {
     diffRhyStatsRms = diffRhyStats0[
-      , .(cond1, cond2, diff_rms_amp = rms_amp2 - rms_amp1),
+      , .(cond1, cond2,
+          mean_rms_amp = 0.5 * (rms_amp1 + rms_amp2),
+          diff_rms_amp = rms_amp2 - rms_amp1),
       by = byCols]
-    diffRhyStats = cbind(diffRhyStats, diffRhyStatsRms[, .(diff_rms_amp)])}
+    diffRhyStats = cbind(
+      diffRhyStats, diffRhyStatsRms[, .(mean_rms_amp, diff_rms_amp)])}
 
   diffRhyStats[, diff_peak_phase := centerCircDiff(diff_peak_phase, period)]
   diffRhyStats[, diff_trough_phase := centerCircDiff(diff_trough_phase, period)]
@@ -263,7 +271,7 @@ getStatsIntervals = function(
   measCols = if (statType == 'rhy') {
     c('peak_value', 'trough_value')
   } else {
-    c('diff_mean_value', 'diff_peak_trough_amp', 'diff_rms_amp', 'rms_diff_rhy')}
+    c('diff_mesor', 'diff_peak_trough_amp', 'diff_rms_amp')}#, 'rms_diff_rhy')}
   measCols = intersect(measCols, colnames(posteriorStats))
 
   d1 = data.table::melt(
