@@ -1,3 +1,6 @@
+# limorhyde2 0.0.1
+* Updated vignette for analyzing RNA-seq data.
+
 # limorhyde2 0.0.0.9033
 * Renamed `mean_value` to `mesor` and added differential rhythm statistics for mean mesor and mean amp.
 

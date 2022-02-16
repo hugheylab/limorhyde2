@@ -45,13 +45,27 @@ library('limorhyde2')
 There are many reasonable strategies to do this, here is one.
 
 ```{r}
-keep = rowSums(edgeR::cpm(txi$counts) >= 1) >= 0.5 * ncol(txi$counts)
+keep = rowSums(edgeR::cpm(txi$counts) >= 0.5) / ncol(txi$counts) >= 0.75
+
+txiKeep = txi
+for (name in c('counts', 'length')) {
+  txiKeep[[name]] = txi[[name]][keep, ]}
+```
+
+## Fill in counts for sample-gene pairs having zero counts
+
+This avoids unrealistically low log2 CPM values and thus artificially inflated effect size estimates.
+
+```{r}
+for (i in 1:nrow(txiKeep$counts)) {
+  idx = txiKeep$counts[i, ] > 0
+  txiKeep$counts[i, !idx] = min(txiKeep$counts[i, idx])}
 ```
 
 ## Option 1: limma-voom
 
 ```{r}
-y = edgeR::DGEList(txi$counts[keep, ])
+y = edgeR::DGEList(txiKeep$counts)
 y = edgeR::calcNormFactors(y)
 
 fit = getModelFit(y, metadata, ..., method = 'voom') # replace '...' as appropriate for your data
@@ -62,8 +76,7 @@ fit = getModelFit(y, metadata, ..., method = 'voom') # replace '...' as appropri
 The second and third arguments to `DESeqDataSetFromTxImport()` are required, but will not be used by `limorhyde2`.
 
 ```{r}
-y = DESeq2::DESeqDataSetFromTximport(txi, metadata, ~1)
-y = y[keep, ]
+y = DESeq2::DESeqDataSetFromTximport(txiKeep, metadata, ~1)
 
 fit = getModelFit(y, metadata, ..., method = 'deseq2') # replace '...' as appropriate for your data
 ```
