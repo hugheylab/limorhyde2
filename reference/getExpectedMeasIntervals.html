@@ -18,7 +18,7 @@ expected measurements from fitted models."><!-- mathjax --><script src="https://
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">limorhyde2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.2</span>
       </span>
     </div>
 
@@ -101,6 +101,29 @@ and covariate.</p>
     <div class="dont-index"><p><code><a href="getExpectedMeas.html">getExpectedMeas()</a></code>, <code><a href="getStatsIntervals.html">getStatsIntervals()</a></code></p></div>
     </div>
 
+    <div id="ref-examples">
+    <h2>Examples</h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://r-datatable.com" class="external-link">'data.table'</a></span><span class="op">)</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="va">y</span> <span class="op">=</span> <span class="va">GSE34018</span><span class="op">$</span><span class="va">y</span></span>
+<span class="r-in"><span class="va">metadata</span> <span class="op">=</span> <span class="va">GSE34018</span><span class="op">$</span><span class="va">metadata</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="getModelFit.html">getModelFit</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">metadata</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="getPosteriorFit.html">getPosteriorFit</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - Computing 100 x 93 likelihood matrix.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - Likelihood calculations took 0.03 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - Fitting model with 93 mixture components.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - Model fitting took 0.03 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - Computing posterior matrices.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - Computation allocated took 0.01 seconds.</span>
+<span class="r-in"><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="getPosteriorSamples.html">getPosteriorSamples</a></span><span class="op">(</span><span class="va">fit</span>, nPosteriorSamples <span class="op">=</span> <span class="fl">20L</span><span class="op">)</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="va">measFitSamps</span> <span class="op">=</span> <span class="fu"><a href="getExpectedMeas.html">getExpectedMeas</a></span><span class="op">(</span></span>
+<span class="r-in">  <span class="va">fit</span>, times <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">24</span>, <span class="fl">0.5</span><span class="op">)</span>, fitType <span class="op">=</span> <span class="st">'posterior_samples'</span>,</span>
+<span class="r-in">  features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'13170'</span>, <span class="st">'12686'</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">measFitInts</span> <span class="op">=</span> <span class="fu">getExpectedMeasIntervals</span><span class="op">(</span><span class="va">measFitSamps</span><span class="op">)</span></span>
+</code></pre></div>
+    </div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top"><h2 data-toc-skip>Contents</h2>

@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">limorhyde2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.2</span>
       </span>
     </div>
 
@@ -119,7 +119,7 @@
 </h2>
 <p>The expression data are in a matrix with one row per gene and one column per sample. The metadata are in a table with one row per sample. To save time and space, the expression data include only a subset of genes.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">y</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/qs/man/qread.html" class="external-link">qread</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">'extdata'</span>, <span class="st">'GSE34018_data.qs'</span>, package <span class="op">=</span> <span class="st">'limorhyde2'</span><span class="op">)</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">y</span> <span class="op">=</span> <span class="va">GSE34018</span><span class="op">$</span><span class="va">y</span>
 <span class="va">y</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>
 <span class="co">#&gt;       GSM840516 GSM840517 GSM840518 GSM840519 GSM840520</span>
 <span class="co">#&gt; 12686 11.962830 11.923338 11.098814 10.958933  9.256413</span>
@@ -128,7 +128,7 @@
 <span class="co">#&gt; 11287  7.985859  7.930935  7.674688  7.899531  7.768563</span>
 <span class="co">#&gt; 11731  8.481372  8.114623  8.058194  8.144267  8.152959</span>
 
-<span class="va">metadata</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/qs/man/qread.html" class="external-link">qread</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">'extdata'</span>, <span class="st">'GSE34018_metadata.qs'</span>, package <span class="op">=</span> <span class="st">'limorhyde2'</span><span class="op">)</span><span class="op">)</span>
+<span class="va">metadata</span> <span class="op">=</span> <span class="va">GSE34018</span><span class="op">$</span><span class="va">metadata</span>
 <span class="va">metadata</span>
 <span class="co">#&gt;        sample      cond time</span>
 <span class="co">#&gt;  1: GSM840516 wild-type    0</span>

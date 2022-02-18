@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">limorhyde2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.2</span>
       </span>
     </div>
 
@@ -119,7 +119,7 @@
 </h2>
 <p>The expression data are in a matrix with one row per gene and one column per sample. The metadata are in a table with one row per sample. To save time and space, the expression data include only a subset of genes.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">y</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/qs/man/qread.html" class="external-link">qread</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">'extdata'</span>, <span class="st">'GSE54650_liver_data.qs'</span>, package <span class="op">=</span> <span class="st">'limorhyde2'</span><span class="op">)</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">y</span> <span class="op">=</span> <span class="va">GSE54650</span><span class="op">$</span><span class="va">y</span>
 <span class="va">y</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>
 <span class="co">#&gt;           GSM1321182 GSM1321183 GSM1321184 GSM1321185 GSM1321186</span>
 <span class="co">#&gt; 13088      10.209968  10.503358   9.714828   9.477728  10.134381</span>
@@ -128,34 +128,34 @@
 <span class="co">#&gt; 100009600   5.055931   5.199767   5.121511   5.155912   5.219873</span>
 <span class="co">#&gt; 100042372   7.497568   7.537684   7.486390   7.502488   7.771348</span>
 
-<span class="va">metadata</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/qs/man/qread.html" class="external-link">qread</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">'extdata'</span>, <span class="st">'GSE54650_liver_metadata.qs'</span>, package <span class="op">=</span> <span class="st">'limorhyde2'</span><span class="op">)</span><span class="op">)</span>
+<span class="va">metadata</span> <span class="op">=</span> <span class="va">GSE54650</span><span class="op">$</span><span class="va">metadata</span>
 <span class="va">metadata</span>
-<span class="co">#&gt;         sample time</span>
-<span class="co">#&gt;  1: GSM1321182   18</span>
-<span class="co">#&gt;  2: GSM1321183   20</span>
-<span class="co">#&gt;  3: GSM1321184   22</span>
-<span class="co">#&gt;  4: GSM1321185   24</span>
-<span class="co">#&gt;  5: GSM1321186   26</span>
-<span class="co">#&gt;  6: GSM1321187   28</span>
-<span class="co">#&gt;  7: GSM1321188   30</span>
-<span class="co">#&gt;  8: GSM1321189   32</span>
-<span class="co">#&gt;  9: GSM1321190   34</span>
-<span class="co">#&gt; 10: GSM1321191   36</span>
-<span class="co">#&gt; 11: GSM1321192   38</span>
-<span class="co">#&gt; 12: GSM1321193   40</span>
-<span class="co">#&gt; 13: GSM1321194   42</span>
-<span class="co">#&gt; 14: GSM1321195   44</span>
-<span class="co">#&gt; 15: GSM1321196   46</span>
-<span class="co">#&gt; 16: GSM1321197   48</span>
-<span class="co">#&gt; 17: GSM1321198   50</span>
-<span class="co">#&gt; 18: GSM1321199   52</span>
-<span class="co">#&gt; 19: GSM1321200   54</span>
-<span class="co">#&gt; 20: GSM1321201   56</span>
-<span class="co">#&gt; 21: GSM1321202   58</span>
-<span class="co">#&gt; 22: GSM1321203   60</span>
-<span class="co">#&gt; 23: GSM1321204   62</span>
-<span class="co">#&gt; 24: GSM1321205   64</span>
-<span class="co">#&gt;         sample time</span></code></pre></div>
+<span class="co">#&gt;         sample tissue time</span>
+<span class="co">#&gt;  1: GSM1321182  liver   18</span>
+<span class="co">#&gt;  2: GSM1321183  liver   20</span>
+<span class="co">#&gt;  3: GSM1321184  liver   22</span>
+<span class="co">#&gt;  4: GSM1321185  liver   24</span>
+<span class="co">#&gt;  5: GSM1321186  liver   26</span>
+<span class="co">#&gt;  6: GSM1321187  liver   28</span>
+<span class="co">#&gt;  7: GSM1321188  liver   30</span>
+<span class="co">#&gt;  8: GSM1321189  liver   32</span>
+<span class="co">#&gt;  9: GSM1321190  liver   34</span>
+<span class="co">#&gt; 10: GSM1321191  liver   36</span>
+<span class="co">#&gt; 11: GSM1321192  liver   38</span>
+<span class="co">#&gt; 12: GSM1321193  liver   40</span>
+<span class="co">#&gt; 13: GSM1321194  liver   42</span>
+<span class="co">#&gt; 14: GSM1321195  liver   44</span>
+<span class="co">#&gt; 15: GSM1321196  liver   46</span>
+<span class="co">#&gt; 16: GSM1321197  liver   48</span>
+<span class="co">#&gt; 17: GSM1321198  liver   50</span>
+<span class="co">#&gt; 18: GSM1321199  liver   52</span>
+<span class="co">#&gt; 19: GSM1321200  liver   54</span>
+<span class="co">#&gt; 20: GSM1321201  liver   56</span>
+<span class="co">#&gt; 21: GSM1321202  liver   58</span>
+<span class="co">#&gt; 22: GSM1321203  liver   60</span>
+<span class="co">#&gt; 23: GSM1321204  liver   62</span>
+<span class="co">#&gt; 24: GSM1321205  liver   64</span>
+<span class="co">#&gt;         sample tissue time</span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="fit-linear-models">Fit linear models<a class="anchor" aria-label="anchor" href="#fit-linear-models"></a>
@@ -247,18 +247,18 @@
 <code class="sourceCode R"><span class="va">measObs</span> <span class="op">=</span> <span class="fu"><a href="../reference/mergeMeasMeta.html">mergeMeasMeta</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">metadata</span>, features <span class="op">=</span> <span class="va">genes</span><span class="op">$</span><span class="va">id</span><span class="op">)</span>
 <span class="va">measObs</span><span class="op">[</span><span class="va">genes</span>, <span class="va">symbol</span> <span class="op">:=</span> <span class="va">i.symbol</span>, on <span class="op">=</span> <span class="fu">.</span><span class="op">(</span>feature <span class="op">=</span> <span class="va">id</span><span class="op">)</span><span class="op">]</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">measObs</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
-<span class="co">#&gt;         sample time feature      meas  symbol</span>
-<span class="co">#&gt;  1: GSM1321182   18   13088 10.209968 Cyp2b10</span>
-<span class="co">#&gt;  2: GSM1321182   18   13170  7.871989     Dbp</span>
-<span class="co">#&gt;  3: GSM1321182   18   13869  6.851685   Erbb4</span>
-<span class="co">#&gt;  4: GSM1321183   20   13088 10.503358 Cyp2b10</span>
-<span class="co">#&gt;  5: GSM1321183   20   13170  7.281691     Dbp</span>
-<span class="co">#&gt; ---                                          </span>
-<span class="co">#&gt; 68: GSM1321204   62   13170  8.656560     Dbp</span>
-<span class="co">#&gt; 69: GSM1321204   62   13869  6.970524   Erbb4</span>
-<span class="co">#&gt; 70: GSM1321205   64   13088 10.352095 Cyp2b10</span>
-<span class="co">#&gt; 71: GSM1321205   64   13170  8.157525     Dbp</span>
-<span class="co">#&gt; 72: GSM1321205   64   13869  7.048457   Erbb4</span>
+<span class="co">#&gt;         sample tissue time feature      meas  symbol</span>
+<span class="co">#&gt;  1: GSM1321182  liver   18   13088 10.209968 Cyp2b10</span>
+<span class="co">#&gt;  2: GSM1321182  liver   18   13170  7.871989     Dbp</span>
+<span class="co">#&gt;  3: GSM1321182  liver   18   13869  6.851685   Erbb4</span>
+<span class="co">#&gt;  4: GSM1321183  liver   20   13088 10.503358 Cyp2b10</span>
+<span class="co">#&gt;  5: GSM1321183  liver   20   13170  7.281691     Dbp</span>
+<span class="co">#&gt; ---                                                 </span>
+<span class="co">#&gt; 68: GSM1321204  liver   62   13170  8.656560     Dbp</span>
+<span class="co">#&gt; 69: GSM1321204  liver   62   13869  6.970524   Erbb4</span>
+<span class="co">#&gt; 70: GSM1321205  liver   64   13088 10.352095 Cyp2b10</span>
+<span class="co">#&gt; 71: GSM1321205  liver   64   13170  8.157525     Dbp</span>
+<span class="co">#&gt; 72: GSM1321205  liver   64   13869  7.048457   Erbb4</span>
 
 <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/vars.html" class="external-link">vars</a></span><span class="op">(</span><span class="va">symbol</span><span class="op">)</span>, scales <span class="op">=</span> <span class="st">'free_y'</span>, nrow <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span>
