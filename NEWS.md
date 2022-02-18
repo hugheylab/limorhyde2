@@ -1,3 +1,6 @@
+# limorhyde2 0.0.3
+* Made `mash` silent.
+
 # limorhyde2 0.0.2
 * Moved data to data/, to make examples and vignettes simpler.
 * Added examples.

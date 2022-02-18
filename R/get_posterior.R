@@ -10,7 +10,7 @@ getMash = function(coefs, ses, covMethod, getSigResArgs, npc, covEdArgs, ...) {
     upca = mashr::cov_pca(md, npc = min(npc, length(strong)), subset = strong)
     ued = do.call(mashr::cov_ed, c(list(md, upca, strong), covEdArgs))}
 
-  mc = mashr::mash(md, c(uc, ued), ...)
+  mc = mashr::mash(md, c(uc, ued), verbose = FALSE, ...)
   return(list(mashData = md, mashFit = mc))}
 
 
