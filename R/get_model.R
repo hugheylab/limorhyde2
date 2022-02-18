@@ -53,6 +53,8 @@
 #' * `lmFits`: If `keepLmFits` is `TRUE`, a list of objects from `limma` or
 #'   `DESeq2`, with length equal to length of the `shifts` element.
 #'
+#' @eval examples1()
+#'
 #' @seealso [getPosteriorFit()]
 #'
 #' @export

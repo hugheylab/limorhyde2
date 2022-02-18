@@ -29,6 +29,20 @@ This is an optional step in an analysis using \code{limorhyde2}, and is useful f
 quantifying uncertainty in posterior estimates of fitted curves and rhythmic
 statistics. The function calls \code{\link[mashr:mash_compute_posterior_matrices]{mashr::mash_compute_posterior_matrices()}}.
 }
+\examples{
+library('data.table')
+
+y = GSE54650$y
+metadata = GSE54650$metadata
+
+fit = getModelFit(y, metadata)
+fit = getPosteriorFit(fit)
+fit = getPosteriorSamples(fit, nPosteriorSamples = 20L)
+
+rhyStatsSamps = getRhythmStats(
+  fit, features = c('13170', '13869'), fitType = 'posterior_samples')
+rhyStatsInts = getStatsIntervals(rhyStatsSamps)
+}
 \seealso{
 \code{\link[=getPosteriorFit]{getPosteriorFit()}}, \code{\link[=getRhythmStats]{getRhythmStats()}}, \code{\link[=getExpectedMeas]{getExpectedMeas()}}
 }

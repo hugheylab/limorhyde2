@@ -52,6 +52,26 @@ per pair of conditions.
 This function computes differences in rhythmicity between fitted curves for a
 given pair of conditions.
 }
+\examples{
+library('data.table')
+
+# rhythmicity in one condition
+y = GSE54650$y
+metadata = GSE54650$metadata
+
+fit = getModelFit(y, metadata)
+fit = getPosteriorFit(fit)
+rhyStats = getRhythmStats(fit, features = c('13170', '13869'))
+
+# rhythmicity and differential rhythmicity in multiple conditions
+y = GSE34018$y
+metadata = GSE34018$metadata
+
+fit = getModelFit(y, metadata, nKnots = 3L, condColname = 'cond')
+fit = getPosteriorFit(fit)
+rhyStats = getRhythmStats(fit, features = c('13170', '12686'))
+diffRhyStats = getDiffRhythmStats(fit, rhyStats)
+}
 \seealso{
 \code{\link[=getRhythmStats]{getRhythmStats()}}, \code{\link[=getStatsIntervals]{getStatsIntervals()}}
 }

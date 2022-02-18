@@ -9,7 +9,7 @@
 #'
 #' * `y`: Matrix of normalized, log-transformed expression values. Rows
 #'   correspond to genes (rownames are Entrez Gene IDs) and columns to samples.
-#' * `metadata`: data.table with one row per sample. `time` is in hours.
+#' * `metadata`: `data.table` with one row per sample. `time` is in hours.
 #'
 #' @source <https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE54650>
 #'
@@ -29,7 +29,7 @@
 #'
 #' * `y`: Matrix of normalized, log-transformed expression values. Rows
 #'   correspond to genes (rownames are Entrez Gene IDs) and columns to samples.
-#' * `metadata`: data.table with one row per sample. `time` is in hours.
+#' * `metadata`: `data.table` with one row per sample. `time` is in hours.
 #'
 #' @source <https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE34018>
 #'

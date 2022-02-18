@@ -35,8 +35,20 @@ A \code{data.table}.
 \description{
 This function computes expected measurements (corresponding to the fitted
 curves) for the specified times and features in all combinations of
-conditions and covariates (if they exist). Register a parallel backend to
-minimize runtime, e.g., using \code{\link[doParallel:registerDoParallel]{doParallel::registerDoParallel()}}.
+conditions and covariates (if they exist).
+}
+\examples{
+library('data.table')
+
+y = GSE34018$y
+metadata = GSE34018$metadata
+
+fit = getModelFit(y, metadata)
+fit = getPosteriorFit(fit)
+
+measObs = mergeMeasMeta(y, metadata, features = c('13170', '12686'))
+measFitMean = getExpectedMeas(
+  fit, times = seq(0, 24, 0.5), features = c('13170', '12686'))
 }
 \seealso{
 \code{\link[=getModelFit]{getModelFit()}}, \code{\link[=getPosteriorFit]{getPosteriorFit()}}, \code{\link[=getPosteriorSamples]{getPosteriorSamples()}},

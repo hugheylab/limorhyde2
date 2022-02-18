@@ -2,8 +2,7 @@
 #'
 #' This function computes expected measurements (corresponding to the fitted
 #' curves) for the specified times and features in all combinations of
-#' conditions and covariates (if they exist). Register a parallel backend to
-#' minimize runtime, e.g., using [doParallel::registerDoParallel()].
+#' conditions and covariates (if they exist).
 #'
 #' @param fit A 'limorhyde2' object.
 #' @param times Numeric vector of times, in units of
@@ -18,6 +17,8 @@
 #'   [doParallel::registerDoParallel()]. Recommended to minimize runtime.
 #'
 #' @return A `data.table`.
+#'
+#' @eval examples3()
 #'
 #' @seealso [getModelFit()], [getPosteriorFit()], [getPosteriorSamples()],
 #'   [getExpectedMeasIntervals()]
@@ -101,6 +102,8 @@ getExpectedMeas = function(
 #'   measurement for each combination of feature, time, and possibly condition
 #'   and covariate.
 #'
+#' @eval examples4()
+#'
 #' @seealso [getExpectedMeas()], [getStatsIntervals()]
 #'
 #' @export
@@ -137,6 +140,8 @@ getExpectedMeasIntervals = function(
 #'   the name of each sample, which must correspond to the column names of `y`.
 #'
 #' @return A `data.table` with one row for each sample-feature pair.
+#'
+#' @eval examples3()
 #'
 #' @seealso [getExpectedMeas()]
 #'

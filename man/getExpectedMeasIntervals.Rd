@@ -26,6 +26,21 @@ and covariate.
 This functions uses posterior samples to quantify uncertainty in the
 expected measurements from fitted models.
 }
+\examples{
+library('data.table')
+
+y = GSE34018$y
+metadata = GSE34018$metadata
+
+fit = getModelFit(y, metadata)
+fit = getPosteriorFit(fit)
+fit = getPosteriorSamples(fit, nPosteriorSamples = 20L)
+
+measFitSamps = getExpectedMeas(
+  fit, times = seq(0, 24, 0.5), fitType = 'posterior_samples',
+  features = c('13170', '12686'))
+measFitInts = getExpectedMeasIntervals(measFitSamps)
+}
 \seealso{
 \code{\link[=getExpectedMeas]{getExpectedMeas()}}, \code{\link[=getStatsIntervals]{getStatsIntervals()}}
 }

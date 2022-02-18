@@ -61,6 +61,26 @@ This function uses \code{\link[stats:optim]{stats::optim()}} to compute various 
 fitted curves with respect to time, potentially in each condition and for
 each posterior sample, and adjusting for any covariates.
 }
+\examples{
+library('data.table')
+
+# rhythmicity in one condition
+y = GSE54650$y
+metadata = GSE54650$metadata
+
+fit = getModelFit(y, metadata)
+fit = getPosteriorFit(fit)
+rhyStats = getRhythmStats(fit, features = c('13170', '13869'))
+
+# rhythmicity and differential rhythmicity in multiple conditions
+y = GSE34018$y
+metadata = GSE34018$metadata
+
+fit = getModelFit(y, metadata, nKnots = 3L, condColname = 'cond')
+fit = getPosteriorFit(fit)
+rhyStats = getRhythmStats(fit, features = c('13170', '12686'))
+diffRhyStats = getDiffRhythmStats(fit, rhyStats)
+}
 \seealso{
 \code{\link[=getModelFit]{getModelFit()}}, \code{\link[=getPosteriorFit]{getPosteriorFit()}},  \code{\link[=getPosteriorSamples]{getPosteriorSamples()}},
 \code{\link[=getDiffRhythmStats]{getDiffRhythmStats()}}, \code{\link[=getStatsIntervals]{getStatsIntervals()}}

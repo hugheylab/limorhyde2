@@ -47,6 +47,8 @@ getMash = function(coefs, ses, covMethod, getSigResArgs, npc, covEdArgs, ...) {
 #' * `mashIdx`: Vector indicating which model terms were included in the mash
 #'   fit.
 #'
+#' @eval examples1()
+#'
 #' @seealso [getModelFit()], [getRhythmStats()], [getExpectedMeas()]
 #'
 #' @export
@@ -121,6 +123,8 @@ getPosteriorFit = function(
 #' * `mashPosteriorSamples`: a three-dimensional array of coefficients, with dim
 #'   1 corresponding to features, dim 2 to model terms, and dim 3 to posterior
 #'   samples.
+#'
+#' @eval examples2()
 #'
 #' @seealso [getPosteriorFit()], [getRhythmStats()], [getExpectedMeas()]
 #'

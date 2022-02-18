@@ -27,6 +27,20 @@ of the opposite phase.
 This function uses posterior samples to quantify uncertainty in the
 properties of fitted curves.
 }
+\examples{
+library('data.table')
+
+y = GSE54650$y
+metadata = GSE54650$metadata
+
+fit = getModelFit(y, metadata)
+fit = getPosteriorFit(fit)
+fit = getPosteriorSamples(fit, nPosteriorSamples = 20L)
+
+rhyStatsSamps = getRhythmStats(
+  fit, features = c('13170', '13869'), fitType = 'posterior_samples')
+rhyStatsInts = getStatsIntervals(rhyStatsSamps)
+}
 \seealso{
 \code{\link[=getRhythmStats]{getRhythmStats()}}, \code{\link[=getDiffRhythmStats]{getDiffRhythmStats()}},
 \code{\link[=getExpectedMeasIntervals]{getExpectedMeasIntervals()}}

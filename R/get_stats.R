@@ -40,6 +40,8 @@
 #'   'posterior_samples': one row per feature per condition per posterior
 #'   sample.
 #'
+#' @eval examples1()
+#'
 #' @seealso [getModelFit()], [getPosteriorFit()],  [getPosteriorSamples()],
 #'   [getDiffRhythmStats()], [getStatsIntervals()]
 #'
@@ -147,6 +149,8 @@ getRhythmStats = function(
 #' * 'fitType' is 'posterior_samples': one row per feature per posterior sample
 #'   per pair of conditions.
 #'
+#' @eval examples1()
+#'
 #' @seealso [getRhythmStats()], [getStatsIntervals()]
 #'
 #' @export
@@ -241,6 +245,8 @@ getDiffRhythmStats = function(
 #'   statistics for each feature or each feature-condition pair. For
 #'   `peak_trough_amp` and `rms_amp`, a negative lower bound indicates a rhythm
 #'   of the opposite phase.
+#'
+#' @eval examples2()
 #'
 #' @seealso [getRhythmStats()], [getDiffRhythmStats()],
 #'   [getExpectedMeasIntervals()]

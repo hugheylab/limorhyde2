@@ -9,7 +9,7 @@ A list with two elements:
 \itemize{
 \item \code{y}: Matrix of normalized, log-transformed expression values. Rows
 correspond to genes (rownames are Entrez Gene IDs) and columns to samples.
-\item \code{metadata}: data.table with one row per sample. \code{time} is in hours.
+\item \code{metadata}: \code{data.table} with one row per sample. \code{time} is in hours.
 }
 }
 \source{

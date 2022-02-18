@@ -26,6 +26,19 @@ A \code{data.table} with one row for each sample-feature pair.
 \description{
 This function is useful for plotting time-courses for individual features.
 }
+\examples{
+library('data.table')
+
+y = GSE34018$y
+metadata = GSE34018$metadata
+
+fit = getModelFit(y, metadata)
+fit = getPosteriorFit(fit)
+
+measObs = mergeMeasMeta(y, metadata, features = c('13170', '12686'))
+measFitMean = getExpectedMeas(
+  fit, times = seq(0, 24, 0.5), features = c('13170', '12686'))
+}
 \seealso{
 \code{\link[=getExpectedMeas]{getExpectedMeas()}}
 }
