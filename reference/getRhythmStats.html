@@ -19,7 +19,7 @@ each posterior sample, and adjusting for any covariates."><!-- mathjax --><scrip
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">limorhyde2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.3</span>
       </span>
     </div>
 
@@ -141,12 +141,6 @@ sample.</p></li>
 <span class="r-in"></span>
 <span class="r-in"><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="getModelFit.html">getModelFit</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">metadata</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="getPosteriorFit.html">getPosteriorFit</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - Computing 100 x 121 likelihood matrix.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - Likelihood calculations took 0.05 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - Fitting model with 121 mixture components.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - Model fitting took 0.04 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - Computing posterior matrices.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - Computation allocated took 0.01 seconds.</span>
 <span class="r-in"><span class="va">rhyStats</span> <span class="op">=</span> <span class="fu">getRhythmStats</span><span class="op">(</span><span class="va">fit</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'13170'</span>, <span class="st">'13869'</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># rhythmicity and differential rhythmicity in multiple conditions</span></span>
@@ -155,18 +149,6 @@ sample.</p></li>
 <span class="r-in"></span>
 <span class="r-in"><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="getModelFit.html">getModelFit</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">metadata</span>, nKnots <span class="op">=</span> <span class="fl">3L</span>, condColname <span class="op">=</span> <span class="st">'cond'</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="getPosteriorFit.html">getPosteriorFit</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - Computing 100 x 97 likelihood matrix.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - Likelihood calculations took 0.02 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - Fitting model with 97 mixture components.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - Model fitting took 0.03 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - Computing posterior matrices.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - Computation allocated took 0.01 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - Computing 100 x 89 likelihood matrix.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - Likelihood calculations took 0.02 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - Fitting model with 89 mixture components.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - Model fitting took 0.03 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - Computing posterior matrices.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - Computation allocated took 0.00 seconds.</span>
 <span class="r-in"><span class="va">rhyStats</span> <span class="op">=</span> <span class="fu">getRhythmStats</span><span class="op">(</span><span class="va">fit</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'13170'</span>, <span class="st">'12686'</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">diffRhyStats</span> <span class="op">=</span> <span class="fu"><a href="getDiffRhythmStats.html">getDiffRhythmStats</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">rhyStats</span><span class="op">)</span></span>
 </code></pre></div>

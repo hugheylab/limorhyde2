@@ -19,7 +19,7 @@ statistics. The function calls mashr::mash_compute_posterior_matrices()."><!-- m
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">limorhyde2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.3</span>
       </span>
     </div>
 
@@ -111,12 +111,6 @@ samples.</p></li>
 <span class="r-in"></span>
 <span class="r-in"><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="getModelFit.html">getModelFit</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">metadata</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="getPosteriorFit.html">getPosteriorFit</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - Computing 100 x 121 likelihood matrix.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - Likelihood calculations took 0.04 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - Fitting model with 121 mixture components.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - Model fitting took 0.04 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - Computing posterior matrices.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - Computation allocated took 0.01 seconds.</span>
 <span class="r-in"><span class="va">fit</span> <span class="op">=</span> <span class="fu">getPosteriorSamples</span><span class="op">(</span><span class="va">fit</span>, nPosteriorSamples <span class="op">=</span> <span class="fl">20L</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="va">rhyStatsSamps</span> <span class="op">=</span> <span class="fu"><a href="getRhythmStats.html">getRhythmStats</a></span><span class="op">(</span></span>

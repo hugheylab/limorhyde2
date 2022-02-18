@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">limorhyde2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.3</span>
       </span>
     </div>
 
@@ -169,13 +169,7 @@
 </h2>
 <p>The next step is obtain posterior estimates of the model coefficients using <a href="https://doi.org/10.1038/s41588-018-0268-8" class="external-link">multivariate adaptive shrinkage</a> (<a href="https://stephenslab.github.io/mashr/index.html" class="external-link">mashr</a>), which learns patterns in the data and accounts for noise in the original fits.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/getPosteriorFit.html">getPosteriorFit</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>
-<span class="co">#&gt;  - Computing 100 x 121 likelihood matrix.</span>
-<span class="co">#&gt;  - Likelihood calculations took 0.04 seconds.</span>
-<span class="co">#&gt;  - Fitting model with 121 mixture components.</span>
-<span class="co">#&gt;  - Model fitting took 0.03 seconds.</span>
-<span class="co">#&gt;  - Computing posterior matrices.</span>
-<span class="co">#&gt;  - Computation allocated took 0.01 seconds.</span></code></pre></div>
+<code class="sourceCode R"><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="../reference/getPosteriorFit.html">getPosteriorFit</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="get-rhythm-statistics">Get rhythm statistics<a class="anchor" aria-label="anchor" href="#get-rhythm-statistics"></a>
