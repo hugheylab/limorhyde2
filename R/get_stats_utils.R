@@ -114,8 +114,9 @@ getRmsDiffRhy = function(fit, conds, fitType, featureIdx, dopar) {
   coefArray = coefArray[featureIdx, , , drop = FALSE]
 
   condIdx = match(conds, fit$conds)
-  doPost = if (nPostSamps == 1L | !dopar) `%do%` else `%dopar%`
-  doFeat = if (nPostSamps == 1L & dopar) `%dopar%` else `%do%`
+  reg = foreach::getDoParRegistered()
+  doPost = if (nPostSamps == 1L || !dopar || !reg) `%do%` else `%dopar%`
+  doFeat = if (nPostSamps == 1L && dopar && reg) `%dopar%` else `%do%`
 
   r = doPost(foreach(postSampIdx = 1:nPostSamps, .combine = rbind), {
     coefMat = abind::adrop(coefArray[, , postSampIdx, drop = FALSE], drop = 3)

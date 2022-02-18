@@ -73,8 +73,9 @@ getRhythmStats = function(
   nPostSamps = dim(coefArray)[3L]
   if (!is.null(features)) coefArray = coefArray[features, , , drop = FALSE]
 
-  doPost = if (nPostSamps == 1L | !dopar) `%do%` else `%dopar%`
-  doFeat = if (nPostSamps == 1L & dopar) `%dopar%` else `%do%`
+  reg = foreach::getDoParRegistered()
+  doPost = if (nPostSamps == 1L || !dopar || !reg) `%do%` else `%dopar%`
+  doFeat = if (nPostSamps == 1L && dopar && reg) `%dopar%` else `%do%`
 
   rhyStats = doPost(foreach(postSampIdx = 1:nPostSamps, .combine = rbind), {
     coefMat = abind::adrop(coefArray[, , postSampIdx, drop = FALSE], drop = 3)

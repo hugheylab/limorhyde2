@@ -1,5 +1,6 @@
 # limorhyde2 0.0.3
 * Made `mash` silent.
+* Added checking for parallel backend, to avoid warning messages.
 
 # limorhyde2 0.0.2
 * Moved data to data/, to make examples and vignettes simpler.

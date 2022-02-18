@@ -66,7 +66,8 @@ getExpectedMeas = function(
     set(mShift, j = 'time', value = mShift$time + shift)
     designShift = getDesign(mShift, fit$period, fit$nKnots)}
 
-  doOp = if (dopar) `%dopar%` else `%do%`
+  reg = foreach::getDoParRegistered()
+  doOp = if (dopar && reg) `%dopar%` else `%do%`
 
   expectedMeas = doOp(foreach(postSampIdx = 1:nPostSamps, .combine = rbind), {
     coefMat = abind::adrop(coefArray[, , postSampIdx, drop = FALSE], drop = 3)
