@@ -1,7 +1,7 @@
 Package: limorhyde2
 Type: Package
 Title: Quantify Rhythmicity and Differential Rhythmicity in Genomic Data
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: as.person(c(
   "Jake Hughey <jakejhughey@gmail.com> [aut, cre]",
   "Dora Obodo <dora.obodo@vanderbilt.edu> [aut]",

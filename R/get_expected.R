@@ -134,7 +134,7 @@ getExpectedMeasIntervals = function(
 #' @param features Vector of names, row numbers, or logical values for
 #'   subsetting the features. `NULL` indicates all features.
 #' @param sampleColname String indicating the column in `metadata` containing
-#'   the name of each sample, which must correspond to the column names in `y`.
+#'   the name of each sample, which must correspond to the column names of `y`.
 #'
 #' @return A `data.table` with one row for each sample-feature pair.
 #'

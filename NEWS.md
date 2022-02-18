@@ -1,3 +1,6 @@
+# limorhyde2 0.0.2
+* Moved data to data/, to make examples and vignettes simpler.
+
 # limorhyde2 0.0.1
 * Updated vignette for analyzing RNA-seq data.
 

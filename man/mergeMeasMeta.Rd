@@ -18,7 +18,7 @@ names are ignored.}
 subsetting the features. \code{NULL} indicates all features.}
 
 \item{sampleColname}{String indicating the column in \code{metadata} containing
-the name of each sample, which must correspond to the column names in \code{y}.}
+the name of each sample, which must correspond to the column names of \code{y}.}
 }
 \value{
 A \code{data.table} with one row for each sample-feature pair.
