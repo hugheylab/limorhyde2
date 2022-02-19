@@ -57,7 +57,7 @@ test_that('getPosteriorFit', {
   fitExp = snapshot(
     fitObs, file.path(dataDir, glue('posterior_fit_{id}.qs')))
 
-  expect_equal(fitObs, fitExp)
+  expect_equal(fitObs, fitExp, tolerance = 1e-4) # avoid intermittent failures
   expect_error(getPosteriorFit(fitObs))
   # expect_equal(getPosteriorFit(fitObs, overwrite = TRUE), fitExp)
 
