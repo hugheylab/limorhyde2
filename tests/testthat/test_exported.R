@@ -1,17 +1,11 @@
-# x = readRDS('tests/testthat/GSE34018_expression_data.rds')
-# metadata = data.table::fread('tests/testthat/GSE34018_sample_metadata.csv')
-#
-# m = rbind(metadata, metadata[seq(1, .N, 2)])
-# m[(.N / 3 * 2 + 1):.N, cond := 'synthetic']
-# y = x[seq(1, nrow(x), 200), m$sample]
-#
-# qs::qsave(y, 'tests/testthat/GSE34018_test_data.qs')
-# data.table::fwrite(m, 'tests/testthat/GSE34018_test_metadata.csv')
+y = GSE34018$y
+m = GSE34018$metadata
 
-########################################
-
-foreach::registerDoSEQ()
-m = data.table::fread(file.path(dataDir, 'GSE34018_test_metadata.csv'))
+m = rbind(m, m[seq(1, .N, 2)])
+m[(.N / 3 * 2 + 1):.N, cond := 'synthetic']
+y = y[, m$sample]
+m[, sample := paste0(sample, '_', 1:.N)]
+colnames(y) = m$sample
 
 timeColname = 'time_test'
 data.table::setnames(m, 'time', timeColname)
@@ -22,9 +16,6 @@ conds = data.table(lab = c('wild-type', 'knockout', 'synthetic'),
 set(m, j = condColname, value = factor(m[[condColname]], conds$lab, conds$lev))
 
 m[, batch := rep(c('a', 'b'), length.out = .N)]
-
-y = qs::qread(file.path(dataDir, 'GSE34018_test_data.qs'))
-y = y[, m$sample]
 
 
 test_that('getModelFit', {
@@ -42,8 +33,8 @@ test_that('getModelFit', {
   expect_equal(fitObs, fitExp)
 
   id = 3
-  fitObs = getModelFit(y, m, period, nKnots, timeColname, condColname,
-                       covarColnames = 'batch')
+  fitObs = getModelFit(
+    y, m, period, nKnots, timeColname, condColname, covarColnames = 'batch')
   fitExp = snapshot(fitObs, file.path(dataDir, glue('model_fit_{id}.qs')))
   expect_equal(fitObs, fitExp)
 

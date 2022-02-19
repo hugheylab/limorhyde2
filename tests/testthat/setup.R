@@ -1,4 +1,6 @@
 library('glue')
+
+foreach::registerDoSEQ()
 dataDir = 'data'
 
 snapshot = function(xObs, path) {

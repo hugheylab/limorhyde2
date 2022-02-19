@@ -1,3 +1,6 @@
+# limorhyde2 0.0.4
+* Added more stringent checking for correspondence between measurements matrix and metadata.
+
 # limorhyde2 0.0.3
 * Made `mash` silent.
 * Added checking for parallel backend, to avoid warning messages.

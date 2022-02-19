@@ -12,6 +12,7 @@ getModelFit(
   timeColname = "time",
   condColname = NULL,
   covarColnames = NULL,
+  sampleColname = "sample",
   nShifts = 3L,
   method = c("trend", "voom", "deseq2"),
   lmFitArgs = list(),
@@ -46,6 +47,9 @@ effects and interactions with the terms for time.}
 \item{covarColnames}{Character vector indicating the columns in \code{metadata}
 containing covariates to include in the model. \code{NULL} indicates no
 covariates.}
+
+\item{sampleColname}{String indicating the column in \code{metadata} containing
+the name of each sample, which must correspond to the column names of \code{y}.}
 
 \item{nShifts}{Number of shifted models to fit. Only used for periodic
 splines, not for cosinor. Do not change from the default unless you know

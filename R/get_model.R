@@ -22,6 +22,8 @@
 #' @param covarColnames Character vector indicating the columns in `metadata`
 #'   containing covariates to include in the model. `NULL` indicates no
 #'   covariates.
+#' @param sampleColname String indicating the column in `metadata` containing
+#'   the name of each sample, which must correspond to the column names of `y`.
 #' @param nShifts Number of shifted models to fit. Only used for periodic
 #'   splines, not for cosinor. Do not change from the default unless you know
 #'   what you're doing.
@@ -60,14 +62,16 @@
 #' @export
 getModelFit = function(
   y, metadata, period = 24, nKnots = 4L, timeColname = 'time',
-  condColname = NULL, covarColnames = NULL, nShifts = 3L,
-  method = c('trend', 'voom', 'deseq2'), lmFitArgs = list(),
+  condColname = NULL, covarColnames = NULL, sampleColname = 'sample',
+  nShifts = 3L, method = c('trend', 'voom', 'deseq2'), lmFitArgs = list(),
   eBayesArgs = if (method == 'trend') list(trend = TRUE) else list(),
   DESeqArgs = list(), keepLmFits = FALSE) {
 
   shift = NULL
+  assertTRUE(length(dim(y)) == 2L)
+  assertNames(rownames(y), type = 'unique')
+  assertNames(colnames(y), type = 'unique')
   assertDataFrame(metadata)
-  assertTRUE(ncol(y) == nrow(metadata))
 
   assertNumber(period, lower = .Machine$double.eps, finite = TRUE)
 
@@ -75,6 +79,13 @@ getModelFit = function(
   nKnots = assertCount(nKnots, null.ok = TRUE, coerce = TRUE)
   if (is.null(nKnots)) nKnots = 2L
   # after this point, nKnots should never be NULL
+
+  assertString(sampleColname)
+  assertChoice(sampleColname, colnames(metadata))
+  assertNames(metadata[[sampleColname]], type = 'unique')
+
+  assertSetEqual(colnames(y), metadata[[sampleColname]])
+  y = y[, metadata[[sampleColname]]]
 
   assertString(timeColname)
   assertChoice(timeColname, colnames(metadata))
