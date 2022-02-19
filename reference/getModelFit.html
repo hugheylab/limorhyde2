@@ -18,7 +18,7 @@ moderate the fits using getPosteriorFit()."><!-- mathjax --><script src="https:/
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">limorhyde2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.4</span>
       </span>
     </div>
 
@@ -82,6 +82,7 @@ moderate the fits using <code><a href="getPosteriorFit.html">getPosteriorFit()</
   timeColname <span class="op">=</span> <span class="st">"time"</span>,
   condColname <span class="op">=</span> <span class="cn">NULL</span>,
   covarColnames <span class="op">=</span> <span class="cn">NULL</span>,
+  sampleColname <span class="op">=</span> <span class="st">"sample"</span>,
   nShifts <span class="op">=</span> <span class="fl">3L</span>,
   method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"trend"</span>, <span class="st">"voom"</span>, <span class="st">"deseq2"</span><span class="op">)</span>,
   lmFitArgs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,
@@ -119,6 +120,9 @@ effects and interactions with the terms for time.</p></dd>
 <dd><p>Character vector indicating the columns in <code>metadata</code>
 containing covariates to include in the model. <code>NULL</code> indicates no
 covariates.</p></dd>
+<dt>sampleColname</dt>
+<dd><p>String indicating the column in <code>metadata</code> containing
+the name of each sample, which must correspond to the column names of <code>y</code>.</p></dd>
 <dt>nShifts</dt>
 <dd><p>Number of shifted models to fit. Only used for periodic
 splines, not for cosinor. Do not change from the default unless you know
