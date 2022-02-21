@@ -1,7 +1,7 @@
 Package: limorhyde2
 Type: Package
 Title: Quantify Rhythmicity and Differential Rhythmicity in Genomic Data
-Version: 0.0.4
+Version: 0.0.5
 Authors@R: c(
   person('Jake', 'Hughey', , 'jakejhughey@gmail.com', c('aut', 'cre')),
   person('Dora', 'Obodo', , 'dora.obodo@vanderbilt.edu', 'aut'),
@@ -18,7 +18,7 @@ Roxygen: list(markdown = TRUE)
 Depends: R (>= 3.6)
 Imports:
   abind (>= 1.4-5),
-  ashr (>= 2.2-51),
+  ashr (>= 2.2-52),
   checkmate (>= 2.0.0),
   data.table (>= 1.12.8),
   DESeq2 (>= 1.30.0),
