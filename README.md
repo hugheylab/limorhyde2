@@ -1,4 +1,5 @@
 # limorhyde2
+
 [![check-deploy](https://github.com/hugheylab/limorhyde2/workflows/check-deploy/badge.svg)](https://github.com/hugheylab/limorhyde2/actions)
 [![codecov](https://codecov.io/gh/hugheylab/limorhyde2/branch/master/graph/badge.svg)](https://codecov.io/gh/hugheylab/limorhyde2)
 [![Netlify Status](https://api.netlify.com/api/v1/badges/2303634f-911d-4872-85ba-d3a04ed0b952/deploy-status)](https://app.netlify.com/sites/stupefied-engelbart-0482ba/deploys)
@@ -12,14 +13,6 @@
     ```r
     if (!requireNamespace('BiocManager', quietly = TRUE))
       install.packages('BiocManager')
-    ```
-
-1. Install the latest version of `ashr` from GitHub.
-
-    ```r
-    if (!requireNamespace('remotes', quietly = TRUE))
-      install.packages('remotes')
-    remotes::install_github('stephens999/ashr')
     ```
 
 1. If you use RStudio, go to Tools → Global Options... → Packages → Add... (under Secondary repositories), then enter:

@@ -1,3 +1,6 @@
+# limorhyde2 0.0.6
+* Switched to using updated `ashr` from CRAN.
+
 # limorhyde2 0.0.4
 * Added more stringent checking for correspondence between measurements matrix and metadata.
 
