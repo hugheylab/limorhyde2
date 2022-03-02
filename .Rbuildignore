@@ -1,10 +1,9 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^README\.md$
-^\.circleci$
 ^_pkgdown\.yml$
 ^docs$
-^NEWS\.md$
 ^data-raw$
 ^codecov\.yml$
 ^\.github$
+^cran-comments\.md$
