@@ -126,7 +126,8 @@ getPosteriorFit = function(
 #'
 #' @eval examples2()
 #'
-#' @seealso [getPosteriorFit()], [getRhythmStats()], [getExpectedMeas()]
+#' @seealso [getPosteriorFit()], [getRhythmStats()], [getExpectedMeas()],
+#'   [getStatsIntervals()]
 #'
 #' @export
 getPosteriorSamples = function(fit, nPosteriorSamples = 200L, overwrite = FALSE) {

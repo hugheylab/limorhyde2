@@ -34,7 +34,7 @@ metadata = GSE34018$metadata
 
 fit = getModelFit(y, metadata)
 fit = getPosteriorFit(fit)
-fit = getPosteriorSamples(fit, nPosteriorSamples = 20L)
+fit = getPosteriorSamples(fit, nPosteriorSamples = 10L)
 
 measFitSamps = getExpectedMeas(
   fit, times = seq(0, 24, 0.5), fitType = 'posterior_samples',

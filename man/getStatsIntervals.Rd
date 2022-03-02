@@ -35,7 +35,7 @@ metadata = GSE54650$metadata
 
 fit = getModelFit(y, metadata)
 fit = getPosteriorFit(fit)
-fit = getPosteriorSamples(fit, nPosteriorSamples = 20L)
+fit = getPosteriorSamples(fit, nPosteriorSamples = 10L)
 
 rhyStatsSamps = getRhythmStats(
   fit, features = c('13170', '13869'), fitType = 'posterior_samples')

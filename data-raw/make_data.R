@@ -2,7 +2,7 @@ library('data.table')
 library('qs')
 
 rawDir = 'data-raw'
-nGenes = 100L
+nGenes = 50L
 
 ########################################
 
@@ -17,7 +17,7 @@ y = y[idx, metadata$sample]
 
 GSE54650 = list(y = y, metadata = metadata)
 
-usethis::use_data(GSE54650)
+usethis::use_data(GSE54650, overwrite = TRUE)
 
 ########################################
 
@@ -33,4 +33,4 @@ y = y[idx, metadata$sample]
 
 GSE34018 = list(y = y, metadata = metadata)
 
-usethis::use_data(GSE34018)
+usethis::use_data(GSE34018, overwrite = TRUE)

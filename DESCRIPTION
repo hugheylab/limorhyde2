@@ -1,13 +1,13 @@
 Package: limorhyde2
 Type: Package
 Title: Quantify Rhythmicity and Differential Rhythmicity in Genomic Data
-Version: 0.0.6
+Version: 0.0.7
 Authors@R: c(
   person('Jake', 'Hughey', , 'jakejhughey@gmail.com', c('aut', 'cre')),
   person('Dora', 'Obodo', , 'dora.obodo@vanderbilt.edu', 'aut'),
   person('Elliot', 'Outland', , 'ehoutland@gmail.com', 'aut'))
 Description: Fit linear models based on periodic splines, moderate model
-  coefficients using mutivariate adaptive shrinkage, then compute properties of
+  coefficients using multivariate adaptive shrinkage, then compute properties of
   the moderated curves.
 URL: https://limorhyde2.hugheylab.org, https://github.com/hugheylab/limorhyde2
 License: GPL-2

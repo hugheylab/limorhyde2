@@ -1,3 +1,6 @@
+# limorhyde2 0.0.7
+* Made data smaller and examples faster.
+
 # limorhyde2 0.0.6
 * Switched to using updated `ashr` from CRAN.
 
