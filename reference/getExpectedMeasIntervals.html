@@ -18,7 +18,7 @@ expected measurements from fitted models."><!-- mathjax --><script src="https://
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">limorhyde2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.7</span>
       </span>
     </div>
 
@@ -110,7 +110,7 @@ and covariate.</p>
 <span class="r-in"></span>
 <span class="r-in"><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="getModelFit.html">getModelFit</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">metadata</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="getPosteriorFit.html">getPosteriorFit</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="getPosteriorSamples.html">getPosteriorSamples</a></span><span class="op">(</span><span class="va">fit</span>, nPosteriorSamples <span class="op">=</span> <span class="fl">20L</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="getPosteriorSamples.html">getPosteriorSamples</a></span><span class="op">(</span><span class="va">fit</span>, nPosteriorSamples <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="va">measFitSamps</span> <span class="op">=</span> <span class="fu"><a href="getExpectedMeas.html">getExpectedMeas</a></span><span class="op">(</span></span>
 <span class="r-in">  <span class="va">fit</span>, times <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">24</span>, <span class="fl">0.5</span><span class="op">)</span>, fitType <span class="op">=</span> <span class="st">'posterior_samples'</span>,</span>

@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">limorhyde2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.7</span>
       </span>
     </div>
 
@@ -126,7 +126,7 @@
 <span class="co">#&gt; 13170  8.989743  9.132606 12.381036 12.441759 14.766070</span>
 <span class="co">#&gt; 26897 11.515292 11.625519 10.579969 10.601969 11.096489</span>
 <span class="co">#&gt; 11287  7.985859  7.930935  7.674688  7.899531  7.768563</span>
-<span class="co">#&gt; 11731  8.481372  8.114623  8.058194  8.144267  8.152959</span>
+<span class="co">#&gt; 12046  8.024084  7.856703  7.942198  8.172695  7.981340</span>
 
 <span class="va">metadata</span> <span class="op">=</span> <span class="va">GSE34018</span><span class="op">$</span><span class="va">metadata</span>
 <span class="va">metadata</span>
@@ -173,29 +173,29 @@
 <code class="sourceCode R"><span class="va">rhyStats</span> <span class="op">=</span> <span class="fu"><a href="../reference/getRhythmStats.html">getRhythmStats</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">rhyStats</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
 <span class="co">#&gt;           cond   feature peak_phase peak_value trough_phase trough_value</span>
-<span class="co">#&gt;   1: wild-type     12686  0.0000000  11.818169   10.4696885     8.816498</span>
-<span class="co">#&gt;   2: wild-type     13170  9.4546039  15.050809   22.1710237     9.038763</span>
-<span class="co">#&gt;   3: wild-type     26897 17.0238101  12.318391    4.9244619    10.758073</span>
-<span class="co">#&gt;   4: wild-type     11287 20.8264882   7.907910    6.7998533     7.783516</span>
-<span class="co">#&gt;   5: wild-type     11731 17.4915605   8.242971    5.9198397     8.219672</span>
+<span class="co">#&gt;   1: wild-type     12686   0.000000  11.848689    10.510719     8.814508</span>
+<span class="co">#&gt;   2: wild-type     13170   9.431107  15.056098    22.129887     9.039250</span>
+<span class="co">#&gt;   3: wild-type     26897  18.371177  12.403175     4.623781    10.745386</span>
+<span class="co">#&gt;   4: wild-type     11287  22.517494   7.903967     7.586936     7.794846</span>
+<span class="co">#&gt;   5: wild-type     12046   5.694928   7.984916    20.181606     7.971871</span>
 <span class="co">#&gt;  ---                                                                    </span>
-<span class="co">#&gt; 196:  knockout    382038 17.4711564   8.109094    0.3233662     7.999535</span>
-<span class="co">#&gt; 197:  knockout    404323 18.5465691   8.144650   10.6388879     8.019490</span>
-<span class="co">#&gt; 198:  knockout    435684  0.4068318   8.287644   17.2735598     8.250160</span>
-<span class="co">#&gt; 199:  knockout    622408 18.0525292   7.984691    9.4949875     7.843422</span>
-<span class="co">#&gt; 200:  knockout 110599566  5.6949242   8.959549   22.7795931     8.950054</span>
+<span class="co">#&gt;  96:  knockout    317750  22.569400   8.197825     7.890174     8.050101</span>
+<span class="co">#&gt;  97:  knockout    329015  18.277878   9.367790    10.330503     9.236423</span>
+<span class="co">#&gt;  98:  knockout    381760  19.734165   9.456695     9.938374     9.257839</span>
+<span class="co">#&gt;  99:  knockout    434864  21.966042   7.912880     8.649651     7.761379</span>
+<span class="co">#&gt; 100:  knockout 110599566   6.508437   8.959367    22.779614     8.945090</span>
 <span class="co">#&gt;      peak_trough_amp     mesor</span>
-<span class="co">#&gt;   1:      3.00167100 10.368427</span>
-<span class="co">#&gt;   2:      6.01204602 12.018767</span>
-<span class="co">#&gt;   3:      1.56031721 11.675870</span>
-<span class="co">#&gt;   4:      0.12439445  7.854743</span>
-<span class="co">#&gt;   5:      0.02329908  8.233332</span>
+<span class="co">#&gt;   1:      3.03418170 10.368427</span>
+<span class="co">#&gt;   2:      6.01684814 12.018767</span>
+<span class="co">#&gt;   3:      1.65778881 11.675870</span>
+<span class="co">#&gt;   4:      0.10912046  7.854743</span>
+<span class="co">#&gt;   5:      0.01304465  7.979693</span>
 <span class="co">#&gt;  ---                          </span>
-<span class="co">#&gt; 196:      0.10955882  8.056860</span>
-<span class="co">#&gt; 197:      0.12516051  8.081646</span>
-<span class="co">#&gt; 198:      0.03748449  8.270927</span>
-<span class="co">#&gt; 199:      0.14126886  7.906518</span>
-<span class="co">#&gt; 200:      0.00949479  8.953484</span></code></pre></div>
+<span class="co">#&gt;  96:      0.14772364  8.104574</span>
+<span class="co">#&gt;  97:      0.13136624  9.296439</span>
+<span class="co">#&gt;  98:      0.19885626  9.353978</span>
+<span class="co">#&gt;  99:      0.15150048  7.829699</span>
+<span class="co">#&gt; 100:      0.01427692  8.953484</span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="get-differential-rhythm-statistics">Get differential rhythm statistics<a class="anchor" aria-label="anchor" href="#get-differential-rhythm-statistics"></a>
@@ -204,57 +204,57 @@
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">diffRhyStats</span> <span class="op">=</span> <span class="fu"><a href="../reference/getDiffRhythmStats.html">getDiffRhythmStats</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">rhyStats</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">diffRhyStats</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
-<span class="co">#&gt;        feature     cond1    cond2 mean_mesor mean_peak_trough_amp   diff_mesor</span>
-<span class="co">#&gt;   1:    101476 wild-type knockout  10.283367          0.364345854  0.408828899</span>
-<span class="co">#&gt;   2:    104662 wild-type knockout   8.559772          0.152371765 -0.112664862</span>
-<span class="co">#&gt;   3:    107652 wild-type knockout  10.572694          0.278928889  0.006764681</span>
-<span class="co">#&gt;   4:    109359 wild-type knockout  10.607649          0.066887444  0.024133810</span>
-<span class="co">#&gt;   5: 110599566 wild-type knockout   8.938463          0.166092873  0.030043525</span>
-<span class="co">#&gt;  ---                                                                          </span>
-<span class="co">#&gt;  96:     76629 wild-type knockout   7.917007          0.006813981 -0.055253204</span>
-<span class="co">#&gt;  97:     78174 wild-type knockout   7.812249          0.054345851  0.010492566</span>
-<span class="co">#&gt;  98:     80782 wild-type knockout   7.938937          0.011599640  0.025068427</span>
-<span class="co">#&gt;  99:     93671 wild-type knockout   9.210232          0.927052285 -0.131538239</span>
-<span class="co">#&gt; 100:     97064 wild-type knockout   8.214559          0.013931745 -0.081584942</span>
-<span class="co">#&gt;      diff_peak_trough_amp diff_peak_phase diff_trough_phase diff_rhy_dist</span>
-<span class="co">#&gt;   1:         -0.023692359    0.2448824542        -1.3251988   0.033259162</span>
-<span class="co">#&gt;   2:         -0.276891243   -5.5052720732         0.3071651   0.289348444</span>
-<span class="co">#&gt;   3:         -0.424068696   -8.9414363544        -0.4467861   0.539674818</span>
-<span class="co">#&gt;   4:         -0.109914276   -2.3356975738        -0.7252431   0.112285161</span>
-<span class="co">#&gt;   5:         -0.313196165   -9.4920035152        -6.3244613   0.330262422</span>
-<span class="co">#&gt;  ---                                                                     </span>
-<span class="co">#&gt;  96:          0.003113699   -0.4067435019        -6.9151571   0.003192749</span>
-<span class="co">#&gt;  97:          0.083646357    1.6974742269        -2.7747427   0.085033285</span>
-<span class="co">#&gt;  98:         -0.012614515    2.8474965282        -2.8473846   0.014470601</span>
-<span class="co">#&gt;  99:          0.861383159   -3.4317077329       -11.7138241   1.118181583</span>
-<span class="co">#&gt; 100:         -0.007934786    0.0000926305        -2.8475403   0.007934786</span></code></pre></div>
+<span class="co">#&gt;       feature     cond1    cond2 mean_mesor mean_peak_trough_amp   diff_mesor</span>
+<span class="co">#&gt;  1:    103266 wild-type knockout   9.094249          0.184903036  0.051687912</span>
+<span class="co">#&gt;  2:    108897 wild-type knockout   7.958910          0.006831757 -0.005168699</span>
+<span class="co">#&gt;  3: 110599566 wild-type knockout   8.938463          0.069308476  0.030043525</span>
+<span class="co">#&gt;  4:     11287 wild-type knockout   7.867503          0.116526530  0.025519670</span>
+<span class="co">#&gt;  5:     12046 wild-type knockout   8.038329          0.170680319  0.117271901</span>
+<span class="co">#&gt; ---                                                                          </span>
+<span class="co">#&gt; 46:     72114 wild-type knockout   7.815911          0.102562698 -0.031350508</span>
+<span class="co">#&gt; 47:     74087 wild-type knockout   7.876956          0.120937382  0.031165093</span>
+<span class="co">#&gt; 48:     75801 wild-type knockout   7.885490          0.009974481  0.021612144</span>
+<span class="co">#&gt; 49:     78697 wild-type knockout   8.435127          0.016110453  0.030223706</span>
+<span class="co">#&gt; 50:     93877 wild-type knockout   8.060970          0.134552916  0.103128679</span>
+<span class="co">#&gt;     diff_peak_trough_amp diff_peak_phase diff_trough_phase diff_rhy_dist</span>
+<span class="co">#&gt;  1:         -0.214572098       -4.188981         0.4565494    0.26587667</span>
+<span class="co">#&gt;  2:         -0.006489454       10.576316         9.3558268    0.01348066</span>
+<span class="co">#&gt;  3:         -0.110063106       -6.830498        -6.7648712    0.12818012</span>
+<span class="co">#&gt;  4:          0.014812131       -6.040059        -7.8807586    0.16598258</span>
+<span class="co">#&gt;  5:          0.315271340       -6.811385        11.1769819    0.33131162</span>
+<span class="co">#&gt; ---                                                                     </span>
+<span class="co">#&gt; 46:          0.037126061       -9.577629         6.1331939    0.19524286</span>
+<span class="co">#&gt; 47:         -0.025998153       -2.082278        -2.0154710    0.06976247</span>
+<span class="co">#&gt; 48:         -0.012272708        5.695024        -8.5424574    0.01626120</span>
+<span class="co">#&gt; 49:         -0.001703226        8.330807         9.3559106    0.02858621</span>
+<span class="co">#&gt; 50:         -0.086004439       10.791143         8.1130055    0.26608906</span></code></pre></div>
 <p>We can examine the distributions of the statistics in various ways, such as ranking genes by difference in peak-to-trough amplitude (no p-values necessary) or plotting difference in peak-to-trough amplitude vs. difference in mean expression.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">diffRhyStats</span><span class="op">[</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/setorder.html" class="external-link">order</a></span><span class="op">(</span><span class="va">diff_peak_trough_amp</span><span class="op">)</span><span class="op">]</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
-<span class="co">#&gt;      feature     cond1    cond2 mean_mesor mean_peak_trough_amp   diff_mesor</span>
-<span class="co">#&gt;   1:   13170 wild-type knockout  12.616280            4.3053868  1.195026238</span>
-<span class="co">#&gt;   2:   12686 wild-type knockout  10.157657            1.7646016 -0.421541648</span>
-<span class="co">#&gt;   3:   26897 wild-type knockout  10.473462            0.9911486 -2.404815809</span>
-<span class="co">#&gt;   4:   20211 wild-type knockout  13.264762            0.6316245 -1.141797421</span>
-<span class="co">#&gt;   5:  107652 wild-type knockout  10.572694            0.2789289  0.006764681</span>
-<span class="co">#&gt;  ---                                                                        </span>
-<span class="co">#&gt;  96:   18378 wild-type knockout   7.930639            0.1574778 -0.044696431</span>
-<span class="co">#&gt;  97:   58229 wild-type knockout   7.962831            0.1183498 -0.029117990</span>
-<span class="co">#&gt;  98:   14254 wild-type knockout   9.872135            0.1360597  0.040621775</span>
-<span class="co">#&gt;  99:   18727 wild-type knockout   8.317322            0.2053341  0.136995727</span>
-<span class="co">#&gt; 100:   93671 wild-type knockout   9.210232            0.9270523 -0.131538239</span>
-<span class="co">#&gt;      diff_peak_trough_amp diff_peak_phase diff_trough_phase diff_rhy_dist</span>
-<span class="co">#&gt;   1:           -3.4133184      -0.5117968        0.00847549     3.4541007</span>
-<span class="co">#&gt;   2:           -2.4741388      -6.1622754       -0.44523739     3.0696616</span>
-<span class="co">#&gt;   3:           -1.1383372       1.2932498        6.00647640     1.1707130</span>
-<span class="co">#&gt;   4:           -0.5655427      -2.4497118       -9.53213782     0.6682857</span>
-<span class="co">#&gt;   5:           -0.4240687      -8.9414364       -0.44678606     0.5396748</span>
-<span class="co">#&gt;  ---                                                                     </span>
-<span class="co">#&gt;  96:            0.2047459      -0.4564273        7.86751964     0.2052440</span>
-<span class="co">#&gt;  97:            0.2084246      -5.5907663       -2.08335892     0.2214968</span>
-<span class="co">#&gt;  98:            0.2228126      -5.3957837       -6.15782348     0.2447962</span>
-<span class="co">#&gt;  99:            0.3745667      10.9934870        4.88147103     0.4100721</span>
-<span class="co">#&gt; 100:            0.8613832      -3.4317077      -11.71382406     1.1181816</span>
+<span class="co">#&gt;     feature     cond1    cond2 mean_mesor mean_peak_trough_amp  diff_mesor</span>
+<span class="co">#&gt;  1:   13170 wild-type knockout  12.616280            4.3073908  1.19502624</span>
+<span class="co">#&gt;  2:   12686 wild-type knockout  10.157657            1.7859377 -0.42154165</span>
+<span class="co">#&gt;  3:   26897 wild-type knockout  10.473462            1.0551507 -2.40481581</span>
+<span class="co">#&gt;  4:   14385 wild-type knockout  10.335544            0.6410604 -0.23091881</span>
+<span class="co">#&gt;  5:   56209 wild-type knockout  11.382764            0.5173328 -0.29032848</span>
+<span class="co">#&gt; ---                                                                       </span>
+<span class="co">#&gt; 46:   13507 wild-type knockout   7.983178            0.1552713  0.15367719</span>
+<span class="co">#&gt; 47:   17252 wild-type knockout   9.983190            0.2583523 -0.08320065</span>
+<span class="co">#&gt; 48:   12046 wild-type knockout   8.038329            0.1706803  0.11727190</span>
+<span class="co">#&gt; 49:   20775 wild-type knockout  11.830131            1.3835675  0.24859164</span>
+<span class="co">#&gt; 50:   22113 wild-type knockout   8.395714            0.6561732  0.26000350</span>
+<span class="co">#&gt;     diff_peak_trough_amp diff_peak_phase diff_trough_phase diff_rhy_dist</span>
+<span class="co">#&gt;  1:           -3.4189147      -0.8277360       -0.01805794     3.5242228</span>
+<span class="co">#&gt;  2:           -2.4964879      -6.4332587       -0.45100842     3.1408093</span>
+<span class="co">#&gt;  3:           -1.2052763      -0.5625297        5.85548916     1.2119948</span>
+<span class="co">#&gt;  4:           -0.9487905       5.2747430       -1.96740822     1.0962868</span>
+<span class="co">#&gt;  5:           -0.5254610      -0.9897313        0.16651740     0.5379302</span>
+<span class="co">#&gt; ---                                                                     </span>
+<span class="co">#&gt; 46:            0.2214059       4.7481008       -0.10424266     0.2551407</span>
+<span class="co">#&gt; 47:            0.2605478      -5.3279342        2.99082880     0.3873103</span>
+<span class="co">#&gt; 48:            0.3152713      -6.8113848       11.17698194     0.3313116</span>
+<span class="co">#&gt; 49:            0.4137977       3.5329385       -1.78226089     1.2889095</span>
+<span class="co">#&gt; 50:            0.5568909      -0.2510863       -2.68931784     0.5582583</span>
 
 <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">diffRhyStats</span><span class="op">)</span> <span class="op">+</span>
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">diff_mesor</span>, y <span class="op">=</span> <span class="va">diff_peak_trough_amp</span><span class="op">)</span>, alpha <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span> <span class="op">+</span>
@@ -274,17 +274,17 @@
 <span class="va">measFit</span><span class="op">[</span><span class="va">genes</span>, <span class="va">symbol</span> <span class="op">:=</span> <span class="va">i.symbol</span>, on <span class="op">=</span> <span class="fu">.</span><span class="op">(</span>feature <span class="op">=</span> <span class="va">id</span><span class="op">)</span><span class="op">]</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">measFit</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
 <span class="co">#&gt;      time      cond feature     value symbol</span>
-<span class="co">#&gt;   1:    0 wild-type   13170  9.387659    Dbp</span>
-<span class="co">#&gt;   2:    0 wild-type   12686 11.818169 Elovl3</span>
-<span class="co">#&gt;   3:    0 wild-type   26897 11.578047  Acot1</span>
-<span class="co">#&gt;   4:    0  knockout   13170 11.938201    Dbp</span>
-<span class="co">#&gt;   5:    0  knockout   12686  9.832164 Elovl3</span>
+<span class="co">#&gt;   1:    0 wild-type   13170  9.402594    Dbp</span>
+<span class="co">#&gt;   2:    0 wild-type   12686 11.848689 Elovl3</span>
+<span class="co">#&gt;   3:    0 wild-type   26897 11.551600  Acot1</span>
+<span class="co">#&gt;   4:    0  knockout   13170 11.969182    Dbp</span>
+<span class="co">#&gt;   5:    0  knockout   12686  9.801527 Elovl3</span>
 <span class="co">#&gt;  ---                                        </span>
-<span class="co">#&gt; 290:   24 wild-type   12686 11.818169 Elovl3</span>
-<span class="co">#&gt; 291:   24 wild-type   26897 11.578047  Acot1</span>
-<span class="co">#&gt; 292:   24  knockout   13170 11.938201    Dbp</span>
-<span class="co">#&gt; 293:   24  knockout   12686  9.832164 Elovl3</span>
-<span class="co">#&gt; 294:   24  knockout   26897  9.204626  Acot1</span></code></pre></div>
+<span class="co">#&gt; 290:   24 wild-type   12686 11.848689 Elovl3</span>
+<span class="co">#&gt; 291:   24 wild-type   26897 11.551600  Acot1</span>
+<span class="co">#&gt; 292:   24  knockout   13170 11.969182    Dbp</span>
+<span class="co">#&gt; 293:   24  knockout   12686  9.801527 Elovl3</span>
+<span class="co">#&gt; 294:   24  knockout   26897  9.142774  Acot1</span></code></pre></div>
 <p>Next we combine the observed expression data and metadata. The curves show how <code>limorhyde2</code> is able to fit non-sinusoidal rhythms.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">measObs</span> <span class="op">=</span> <span class="fu"><a href="../reference/mergeMeasMeta.html">mergeMeasMeta</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">metadata</span>, features <span class="op">=</span> <span class="va">genes</span><span class="op">$</span><span class="va">id</span><span class="op">)</span>

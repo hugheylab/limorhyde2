@@ -19,7 +19,7 @@ statistics. The function calls mashr::mash_compute_posterior_matrices()."><!-- m
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">limorhyde2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.7</span>
       </span>
     </div>
 
@@ -99,7 +99,8 @@ samples.</p></li>
 </ul></div>
     <div id="see-also">
     <h2>See also</h2>
-    <div class="dont-index"><p><code><a href="getPosteriorFit.html">getPosteriorFit()</a></code>, <code><a href="getRhythmStats.html">getRhythmStats()</a></code>, <code><a href="getExpectedMeas.html">getExpectedMeas()</a></code></p></div>
+    <div class="dont-index"><p><code><a href="getPosteriorFit.html">getPosteriorFit()</a></code>, <code><a href="getRhythmStats.html">getRhythmStats()</a></code>, <code><a href="getExpectedMeas.html">getExpectedMeas()</a></code>,
+<code><a href="getStatsIntervals.html">getStatsIntervals()</a></code></p></div>
     </div>
 
     <div id="ref-examples">
@@ -111,7 +112,7 @@ samples.</p></li>
 <span class="r-in"></span>
 <span class="r-in"><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="getModelFit.html">getModelFit</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">metadata</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="getPosteriorFit.html">getPosteriorFit</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">fit</span> <span class="op">=</span> <span class="fu">getPosteriorSamples</span><span class="op">(</span><span class="va">fit</span>, nPosteriorSamples <span class="op">=</span> <span class="fl">20L</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">fit</span> <span class="op">=</span> <span class="fu">getPosteriorSamples</span><span class="op">(</span><span class="va">fit</span>, nPosteriorSamples <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="va">rhyStatsSamps</span> <span class="op">=</span> <span class="fu"><a href="getRhythmStats.html">getRhythmStats</a></span><span class="op">(</span></span>
 <span class="r-in">  <span class="va">fit</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'13170'</span>, <span class="st">'13869'</span><span class="op">)</span>, fitType <span class="op">=</span> <span class="st">'posterior_samples'</span><span class="op">)</span></span>
