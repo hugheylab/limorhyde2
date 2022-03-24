@@ -36,7 +36,7 @@ test_that('getCoefArray', {
 
 
 test_that('getOptima', {
-  tr = seq(0, 2*pi, length.out = 40)
+  tr = seq(0, 2 * pi, length.out = 40)
   f = sin
   dObs = getOptima(f, tr)
   dExp = data.table(peak_phase = pi / 2, peak_value = 1,
@@ -56,26 +56,26 @@ test_that('getCoefMatOneCond', {
 
   nFeats = 1L
   condIdx = 1L
-  coefMat = matrix(rep(1:length(cols), each = nFeats), ncol = length(cols))
+  coefMat = matrix(rep(seq_len(length(cols)), each = nFeats), ncol = length(cols))
   coefObs = getCoefMatOneCond(coefMat, condIdx, nConds, nKnots, nShifts)
   coefExp = matrix(c(1, 3, 4, 7, 9, 10), nrow = nFeats)
   expect_equal(coefObs, coefExp)
 
   condIdx = 2L
-  coefMat = matrix(rep(1:length(cols), each = nFeats), ncol = length(cols))
+  coefMat = matrix(rep(seq_len(length(cols)), each = nFeats), ncol = length(cols))
   coefObs = getCoefMatOneCond(coefMat, condIdx, nConds, nKnots, nShifts)
   coefExp = matrix(c(3, 5, 6, 15, 11, 12), nrow = nFeats)
   expect_equal(coefObs, coefExp)
 
   nFeats = 8L
   condIdx = 1L
-  coefMat = matrix(rep(1:length(cols), each = nFeats), ncol = length(cols))
+  coefMat = matrix(rep(seq_len(length(cols)), each = nFeats), ncol = length(cols))
   coefObs = getCoefMatOneCond(coefMat, condIdx, nConds, nKnots, nShifts)
   coefExp = matrix(rep(c(1, 3, 4, 7, 9, 10), each = nFeats), nrow = nFeats)
   expect_equal(coefObs, coefExp)
 
   condIdx = 2L
-  coefMat = matrix(rep(1:length(cols), each = nFeats), ncol = length(cols))
+  coefMat = matrix(rep(seq_len(length(cols)), each = nFeats), ncol = length(cols))
   coefObs = getCoefMatOneCond(coefMat, condIdx, nConds, nKnots, nShifts)
   coefExp = matrix(rep(c(3, 5, 6, 15, 11, 12), each = nFeats), nrow = nFeats)
   expect_equal(coefObs, coefExp)

@@ -58,7 +58,7 @@ getExpectedMeas = function(
   mNew[, (dummyColname) := NULL]
 
   sampleColname = '_new_sample' # should be distinct from other columns
-  set(mNew, j = sampleColname, value = paste0('new_sample_', 1:nrow(mNew)))
+  set(mNew, j = sampleColname, value = paste0('new_sample_', seq_len(nrow(mNew))))
   m = getMetadata(mNew, fit$timeColname, fit$condColname, fit$covarColnames)
 
   design = foreach(shift = fit$shifts, .combine = cbind) %do% {

@@ -80,4 +80,3 @@ measFitSamps = getExpectedMeas(
 measFitInts = getExpectedMeasIntervals(measFitSamps)
 "
   return(strsplit(ex, split = '\n')[[1L]])}
-

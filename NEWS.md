@@ -1,3 +1,6 @@
+# limorhyde2 0.0.8
+* Matched style to lab standard.
+
 # limorhyde2 0.0.7
 * Made data smaller and examples faster.
 

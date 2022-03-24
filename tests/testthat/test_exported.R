@@ -215,7 +215,7 @@ test_that('mergeMeasMeta', {
 
   y = matrix(1:8, ncol = nSamps)
   colnames(y) = metadata[[sampleColname]]
-  rownames(y) = paste0('feature_', 1:nrow(y))
+  rownames(y) = paste0('feature_', seq_len(nrow(y)))
 
   dObs = mergeMeasMeta(
     y, metadata, features = rownames(y)[1L], sampleColname = sampleColname)

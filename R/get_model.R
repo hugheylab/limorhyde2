@@ -140,7 +140,7 @@ getModelFit = function(
   idx = 1:(ncol(fit$coefficients) / length(shifts))
   nums = getNumKnotCondCovar(colnames(fit$coefficients)[idx])
 
-  sufs = rep(paste0('_shift', 1:length(shifts)),
+  sufs = rep(paste0('_shift', seq_len(length(shifts))),
              each = ncol(fit$coefficients) / length(shifts))
   colnames(fit$coefficients) = paste0(colnames(fit$coefficients), sufs)
 
