@@ -8,7 +8,9 @@ getModelFit(
   y,
   metadata,
   period = 24,
-  nKnots = 4L,
+  nKnots = 3L,
+  degree = if (nKnots > 2) 3L else 2L,
+  sinusoid = FALSE,
   timeColname = "time",
   condColname = NULL,
   covarColnames = NULL,
@@ -33,8 +35,13 @@ names are ignored.}
 units as the values in the \code{timeColname} column.}
 
 \item{nKnots}{Number of internal knots for the periodic spline for the time
-variable. Use \code{NULL} to fit a cosinor-based model instead of a spline-based
-model.}
+variable.}
+
+\item{degree}{Integer indicating degree of the piecewise polynomial for the
+spline.}
+
+\item{sinusoid}{Logical indicating whether to fit a cosinor-based model
+instead of a spline-based model.}
 
 \item{timeColname}{String indicating the column in \code{metadata} containing the
 time at which each sample was acquired.}
@@ -82,7 +89,9 @@ for each shifted model.
 \item \code{period}: As supplied above.
 \item \code{conds}: If \code{condColname} is not \code{NULL}, a vector of unique values of
 the condition variable.
-\item \code{nKnots}: Number of knots, where 2 indicates a cosinor-based model.
+\item \code{nKnots}: Number of knots.
+\item \code{degree}: As supplied above.
+\item \code{sinusoid}: As supplied above.
 \item \code{nConds}: Number of conditions.
 \item \code{nCovs}: Number of covariates.
 \item \code{lmFits}: If \code{keepLmFits} is \code{TRUE}, a list of objects from \code{limma} or

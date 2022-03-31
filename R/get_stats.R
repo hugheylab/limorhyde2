@@ -50,7 +50,7 @@ getRhythmStats = function(
   fit, fitType = c('posterior_mean', 'posterior_samples', 'raw'),
   features = NULL, dopar = TRUE, rms = FALSE) {
 
-  shifts = period = nKnots = nConds = postSampIdx = condIdx = cond =
+  shifts = period = nKnots = degree = nConds = postSampIdx = condIdx = cond =
     peak_value = trough_value = peak_trough_amp = co = posterior_sample = NULL
 
   assertClass(fit, 'limorhyde2')
@@ -59,12 +59,12 @@ getRhythmStats = function(
   assertFlag(dopar)
   assertFlag(rms)
 
-  c(shifts, period, conds, nKnots, nConds) %<-%
-    fit[c('shifts', 'period', 'conds', 'nKnots', 'nConds')]
+  c(shifts, period, conds, nKnots, degree, nConds) %<-%
+    fit[c('shifts', 'period', 'conds', 'nKnots', 'degree', 'nConds')]
 
   g = function(time) {
     do.call(cbind, lapply(shifts, function(shift) {
-      getBasis(time + shift, period, nKnots, TRUE)}))}
+      getBasis(time + shift, period, nKnots, degree, TRUE)}))}
 
   tr = seq(0, period, length.out = nKnots * 20)
   if (nConds == 1L) conds = 'lava'

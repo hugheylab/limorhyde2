@@ -11,8 +11,11 @@
 #' @param period Number specifying the period for the time variable, in the same
 #'   units as the values in the `timeColname` column.
 #' @param nKnots Number of internal knots for the periodic spline for the time
-#'   variable. Use `NULL` to fit a cosinor-based model instead of a spline-based
-#'   model.
+#'   variable.
+#' @param degree Integer indicating degree of the piecewise polynomial for the
+#'   spline.
+#' @param sinusoid Logical indicating whether to fit a cosinor-based model
+#'   instead of a spline-based model.
 #' @param timeColname String indicating the column in `metadata` containing the
 #'   time at which each sample was acquired.
 #' @param condColname String indicating the column in `metadata` containing the
@@ -49,7 +52,9 @@
 #' * `period`: As supplied above.
 #' * `conds`: If `condColname` is not `NULL`, a vector of unique values of
 #'   the condition variable.
-#' * `nKnots`: Number of knots, where 2 indicates a cosinor-based model.
+#' * `nKnots`: Number of knots.
+#' * `degree`: As supplied above.
+#' * `sinusoid`: As supplied above.
 #' * `nConds`: Number of conditions.
 #' * `nCovs`: Number of covariates.
 #' * `lmFits`: If `keepLmFits` is `TRUE`, a list of objects from `limma` or
@@ -61,9 +66,10 @@
 #'
 #' @export
 getModelFit = function(
-  y, metadata, period = 24, nKnots = 4L, timeColname = 'time',
-  condColname = NULL, covarColnames = NULL, sampleColname = 'sample',
-  nShifts = 3L, method = c('trend', 'voom', 'deseq2'), lmFitArgs = list(),
+  y, metadata, period = 24, nKnots = 3L, degree = if (nKnots > 2) 3L else 2L,
+  sinusoid = FALSE, timeColname = 'time', condColname = NULL,
+  covarColnames = NULL, sampleColname = 'sample', nShifts = 3L,
+  method = c('trend', 'voom', 'deseq2'), lmFitArgs = list(),
   eBayesArgs = if (method == 'trend') list(trend = TRUE) else list(),
   DESeqArgs = list(), keepLmFits = FALSE) {
 
@@ -75,9 +81,15 @@ getModelFit = function(
 
   assertNumber(period, lower = .Machine$double.eps, finite = TRUE)
 
-  assertNumber(nKnots, lower = 3, null.ok = TRUE)
-  nKnots = assertCount(nKnots, null.ok = TRUE, coerce = TRUE)
-  if (is.null(nKnots)) nKnots = 2L
+  assertFlag(sinusoid)
+  if (sinusoid) {
+    nKnots = 2L
+    degree = 0L
+  } else {
+    assertNumber(nKnots, lower = 2)
+    nKnots = assertCount(nKnots, coerce = TRUE)
+    assertNumber(degree, lower = 1, upper = nKnots)
+    degree = assertCount(degree, coerce = TRUE)}
   # after this point, nKnots should never be NULL
 
   assertString(sampleColname)
@@ -109,13 +121,13 @@ getModelFit = function(
   assertList(eBayesArgs)
   assertFlag(keepLmFits)
 
-  shifts = getShifts(nShifts, nKnots, period)
+  shifts = getShifts(nShifts, nKnots, degree, period)
   m = getMetadata(metadata, timeColname, condColname, covarColnames)
 
   lmFits = foreach(shift = shifts) %do% {
     mShift = data.table::copy(m)
     set(mShift, j = 'time', value = mShift$time + shift)
-    design = getDesign(mShift, period, nKnots)
+    design = getDesign(mShift, period, nKnots, degree)
 
     if (method == 'deseq2') {
       fitNow = do.call(DESeq2::DESeq, c(list(y, full = design), DESeqArgs))
@@ -149,6 +161,8 @@ getModelFit = function(
   fit$conds = levels(m$cond) # always works
 
   fit$nKnots = nums[1L]
+  fit$degree = degree
+  fit$sinusoid = sinusoid
   fit$nConds = nums[2L]
   fit$nCovs = nums[3L]
 
