@@ -254,7 +254,7 @@ getDiffRhythmStats = function(
 #'
 #' @export
 getStatsIntervals = function(
-  posteriorStats, mass = 0.9, method = c('eti', 'hdi')) {
+  posteriorStats, mass = 0.95, method = c('eti', 'hdi')) {
   # TODO: extend for phase-based stats, possibly in 2D
 
   value = . = amp = mean_phase = peak_phase = NULL
