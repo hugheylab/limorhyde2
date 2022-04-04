@@ -64,7 +64,7 @@ getExpectedMeas = function(
   design = foreach(shift = fit$shifts, .combine = cbind) %do% {
     mShift = data.table::copy(m)
     set(mShift, j = 'time', value = mShift$time + shift)
-    designShift = getDesign(mShift, fit$period, fit$nKnots)}
+    designShift = getDesign(mShift, fit$period, fit$nKnots, fit$degree)}
 
   reg = foreach::getDoParRegistered()
   doOp = if (dopar && reg) `%dopar%` else `%do%`
@@ -109,7 +109,7 @@ getExpectedMeas = function(
 #'
 #' @export
 getExpectedMeasIntervals = function(
-  expectedMeas, mass = 0.9, method = c('eti', 'hdi')) {
+  expectedMeas, mass = 0.95, method = c('eti', 'hdi')) {
 
   value = NULL
   assertDataTable(expectedMeas)

@@ -101,13 +101,13 @@ getCoefMatDiffCond = function(coefMat, condIdx, nConds, nKnots, nShifts) {
 
 
 getRmsDiffRhy = function(fit, conds, fitType, featureIdx, dopar) {
-  shifts = period = nKnots = nConds = period = postSampIdx = co = NULL
-  c(shifts, period, nKnots, nConds) %<-%
-    fit[c('shifts', 'period', 'nKnots', 'nConds')]
+  shifts = period = nKnots = degree = nConds = period = postSampIdx = co = NULL
+  c(shifts, period, nKnots, degree, nConds) %<-%
+    fit[c('shifts', 'period', 'nKnots', 'degree', 'nConds')]
 
   g = function(time) {
     do.call(cbind, lapply(shifts, function(shift) {
-      getBasis(time + shift, period, nKnots, FALSE)}))}
+      getBasis(time + shift, period, nKnots, degree, FALSE)}))}
 
   coefArray = getCoefArray(fit, fitType)
   nPostSamps = dim(coefArray)[3L]

@@ -5,8 +5,8 @@
 NULL
 
 
-getShifts = function(nShifts, nKnots, period) {
-  if (nKnots == 2L) {
+getShifts = function(nShifts, nKnots, degree, period) {
+  if (degree == 0) {
     shifts = 0 # cosinor is invariant to shifts
   } else {
     knotInterval = period / (nKnots + 1)
@@ -36,15 +36,15 @@ addIntercept = function(b, intercept) {
   return(b)}
 
 
-getBasis = function(time, period, nKnots, intercept) {
-  if (nKnots == 2L) {
-    nKnots = 2L
+getBasis = function(time, period, nKnots, degree, intercept) {
+  if (degree == 0) {
     tt = time / period * 2 * pi
     b = cbind(cos(tt), sin(tt))
   } else {
     knots = seq(0, period, length = nKnots + 2) # including boundary knots
-    b = pbs::pbs(time %% period, knots = knots[-c(1, length(knots))],
-                 Boundary.knots = knots[c(1, length(knots))])[, , drop = FALSE]
+    b = pbs::pbs(
+      time %% period, knots = knots[-c(1, length(knots))], degree = degree,
+      Boundary.knots = knots[c(1, length(knots))])[, , drop = FALSE]
     # scale basis so intercept doesn't change when other coefs shrink
     b = b - 1 / (nKnots + 1)}
 
@@ -53,9 +53,9 @@ getBasis = function(time, period, nKnots, intercept) {
   return(b)}
 
 
-getDesign = function(metadata, period, nKnots) {
+getDesign = function(metadata, period, nKnots, degree) {
   condIdx = NULL
-  b = getBasis(metadata$time, period, nKnots, FALSE)
+  b = getBasis(metadata$time, period, nKnots, degree, FALSE)
   m = cbind(metadata, b)
 
   r = paste0('basis', 1:nKnots, collapse = ' + ')

@@ -23,29 +23,31 @@ test_that('getModelFit', {
   nKnots = 3L
 
   id = 1
-  fitObs = getModelFit(y, m, period, nKnots, timeColname, keepLmFits = TRUE)
+  fitObs = getModelFit(
+    y, m, period, nKnots, timeColname = timeColname, keepLmFits = TRUE)
   fitExp = snapshot(fitObs, file.path(dataDir, glue('model_fit_{id}.qs')))
   expect_equal(fitObs, fitExp)
 
   id = 2
-  fitObs = getModelFit(y, m, period, nKnots, timeColname, condColname)
+  fitObs = getModelFit(
+    y, m, period, nKnots, timeColname = timeColname, condColname = condColname)
   fitExp = snapshot(fitObs, file.path(dataDir, glue('model_fit_{id}.qs')))
   expect_equal(fitObs, fitExp)
 
   id = 3
   fitObs = getModelFit(
-    y, m, period, nKnots, timeColname, condColname, covarColnames = 'batch')
+    y, m, period, nKnots, timeColname = timeColname, condColname = condColname,
+    covarColnames = 'batch')
   fitExp = snapshot(fitObs, file.path(dataDir, glue('model_fit_{id}.qs')))
   expect_equal(fitObs, fitExp)
 
   id = 4
-  fitObs = getModelFit(y, m, period, nKnots = NULL, timeColname = timeColname)
+  fitObs = getModelFit(y, m, period, sinusoid = TRUE, timeColname = timeColname)
   fitExp = snapshot(fitObs, file.path(dataDir, glue('model_fit_{id}.qs')))
   expect_equal(fitObs, fitExp)
 
-  expect_error(getModelFit(y, m[-1L], period, nKnots, timeColname))
-  expect_error(getModelFit(y, m, -1, nKnots, timeColname))
-  expect_error(getModelFit(y, m, period, 2L, timeColname))
+  expect_error(getModelFit(y, m[-1L], period, nKnots, timeColname = timeColname))
+  expect_error(getModelFit(y, m, -1, nKnots, timeColname = timeColname))
   expect_error(getModelFit(y, m, period, nKnots))
 })
 

@@ -5,10 +5,10 @@ timeColname = 'zt'
 test_that('getShifts', {
   period = 18
 
-  s = getShifts(nShifts = 2L, nKnots = 2L, period = period)
+  s = getShifts(nShifts = 2L, nKnots = 2L, degree = 0L, period = period)
   expect_equal(s, 0)
 
-  s = getShifts(nShifts = 3L, nKnots = 3L, period = period)
+  s = getShifts(nShifts = 3L, nKnots = 3L, degree = 3L, period = period)
   expect_equal(s, c(0, 1.5, 3))
 })
 
@@ -26,7 +26,8 @@ test_that('getMetadata', {
   m = getMetadata(m1, timeColname, condColname = 'con', covarColnames = NULL)
   expect_equal(m, m1[, .(time = zt, cond = factor(con))])
 
-  m = getMetadata(m1, timeColname, condColname = NULL, covarColnames = c('b1', 'b2'))
+  m = getMetadata(
+    m1, timeColname, condColname = NULL, covarColnames = c('b1', 'b2'))
   expect_equal(m, m1[, .(time = zt, covar_b1 = b1, covar_b2 = b2)])
 })
 
@@ -34,15 +35,16 @@ test_that('getMetadata', {
 test_that('getBasis', {
   period = 24
 
-  nKnots = 2L
-  b = getBasis(times, period = period, nKnots = nKnots, intercept = TRUE)
+  b = getBasis(
+    times, period = period, nKnots = 2L, degree = 0L, intercept = TRUE)
   expect_equal(nrow(b), length(times))
   expect_equal(ncol(b), 3L)
   expect_equal(colnames(b), c('intercept', 'basis1', 'basis2'))
   expect_equal(b[1:3, 'basis1'], c(1, 0.5, -0.5))
 
   nKnots = 4L
-  b = getBasis(times, period = period, nKnots = nKnots, intercept = FALSE)
+  b = getBasis(
+    times, period = period, nKnots = nKnots, degree = 3L, intercept = FALSE)
   expect_equal(ncol(b), nKnots)
   expect_equal(colnames(b), paste0('basis', 1:nKnots))
   expect_equal(b[7:8, 'basis1'], c(-0.2, -0.2))
@@ -55,7 +57,7 @@ test_that('getDesign', {
                   bat = rep(c('swan', 'elephant'), 3L))
 
   m = getMetadata(m1, timeColname, condColname = 'con', covarColnames = 'bat')
-  d = getDesign(m, period = 1, nKnots = 2L)
+  d = getDesign(m, period = 1, nKnots = 2L, degree = 0L)
 
   expect_equal(dim(d), c(nrow(m1), 10L))
   expect_equal(colnames(d)[7:8], c('condb:basis2', 'condc:basis1'))

@@ -4,7 +4,7 @@
 \alias{getStatsIntervals}
 \title{Compute credible intervals for rhythm or differential rhythm statistics}
 \usage{
-getStatsIntervals(posteriorStats, mass = 0.9, method = c("eti", "hdi"))
+getStatsIntervals(posteriorStats, mass = 0.95, method = c("eti", "hdi"))
 }
 \arguments{
 \item{posteriorStats}{A \code{data.table} of statistics for posterior samples, as
