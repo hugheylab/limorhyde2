@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">limorhyde2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.8</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.9</span>
       </span>
     </div>
 
@@ -181,28 +181,28 @@
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">rhyStats</span><span class="op">[</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/setorder.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">peak_trough_amp</span><span class="op">)</span><span class="op">]</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
 <span class="co">#&gt;       feature peak_phase peak_value trough_phase trough_value peak_trough_amp</span>
-<span class="co">#&gt;  1:     13170  8.1935432  10.402785    23.083237     6.646895    3.7558902049</span>
-<span class="co">#&gt;  2:     13088 17.3125618  10.537264     9.237815     8.674852    1.8624115294</span>
-<span class="co">#&gt;  3:    266645 18.3447383   9.775430     8.906014     8.153673    1.6217570599</span>
-<span class="co">#&gt;  4:     13869  8.7168031   8.585007    18.044704     7.192154    1.3928531097</span>
-<span class="co">#&gt;  5:     68396 19.2644734   9.639321     8.736966     8.771817    0.8675034661</span>
+<span class="co">#&gt;  1:     13170  8.6775145  10.290602    22.346123     6.765579     3.525022206</span>
+<span class="co">#&gt;  2:    266645 19.5106275   9.800471     8.768400     8.237576     1.562895177</span>
+<span class="co">#&gt;  3:     13088 18.6818895  10.412693     9.015083     8.883997     1.528695535</span>
+<span class="co">#&gt;  4:     13869  8.3932348   8.524375    18.785793     7.207670     1.316705132</span>
+<span class="co">#&gt;  5:     68396 20.3289764   9.678209     8.714920     8.809740     0.868468524</span>
 <span class="co">#&gt; ---                                                                          </span>
-<span class="co">#&gt; 46:     14616 23.6961643   5.422345     6.683518     5.418776    0.0035688775</span>
-<span class="co">#&gt; 47:     18994 14.2784936   5.601345    22.177204     5.599508    0.0018374833</span>
-<span class="co">#&gt; 48: 100009600  2.1265901   5.126086     9.417707     5.124330    0.0017555339</span>
-<span class="co">#&gt; 49:     12613  0.6076071   5.049669     8.810137     5.048225    0.0014443188</span>
-<span class="co">#&gt; 50: 115485688 19.7468356   4.235779     1.518992     4.235585    0.0001938504</span>
+<span class="co">#&gt; 46: 100009600  2.4406727   5.125981    18.711851     5.124404     0.001577536</span>
+<span class="co">#&gt; 47:     12613  0.4067764   5.049751     9.355932     5.048220     0.001530589</span>
+<span class="co">#&gt; 48:     14616  0.4067829   5.420731    17.491505     5.419337     0.001394137</span>
+<span class="co">#&gt; 49:     23801 16.2711757   5.371221     9.355932     5.370178     0.001043270</span>
+<span class="co">#&gt; 50: 115485688 19.9322039   4.235861    11.796608     4.235586     0.000275261</span>
 <span class="co">#&gt;        mesor</span>
-<span class="co">#&gt;  1: 8.478881</span>
-<span class="co">#&gt;  2: 9.761782</span>
-<span class="co">#&gt;  3: 9.092473</span>
-<span class="co">#&gt;  4: 7.853253</span>
-<span class="co">#&gt;  5: 9.283822</span>
+<span class="co">#&gt;  1: 8.478849</span>
+<span class="co">#&gt;  2: 9.092471</span>
+<span class="co">#&gt;  3: 9.761742</span>
+<span class="co">#&gt;  4: 7.853238</span>
+<span class="co">#&gt;  5: 9.283828</span>
 <span class="co">#&gt; ---         </span>
-<span class="co">#&gt; 46: 5.420228</span>
-<span class="co">#&gt; 47: 5.600595</span>
-<span class="co">#&gt; 48: 5.125045</span>
-<span class="co">#&gt; 49: 5.048962</span>
+<span class="co">#&gt; 46: 5.125043</span>
+<span class="co">#&gt; 47: 5.048960</span>
+<span class="co">#&gt; 48: 5.420226</span>
+<span class="co">#&gt; 49: 5.370578</span>
 <span class="co">#&gt; 50: 4.235683</span>
 
 <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">rhyStats</span><span class="op">)</span> <span class="op">+</span>
@@ -225,17 +225,17 @@
 <span class="va">measFit</span><span class="op">[</span><span class="va">genes</span>, <span class="va">symbol</span> <span class="op">:=</span> <span class="va">i.symbol</span>, on <span class="op">=</span> <span class="fu">.</span><span class="op">(</span>feature <span class="op">=</span> <span class="va">id</span><span class="op">)</span><span class="op">]</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">measFit</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span>
 <span class="co">#&gt;      time feature     value  symbol</span>
-<span class="co">#&gt;   1:  0.0   13088 10.048449 Cyp2b10</span>
-<span class="co">#&gt;   2:  0.0   13170  6.726346     Dbp</span>
-<span class="co">#&gt;   3:  0.0   13869  7.655222   Erbb4</span>
-<span class="co">#&gt;   4:  0.5   13088 10.057168 Cyp2b10</span>
-<span class="co">#&gt;   5:  0.5   13170  6.841706     Dbp</span>
+<span class="co">#&gt;   1:  0.0   13088 10.146744 Cyp2b10</span>
+<span class="co">#&gt;   2:  0.0   13170  6.949242     Dbp</span>
+<span class="co">#&gt;   3:  0.0   13869  7.631226   Erbb4</span>
+<span class="co">#&gt;   4:  0.5   13088 10.108186 Cyp2b10</span>
+<span class="co">#&gt;   5:  0.5   13170  7.081859     Dbp</span>
 <span class="co">#&gt;  ---                               </span>
-<span class="co">#&gt; 143: 23.5   13170  6.662765     Dbp</span>
-<span class="co">#&gt; 144: 23.5   13869  7.611846   Erbb4</span>
-<span class="co">#&gt; 145: 24.0   13088 10.048449 Cyp2b10</span>
-<span class="co">#&gt; 146: 24.0   13170  6.726346     Dbp</span>
-<span class="co">#&gt; 147: 24.0   13869  7.655222   Erbb4</span></code></pre></div>
+<span class="co">#&gt; 143: 23.5   13170  6.853361     Dbp</span>
+<span class="co">#&gt; 144: 23.5   13869  7.570816   Erbb4</span>
+<span class="co">#&gt; 145: 24.0   13088 10.146744 Cyp2b10</span>
+<span class="co">#&gt; 146: 24.0   13170  6.949242     Dbp</span>
+<span class="co">#&gt; 147: 24.0   13869  7.631226   Erbb4</span></code></pre></div>
 <p>Next we combine the observed expression data and metadata. The curves show how <code>limorhyde2</code> is able to fit non-sinusoidal rhythms.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">measObs</span> <span class="op">=</span> <span class="fu"><a href="../reference/mergeMeasMeta.html">mergeMeasMeta</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">metadata</span>, features <span class="op">=</span> <span class="va">genes</span><span class="op">$</span><span class="va">id</span><span class="op">)</span>
