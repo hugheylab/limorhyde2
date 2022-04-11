@@ -1,3 +1,6 @@
+# limorhyde2 0.0.10
+* Matched styling to lab standards.
+
 # limorhyde2 0.0.9
 * Enabled spline fit with fewer knots and customizable degree.
 

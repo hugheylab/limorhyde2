@@ -10,7 +10,7 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
+  comment = '#>',
   message = FALSE,
   fig.align = 'center',
   fig.retina = 2,
@@ -57,7 +57,7 @@ for (name in c('counts', 'length')) {
 This avoids unrealistically low log2 CPM values and thus artificially inflated effect size estimates.
 
 ```{r}
-for (i in 1:nrow(txiKeep$counts)) {
+for (i in seq_len(nrow(txiKeep$counts))) {
   idx = txiKeep$counts[i, ] > 0
   txiKeep$counts[i, !idx] = min(txiKeep$counts[i, idx])}
 ```
