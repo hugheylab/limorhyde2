@@ -1,0 +1,18 @@
+filename,line_number,message,line
+R/get_expected.R,31,Variable and function name style should be camelCase.,shift = postSampIdx = posterior_sample = NULL
+R/get_expected.R,84,Variable and function name style should be camelCase.,"if (nPostSamps == 1L) expectedMeas[, posterior_sample := NULL]"
+R/get_model.R,74,Variable and function name style should be camelCase.,"DESeqArgs = list(), keepLmFits = FALSE) {"
+R/get_stats.R,54,Variable and function name style should be camelCase.,peak_value = trough_value = peak_trough_amp = co = posterior_sample = NULL
+R/get_stats.R,91,Variable and function name style should be camelCase.,"d[, peak_trough_amp := peak_value - trough_value]"
+R/get_stats.R,105,Variable and function name style should be camelCase.,"if (nPostSamps == 1L) rhyStats[, posterior_sample := NULL]"
+R/get_stats.R,161,Variable and function name style should be camelCase.,cond = .SD = diff_peak_phase = diff_trough_phase = condInt = . = cond1  =
+R/get_stats.R,162,Variable and function name style should be camelCase.,condInt1 = mesor1 = peak_trough_amp1 = rms_amp1 = peak_phase1 =
+R/get_stats.R,163,Variable and function name style should be camelCase.,trough_phase1 = cond2 = condInt2 = mesor2 = peak_trough_amp2 =
+R/get_stats.R,164,Variable and function name style should be camelCase.,rms_amp2 = peak_phase2 = trough_phase2 = mean_rms_amp = diff_rms_amp = NULL
+R/get_stats.R,209,Variable and function name style should be camelCase.,"diffRhyStats[, diff_peak_phase := centerCircDiff(diff_peak_phase, period)]"
+R/get_stats.R,210,Variable and function name style should be camelCase.,"diffRhyStats[, diff_trough_phase := centerCircDiff(diff_trough_phase, period)]"
+R/get_stats.R,260,Variable and function name style should be camelCase.,value = . = amp = mean_phase = peak_phase = NULL
+R/get_stats.R,292,Variable and function name style should be camelCase.,.SD = NULL
+data-raw/make_data.R,18,Variable and function name style should be camelCase.,"GSE54650 = list(y = y, metadata = metadata)"
+data-raw/make_data.R,34,Variable and function name style should be camelCase.,"GSE34018 = list(y = y, metadata = metadata)"
+tests/testthat/test_model_utils.R,21,Variable and function name style should be camelCase.,"m1[, sample_id := paste0('sample_', 1:.N)]"
