@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">limorhyde2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.9</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.10</span>
       </span>
     </div>
 
@@ -136,7 +136,7 @@
 </h2>
 <p>This avoids unrealistically low log2 CPM values and thus artificially inflated effect size estimates.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">txiKeep</span><span class="op">$</span><span class="va">counts</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+<code class="sourceCode R"><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">txiKeep</span><span class="op">$</span><span class="va">counts</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
   <span class="va">idx</span> <span class="op">=</span> <span class="va">txiKeep</span><span class="op">$</span><span class="va">counts</span><span class="op">[</span><span class="va">i</span>, <span class="op">]</span> <span class="op">&gt;</span> <span class="fl">0</span>
   <span class="va">txiKeep</span><span class="op">$</span><span class="va">counts</span><span class="op">[</span><span class="va">i</span>, <span class="op">!</span><span class="va">idx</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">txiKeep</span><span class="op">$</span><span class="va">counts</span><span class="op">[</span><span class="va">i</span>, <span class="va">idx</span><span class="op">]</span><span class="op">)</span><span class="op">}</span></code></pre></div>
 </div>
