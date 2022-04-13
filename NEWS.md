@@ -1,3 +1,6 @@
+# limorhyde2 0.0.10
+* Fixed `mergeMeasMeta()` for RNA-seq data.
+
 # limorhyde2 0.0.9
 * Enabled spline fit with fewer knots and customizable degree.
 

@@ -153,6 +153,7 @@ mergeMeasMeta = function(y, metadata, features = NULL, sampleColname = 'sample')
   assertDisjunct(sampleColname, c('feature', 'meas'))
   assertChoice(sampleColname, colnames(metadata))
 
+  if (!is.matrix(y)) y = as.matrix(y) # in case y is a DGEList or DESeq object
   if (!is.null(features)) y = y[features, , drop = FALSE]
 
   d = data.table(y, keep.rownames = 'feature')
