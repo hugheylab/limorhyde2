@@ -1,3 +1,7 @@
+# limorhyde2 0.0.12
+* Added `isAlreadyInParallel()` function that checks if you are already running something in parallel.
+* Added check to `getRhythmStats()` to prevent running in parallel if already in parallel.
+
 # limorhyde2 0.0.11
 * Fixed `mergeMeasMeta()` for RNA-seq data.
 

@@ -74,6 +74,7 @@ getRhythmStats = function(
   if (!is.null(features)) coefArray = coefArray[features, , , drop = FALSE]
 
   reg = foreach::getDoParRegistered()
+  if(isAlreadyInParallel()) dopar = FALSE
   doPost = if (nPostSamps == 1L || !dopar || !reg) `%do%` else `%dopar%`
   doFeat = if (nPostSamps == 1L && dopar && reg) `%dopar%` else `%do%`
 
