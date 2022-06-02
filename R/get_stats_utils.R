@@ -153,8 +153,8 @@ getSignedAmp = function(amp, phase, period) {
   return(ampSigned)}
 
 isAlreadyInParallel = function() {
-  status = sys.status()
+  calls = sys.calls()
   return(any(grepl(
     '%dopar%',
-    status$sys.calls[grepl('foreach(', status$sys.calls, fixed = TRUE)],
+    calls[grepl('foreach(', calls, fixed = TRUE)],
     fixed = TRUE)))}
