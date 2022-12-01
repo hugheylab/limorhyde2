@@ -18,7 +18,7 @@ test_that('getMetadata', {
   m1[, con := rep(c('a', 'b'), each = .N / 2)]
   m1[, b1 := rep_len(1:3, .N)]
   m1[, b2 := pi]
-  m1[, sample_id := paste0('sample_', 1:.N)]
+  m1[, sample_id := paste0('sample_', seq_len(.N))]
 
   m = getMetadata(m1, timeColname, condColname = NULL, covarColnames = NULL)
   expect_equal(m, m1[, .(time = zt)])

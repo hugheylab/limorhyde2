@@ -4,7 +4,7 @@ m = GSE34018$metadata
 m = rbind(m, m[seq(1, .N, 2)])
 m[(.N / 3 * 2 + 1):.N, cond := 'synthetic']
 y = y[, m$sample]
-m[, sample := paste0(sample, '_', 1:.N)]
+m[, sample := paste0(sample, '_', seq_len(.N))]
 colnames(y) = m$sample
 
 timeColname = 'time_test'
