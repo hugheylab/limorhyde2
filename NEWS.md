@@ -1,3 +1,6 @@
+# limorhyde2 0.0.13
+* Fixed `getExpectedMeas()` for single condition and no covariates.
+
 # limorhyde2 0.0.12
 * Added `isAlreadyInParallel()` function that checks if you are already running something in parallel.
 * Added check to `getRhythmStats()` to prevent running in parallel if already in parallel.

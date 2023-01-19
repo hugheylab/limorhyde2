@@ -1,7 +1,7 @@
 Package: limorhyde2
 Type: Package
 Title: Quantify Rhythmicity and Differential Rhythmicity in Genomic Data
-Version: 0.0.12
+Version: 0.0.13
 Authors@R: c(
   person('Jake', 'Hughey', , 'jakejhughey@gmail.com', c('aut', 'cre')),
   person('Dora', 'Obodo', , 'dora.obodo@vanderbilt.edu', 'aut'),
@@ -13,7 +13,7 @@ URL: https://limorhyde2.hugheylab.org, https://github.com/hugheylab/limorhyde2
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE)
 Depends: R (>= 3.6)
 Imports:

@@ -45,14 +45,14 @@ getExpectedMeas = function(
   data.table::setnames(mNew, c(fit$timeColname, dummyColname))
 
   mOrigCond = unique(fit$metadata[, fit$condColname, with = FALSE])
-  set(mOrigCond, j = dummyColname, value = 1)
   if (nrow(mOrigCond) > 0) {
+    set(mOrigCond, j = dummyColname, value = 1)
     mNew = merge(mNew, mOrigCond, by = dummyColname, allow.cartesian = TRUE)}
 
   # TODO: simplify numeric covariates to overall mean
   mOrigCovar = unique(fit$metadata[, fit$covarColnames, with = FALSE])
-  set(mOrigCovar, j = dummyColname, value = 1)
   if (nrow(mOrigCovar) > 0) {
+    set(mOrigCovar, j = dummyColname, value = 1)
     mNew = merge(mNew, mOrigCovar, by = dummyColname, allow.cartesian = TRUE)}
 
   mNew[, (dummyColname) := NULL]
