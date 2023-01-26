@@ -1,4 +1,4 @@
-# limorhyde2 0.1
+# limorhyde2 0.1.0
 * Changed default for credible interval mass to 0.9.
 
 # limorhyde2 0.0.13
