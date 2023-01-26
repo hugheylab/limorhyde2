@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">limorhyde2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.13</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -219,17 +219,17 @@ interval.</p>
 <code class="sourceCode R"><span><span class="va">measFitInts</span> <span class="op">=</span> <span class="fu"><a href="../reference/getExpectedMeasIntervals.html">getExpectedMeasIntervals</a></span><span class="op">(</span><span class="va">measFitSamps</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">measFitInts</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      time      cond feature symbol     lower     upper</span></span>
-<span><span class="co">#&gt;   1:    0 wild-type   13170    Dbp  9.233404  9.565491</span></span>
-<span><span class="co">#&gt;   2:    0 wild-type   12686 Elovl3 11.709998 11.951344</span></span>
-<span><span class="co">#&gt;   3:    0 wild-type   26897  Acot1 11.422795 11.675348</span></span>
-<span><span class="co">#&gt;   4:    0  knockout   13170    Dbp 11.794823 12.124659</span></span>
-<span><span class="co">#&gt;   5:    0  knockout   12686 Elovl3  9.707732  9.927886</span></span>
+<span><span class="co">#&gt;   1:    0 wild-type   13170    Dbp  9.264877  9.538147</span></span>
+<span><span class="co">#&gt;   2:    0 wild-type   12686 Elovl3 11.712048 11.940182</span></span>
+<span><span class="co">#&gt;   3:    0 wild-type   26897  Acot1 11.433505 11.669591</span></span>
+<span><span class="co">#&gt;   4:    0  knockout   13170    Dbp 11.808008 12.109973</span></span>
+<span><span class="co">#&gt;   5:    0  knockout   12686 Elovl3  9.723500  9.904368</span></span>
 <span><span class="co">#&gt;  ---                                                  </span></span>
-<span><span class="co">#&gt; 290:   24 wild-type   12686 Elovl3 11.709998 11.951344</span></span>
-<span><span class="co">#&gt; 291:   24 wild-type   26897  Acot1 11.422795 11.675348</span></span>
-<span><span class="co">#&gt; 292:   24  knockout   13170    Dbp 11.794823 12.124659</span></span>
-<span><span class="co">#&gt; 293:   24  knockout   12686 Elovl3  9.707732  9.927886</span></span>
-<span><span class="co">#&gt; 294:   24  knockout   26897  Acot1  9.008638  9.233237</span></span></code></pre></div>
+<span><span class="co">#&gt; 290:   24 wild-type   12686 Elovl3 11.712048 11.940182</span></span>
+<span><span class="co">#&gt; 291:   24 wild-type   26897  Acot1 11.433505 11.669591</span></span>
+<span><span class="co">#&gt; 292:   24  knockout   13170    Dbp 11.808008 12.109973</span></span>
+<span><span class="co">#&gt; 293:   24  knockout   12686 Elovl3  9.723500  9.904368</span></span>
+<span><span class="co">#&gt; 294:   24  knockout   26897  Acot1  9.036087  9.230412</span></span></code></pre></div>
 <p>It’s always a good idea to also calculate the posterior mean fitted
 curves.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
@@ -335,17 +335,17 @@ phase difference are circular quantities.</p>
 <code class="sourceCode R"><span><span class="va">rhyStatsInts</span> <span class="op">=</span> <span class="fu"><a href="../reference/getStatsIntervals.html">getStatsIntervals</a></span><span class="op">(</span><span class="va">rhyStatsSamps</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">rhyStatsInts</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span></span>
 <span><span class="co">#&gt;          cond feature       statistic      lower      upper</span></span>
-<span><span class="co">#&gt;  1: wild-type   13170      peak_value 14.8875425 15.2247879</span></span>
-<span><span class="co">#&gt;  2: wild-type   12686      peak_value 11.7122222 11.9527091</span></span>
-<span><span class="co">#&gt;  3: wild-type   26897      peak_value 12.2431434 12.6095792</span></span>
-<span><span class="co">#&gt;  4:  knockout   13170      peak_value 14.1446489 14.4666946</span></span>
-<span><span class="co">#&gt;  5:  knockout   12686      peak_value 10.1660549 10.4678090</span></span>
+<span><span class="co">#&gt;  1: wild-type   13170      peak_value 14.9173520 15.2200466</span></span>
+<span><span class="co">#&gt;  2: wild-type   12686      peak_value 11.7151501 11.9406772</span></span>
+<span><span class="co">#&gt;  3: wild-type   26897      peak_value 12.2457363 12.5654355</span></span>
+<span><span class="co">#&gt;  4:  knockout   13170      peak_value 14.1594493 14.4428868</span></span>
+<span><span class="co">#&gt;  5:  knockout   12686      peak_value 10.1737541 10.4395112</span></span>
 <span><span class="co">#&gt; ---                                                        </span></span>
-<span><span class="co">#&gt; 14: wild-type   12686 peak_trough_amp  2.7583816  3.1961593</span></span>
-<span><span class="co">#&gt; 15: wild-type   26897 peak_trough_amp  1.3165677  2.0820149</span></span>
-<span><span class="co">#&gt; 16:  knockout   13170 peak_trough_amp  2.3338840  2.8714960</span></span>
-<span><span class="co">#&gt; 17:  knockout   12686 peak_trough_amp  0.4053327  0.8133666</span></span>
-<span><span class="co">#&gt; 18:  knockout   26897 peak_trough_amp  0.2871294  0.7179791</span></span>
+<span><span class="co">#&gt; 14: wild-type   12686 peak_trough_amp  2.7919175  3.1746157</span></span>
+<span><span class="co">#&gt; 15: wild-type   26897 peak_trough_amp  1.3339754  2.0103134</span></span>
+<span><span class="co">#&gt; 16:  knockout   13170 peak_trough_amp  2.3729890  2.8259867</span></span>
+<span><span class="co">#&gt; 17:  knockout   12686 peak_trough_amp  0.4218476  0.7843328</span></span>
+<span><span class="co">#&gt; 18:  knockout   26897 peak_trough_amp  0.3025411  0.6903593</span></span>
 <span></span>
 <span><span class="va">diffRhyStatsInts</span> <span class="op">=</span> <span class="fu"><a href="../reference/getStatsIntervals.html">getStatsIntervals</a></span><span class="op">(</span><span class="va">diffRhyStatsSamps</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">diffRhyStatsInts</span>, nrows <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span></span>
@@ -353,9 +353,9 @@ phase difference are circular quantities.</p>
 <span><span class="co">#&gt; 1: wild-type knockout   12686           diff_mesor -0.4215416 -0.4215416</span></span>
 <span><span class="co">#&gt; 2: wild-type knockout   13170           diff_mesor  1.1950262  1.1950262</span></span>
 <span><span class="co">#&gt; 3: wild-type knockout   26897           diff_mesor -2.4048158 -2.4048158</span></span>
-<span><span class="co">#&gt; 4: wild-type knockout   12686 diff_peak_trough_amp -2.7171127 -2.1598489</span></span>
-<span><span class="co">#&gt; 5: wild-type knockout   13170 diff_peak_trough_amp -3.8854777 -2.9242634</span></span>
-<span><span class="co">#&gt; 6: wild-type knockout   26897 diff_peak_trough_amp -1.6016674 -0.7528489</span></span></code></pre></div>
+<span><span class="co">#&gt; 4: wild-type knockout   12686 diff_peak_trough_amp -2.6906488 -2.1714818</span></span>
+<span><span class="co">#&gt; 5: wild-type knockout   13170 diff_peak_trough_amp -3.7882613 -2.9900856</span></span>
+<span><span class="co">#&gt; 6: wild-type knockout   26897 diff_peak_trough_amp -1.5602198 -0.8128997</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
