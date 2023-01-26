@@ -6,7 +6,7 @@ R/get_stats.R,164,Variable and function name style should be camelCase.,cond = .
 R/get_stats.R,165,Variable and function name style should be camelCase.,condInt1 = mesor1 = peak_trough_amp1 = rms_amp1 = peak_phase1 =
 R/get_stats.R,166,Variable and function name style should be camelCase.,trough_phase1 = cond2 = condInt2 = mesor2 = peak_trough_amp2 =
 R/get_stats.R,167,Variable and function name style should be camelCase.,rms_amp2 = peak_phase2 = trough_phase2 = mean_rms_amp = diff_rms_amp = NULL
-R/get_stats.R,263,Variable and function name style should be camelCase.,value = . = amp = mean_phase = peak_phase = NULL
-R/get_stats.R,295,Variable and function name style should be camelCase.,.SD = NULL
+R/get_stats.R,262,Variable and function name style should be camelCase.,value = . = amp = mean_phase = peak_phase = NULL
+R/get_stats.R,294,Variable and function name style should be camelCase.,.SD = NULL
 data-raw/make_data.R,18,Variable and function name style should be camelCase.,"GSE54650 = list(y = y, metadata = metadata)"
 data-raw/make_data.R,34,Variable and function name style should be camelCase.,"GSE34018 = list(y = y, metadata = metadata)"
