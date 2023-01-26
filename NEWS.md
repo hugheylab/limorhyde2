@@ -1,3 +1,6 @@
+# limorhyde2 0.1
+* Changed default for credible interval mass to 0.9.
+
 # limorhyde2 0.0.13
 * Fixed `getExpectedMeas()` for single condition and no covariates.
 

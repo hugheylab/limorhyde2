@@ -4,7 +4,7 @@
 \alias{getExpectedMeasIntervals}
 \title{Compute credible intervals for expected measurements}
 \usage{
-getExpectedMeasIntervals(expectedMeas, mass = 0.95, method = c("eti", "hdi"))
+getExpectedMeasIntervals(expectedMeas, mass = 0.9, method = c("eti", "hdi"))
 }
 \arguments{
 \item{expectedMeas}{A \code{data.table} of expected measurements for posterior

@@ -109,7 +109,7 @@ getExpectedMeas = function(
 #'
 #' @export
 getExpectedMeasIntervals = function(
-  expectedMeas, mass = 0.95, method = c('eti', 'hdi')) {
+  expectedMeas, mass = 0.9, method = c('eti', 'hdi')) {
 
   value = NULL
   assertDataTable(expectedMeas)
