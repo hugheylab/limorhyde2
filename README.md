@@ -6,7 +6,7 @@
 [![CRAN Status](https://www.r-pkg.org/badges/version/limorhyde2)](https://cran.r-project.org/package=limorhyde2)
 [![drat version](https://raw.githubusercontent.com/hugheylab/drat/gh-pages/badges/limorhyde2_drat_badge.svg)](https://github.com/hugheylab/drat/tree/gh-pages/src/contrib)
 
-`limorhyde2` is an approach to analyze rhythmic, genome-scale data in a way that focuses on effect sizes. For a detailed description of `limorhyde2` along with examples showing its utility on data from one or more conditions, please wait for the preprint.
+`limorhyde2` is an approach to analyze rhythmic, genome-scale data in a way that focuses on effect sizes. For a detailed description of `limorhyde2` along with examples showing its utility for transcriptome data, please check out the [preprint](https://doi.org/10.1101/2023.02.02.526897).
 
 ## Installation
 
