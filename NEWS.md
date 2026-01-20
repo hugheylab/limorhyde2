@@ -1,3 +1,6 @@
+# limorhyde2 0.1.1
+* Removed dependency on qs package, which was removed from CRAN.
+
 # limorhyde2 0.1.0
 * Changed default for credible interval mass to 0.9.
 

@@ -26,7 +26,6 @@ Here we show how to use `limorhyde2` to quantify rhythmicity in data from one co
 library('data.table')
 library('ggplot2')
 library('limorhyde2')
-library('qs')
 
 # doParallel::registerDoParallel() # register a parallel backend to minimize runtime
 theme_set(theme_bw())
